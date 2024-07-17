@@ -1,23 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+// import './App.css';
+import { Routes, Route } from 'react-router-dom';
+
+
+import AdminConfig from './Config';
+import { publicAdminRoutes } from './Routes/routes';
+import NotFound from './Components/NotFound';
+import Layout from './Layouts/Layout';
+
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Routes>
+        {/* Admin Routes */}
+        <Route path="/admin" element={<Layout />}>
+          {publicAdminRoutes
+            .filter(route => route.path.startsWith(AdminConfig.routes.dashboard)) // Filter admin routes
+            .map(({ path, component: Component }) => (
+              <Route key={path} path={path} element={<Component />} />
+            ))}
+        </Route>
+
+        {/* 404 Route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </div>
   );
 }
