@@ -4,30 +4,30 @@ export default function ProductEdit () {
     return (
         <div className="container">
             <div className="page-inner">
-                <div class="row">
-                    <form class="col-md-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Cập nhật sản phẩm</div>
+                <div className="row">
+                    <form className="col-md-12">
+                        <div className="card">
+                            <div className="card-header">
+                                <div className="card-title">Cập nhật sản phẩm</div>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 col-lg-6">
-                                        <div class="form-group">
+                            <div className="card-body">
+                                <div className="row">
+                                    <div className="col-md-6 col-lg-6">
+                                        <div className="form-group">
                                             <label for="name">Tên sản phẩm</label>
-                                            <input type="text" class="form-control" id="name" placeholder="Nhập tên sản phẩm"/>
+                                            <input type="text" className="form-control" id="name" placeholder="Nhập tên sản phẩm"/>
                                         </div>
-                                        <div class="form-group">
+                                        <div className="form-group">
                                             <label for="code">Mã hiệu sản phẩm</label>
-                                            <input type="text" class="form-control" id="code" placeholder="Nhập mã hiệu sản phẩm"/>
+                                            <input type="text" className="form-control" id="code" placeholder="Nhập mã hiệu sản phẩm"/>
                                         </div>
-                                        <div class="form-group">
+                                        <div className="form-group">
                                             <label for="price">Giá niêm yết</label>
-                                            <input type="text" class="form-control" id="price" placeholder="Nhập giá niêm yết"/>
+                                            <input type="text" className="form-control" id="price" placeholder="Nhập giá niêm yết"/>
                                         </div>
-                                        <div class="form-group">
+                                        <div className="form-group">
                                             <label>Danh mục</label>
-                                            <select class="form-select">
+                                            <select className="form-select">
                                                 <option>1</option>
                                                 <option>2</option>
                                                 <option>3</option>
@@ -36,26 +36,26 @@ export default function ProductEdit () {
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 col-lg-6">
-                                        <div class="form-group">
+                                    <div className="col-md-6 col-lg-6">
+                                        <div className="form-group">
                                             <label for="saleEmail">Giá khuyến mãi</label>
-                                            <input type="text" class="form-control" id="saleEmail" placeholder="Nhập giá khuyến mãi"/>
+                                            <input type="text" className="form-control" id="saleEmail" placeholder="Nhập giá khuyến mãi"/>
                                         </div>
-                                        <div class="form-group">
+                                        <div className="form-group">
                                             <label for="exampleFormControlFile1">Ảnh sản phẩm</label><br/>
-                                            <input type="file" class="form-control-file" id="exampleFormControlFile1"/>
+                                            <input type="file" className="form-control-file" id="exampleFormControlFile1"/>
                                         </div>
-                                        <div class="form-group">
+                                        <div className="form-group">
                                             <label for="description">Mô tả sản phẩm</label>
-                                            <textarea class="form-control" id="description" rows="4"></textarea>
+                                            <textarea className="form-control" id="description" rows="4"></textarea>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-action">
+                            <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button class="btn btn-success">Submit</button>
-                                    <button class="btn btn-danger">Cancel</button>
+                                    <button className="btn btn-success">Submit</button>
+                                    <button className="btn btn-danger">Cancel</button>
                                 </div>   
                             </div>
                         </div>
