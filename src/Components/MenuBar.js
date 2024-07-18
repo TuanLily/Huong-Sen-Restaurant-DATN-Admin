@@ -6,7 +6,7 @@ export default function MenuBar() {
         <div className="sidebar" data-background-color="dark">
             <div className="sidebar-logo">
                 <div className="logo-header" data-background-color="dark">
-                    <Link to="/admin" className="logo">
+                    <Link to="" className="logo">
                         <img
                             src="../Assets/Images/kaiadmin/logo_light.svg"
                             alt="navbar brand"
@@ -55,60 +55,49 @@ export default function MenuBar() {
                             <span className="sidebar-mini-icon">
                                 <i className="fa fa-ellipsis-h"></i>
                             </span>
-                            <h4 className="text-section">Components</h4>
                         </li>
                         <li className="nav-item">
                             <a data-bs-toggle="collapse" href="#base">
                                 <i className="fas fa-layer-group"></i>
-                                <p>Base</p>
+                                <p>Quản trị</p>
                                 <span className="caret"></span>
                             </a>
                             <div className="collapse" id="base">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <a href="components/avatars.html">
-                                            <span className="sub-item">Avatars</span>
-                                        </a>
+                                        <Link to='product'>
+                                            <span className="sub-item">Quản lý sản phẩm</span>
+                                        </Link>
                                     </li>
                                     <li>
-                                        <a href="components/buttons.html">
-                                            <span className="sub-item">Buttons</span>
-                                        </a>
+                                        <Link to='categoryProduct'>
+                                            <span className="sub-item">Quản lý danh mục sp</span>
+                                        </Link>
                                     </li>
                                     <li>
-                                        <a href="components/gridsystem.html">
-                                            <span className="sub-item">Grid System</span>
-                                        </a>
+                                        <Link to='customer'>
+                                            <span className="sub-item">Quản lý khách hàng</span>
+                                        </Link>
                                     </li>
                                     <li>
-                                        <a href="components/panels.html">
-                                            <span className="sub-item">Panels</span>
-                                        </a>
+                                        <Link to='employee'>
+                                            <span className="sub-item">Quản lý nhân viên</span>
+                                        </Link>
                                     </li>
                                     <li>
-                                        <a href="components/notifications.html">
-                                            <span className="sub-item">Notifications</span>
-                                        </a>
+                                        <Link to='blog'>
+                                            <span className="sub-item">Quản lý bài viết</span>
+                                        </Link>
                                     </li>
                                     <li>
-                                        <a href="components/sweetalert.html">
-                                            <span className="sub-item">Sweet Alert</span>
-                                        </a>
+                                        <Link to='categoryBlog'>
+                                            <span className="sub-item">Quản lý danh mục bv</span>
+                                        </Link>
                                     </li>
                                     <li>
-                                        <a href="components/font-awesome-icons.html">
-                                            <span className="sub-item">Font Awesome Icons</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="components/simple-line-icons.html">
-                                            <span className="sub-item">Simple Line Icons</span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="components/typography.html">
-                                            <span className="sub-item">Typography</span>
-                                        </a>
+                                        <Link to='productImage'>
+                                            <span className="sub-item">Quản lý ảnh sp</span>
+                                        </Link>
                                     </li>
                                 </ul>
                             </div>

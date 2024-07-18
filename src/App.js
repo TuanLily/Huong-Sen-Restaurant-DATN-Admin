@@ -1,4 +1,4 @@
-// import './App.css';
+
 import { Routes, Route } from 'react-router-dom';
 
 
@@ -13,11 +13,11 @@ function App() {
     <div className="App">
       <Routes>
         {/* Admin Routes */}
-        <Route path="/admin" element={<Layout />}>
+        <Route path={AdminConfig.routes.dashboard} element={<Layout />}>
           {publicAdminRoutes
             .filter(route => route.path.startsWith(AdminConfig.routes.dashboard)) // Filter admin routes
             .map(({ path, component: Component }) => (
-              <Route key={path} path={path} element={<Component />} />
+              <Route key={path} path={path.replace(AdminConfig.routes.dashboard, '')} element={<Component />} />
             ))}
         </Route>
 

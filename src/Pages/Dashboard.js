@@ -160,8 +160,7 @@ export default function Dashboard() {
                                                 <a className="dropdown-item" href="#">Action</a>
                                                 <a className="dropdown-item" href="#">Another action</a>
                                                 <a className="dropdown-item" href="#"
-                                                >Something else here</a
-                                                >
+                                                >Something else here</a>
                                             </div>
                                         </div>
                                     </div>
@@ -344,8 +343,7 @@ export default function Dashboard() {
                                                 <a className="dropdown-item" href="#">Action</a>
                                                 <a className="dropdown-item" href="#">Another action</a>
                                                 <a className="dropdown-item" href="#"
-                                                >Something else here</a
-                                                >
+                                                >Something else here</a>
                                             </div>
                                         </div>
                                     </div>
@@ -374,8 +372,7 @@ export default function Dashboard() {
                                         <div className="avatar">
                                             <span
                                                 className="avatar-title rounded-circle border border-white"
-                                            >CF</span
-                                            >
+                                            >CF</span>
                                         </div>
                                         <div className="info-user ms-3">
                                             <div className="username">Chandra Felix</div>
@@ -430,8 +427,7 @@ export default function Dashboard() {
                                         <div className="avatar">
                                             <span
                                                 className="avatar-title rounded-circle border border-white bg-primary"
-                                            >H</span
-                                            >
+                                            >H</span>
                                         </div>
                                         <div className="info-user ms-3">
                                             <div className="username">Hizrian</div>
@@ -448,8 +444,7 @@ export default function Dashboard() {
                                         <div className="avatar">
                                             <span
                                                 className="avatar-title rounded-circle border border-white bg-secondary"
-                                            >F</span
-                                            >
+                                            >F</span>
                                         </div>
                                         <div className="info-user ms-3">
                                             <div className="username">Farrah</div>
@@ -489,9 +484,7 @@ export default function Dashboard() {
                                             >
                                                 <a className="dropdown-item" href="#">Action</a>
                                                 <a className="dropdown-item" href="#">Another action</a>
-                                                <a className="dropdown-item" href="#"
-                                                >Something else here</a
-                                                >
+                                                <a className="dropdown-item" href="#">Something else here</a>
                                             </div>
                                         </div>
                                     </div>
