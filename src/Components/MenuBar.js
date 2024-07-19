@@ -99,6 +99,36 @@ export default function MenuBar() {
                                             <span className="sub-item">Quản lý ảnh sp</span>
                                         </Link>
                                     </li>
+                                    <li>
+                                        <Link to='table'>
+                                            <span className="sub-item">Quản lý bàn ăn</span>
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to='reservation'>
+                                            <span className="sub-item">Quản lý đặt bàn</span>
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to='order'>
+                                            <span className="sub-item">Quản lý đơn hàng</span>
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to='orderDetail'>
+                                            <span className="sub-item">Quản lý chi tiết đơn hàng</span>
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to='promotion'>
+                                            <span className="sub-item">Quản lý khuyến mãi</span>
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to='payMethod'>
+                                            <span className="sub-item">Quản lý thanh toán</span>
+                                        </Link>
+                                    </li>
                                 </ul>
                             </div>
                         </li>

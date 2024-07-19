@@ -38,6 +38,35 @@ const AdminRoutes = {
     productImageDetail: 'productImage/productImageDetail',
     productImageDetailAdd: 'productImage/productImageDetail/add',
     productImageDetailDelete: 'productImage/productImageDetail/delete',
+
+    table: 'table',
+    tableAdd: 'table/add',
+    tableEdit: 'table/edit',
+    tableDelete: 'table/delete',
+
+    reservation: 'reservation',
+    reservationAdd: 'reservation/add',
+    reservationEdit: 'reservation/edit',
+    reservationDelete: 'reservation/delete',
+    
+    order: 'order',
+    orderAdd: 'order/add',
+    orderEdit: 'order/edit',
+    orderDelete: 'order/delete',
+
+    orderDetail: 'orderDetail',
+    orderDetailAdd: 'orderDetail/add',
+    orderDetailDelete: 'orderDetail/delete',
+
+    promotion: 'promotion',
+    promotionAdd: 'promotion/add',
+    promotionEdit: 'promotion/edit',
+    promotionDelete: 'promotion/delete',
+
+    payMethod: 'payMethod',
+    payMethodAdd: 'payMethod/add',
+    payMethodEdit: 'payMethod/edit',
+    payMethodDelete: 'payMethod/delete',
 };
 
 export default AdminRoutes;

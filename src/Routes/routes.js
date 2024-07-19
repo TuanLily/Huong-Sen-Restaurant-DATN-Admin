@@ -39,6 +39,35 @@ import ProductImageDetailList from '../Pages/ProductImage/Detail/ProductImageDet
 import ProductImageDetailAdd from '../Pages/ProductImage/Detail/ProductImageDetailAdd';
 import ProductImageDetailDelete from '../Pages/ProductImage/Detail/ProductImageDetailDelete';
 
+import TableList from '../Pages/Tables/TableList';
+import TableAdd from '../Pages/Tables/TableAdd';
+import TableEdit from '../Pages/Tables/TableEdit';
+import TableDelete from '../Pages/Tables/TableDelete';
+
+import ReservationList from '../Pages/Reservations/ReservationList';
+import ReservationAdd from '../Pages/Reservations/ReservationAdd';
+import ReservationEdit from '../Pages/Reservations/ReservationEdit';
+import ReservationDelete from '../Pages/Reservations/ReservationDelete';
+
+import OrderList from '../Pages/Orders/OrderList';
+import OrderAdd from '../Pages/Orders/OrderAdd';
+import OrderEdit from '../Pages/Orders/OrderEdit';
+import OrderDelete from '../Pages/Orders/OrderDelete';
+
+import OrderDetailList from '../Pages/OrderDetails/OrderDetailList';
+import OrderDetailAdd from '../Pages/OrderDetails/OrderDetailAdd';
+import OrderDetailDelete from '../Pages/OrderDetails/OrderDetailDelete';
+
+import PromotionList from '../Pages/Promotions/PromotionList';
+import PromotionAdd from '../Pages/Promotions/PromotionAdd';
+import PromotionEdit from '../Pages/Promotions/PromotionEdit';
+import PromotionDelete from '../Pages/Promotions/PromotionDelete';
+
+import PayMethodList from '../Pages/PayMethod/PayMethodList';
+import PayMethodAdd from '../Pages/PayMethod/PayMethodAdd';
+import PayMethodEdit from '../Pages/PayMethod/PayMethodEdit';
+import PayMethodDelete from '../Pages/PayMethod/PayMethodDelete';
+
 // Public routes
 const publicAdminRoutes = [
     // *Admin routes
@@ -81,6 +110,35 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.productImageDetail, component: ProductImageDetailList },
     { path: AdminConfig.routes.productImageDetailAdd, component: ProductImageDetailAdd },
     { path: AdminConfig.routes.productImageDetailDelete, component: ProductImageDetailDelete },
+
+    { path: AdminConfig.routes.table, component: TableList },
+    { path: AdminConfig.routes.tableAdd, component: TableAdd },
+    { path: AdminConfig.routes.tableEdit, component: TableEdit },
+    { path: AdminConfig.routes.tableDelete, component: TableDelete },
+
+    { path: AdminConfig.routes.reservation, component: ReservationList },
+    { path: AdminConfig.routes.reservationAdd, component: ReservationAdd },
+    { path: AdminConfig.routes.reservationEdit, component: ReservationEdit },
+    { path: AdminConfig.routes.reservationDelete, component: ReservationDelete },
+
+    { path: AdminConfig.routes.order, component: OrderList },
+    { path: AdminConfig.routes.orderAdd, component: OrderAdd },
+    { path: AdminConfig.routes.orderEdit, component: OrderEdit },
+    { path: AdminConfig.routes.orderDelete, component: OrderDelete },
+
+    { path: AdminConfig.routes.orderDetail, component: OrderDetailList },
+    { path: AdminConfig.routes.orderDetailAdd, component: OrderDetailAdd },
+    { path: AdminConfig.routes.orderDetailDelete, component: OrderDetailDelete },
+
+    { path: AdminConfig.routes.promotion, component: PromotionList },
+    { path: AdminConfig.routes.promotionAdd, component: PromotionAdd },
+    { path: AdminConfig.routes.promotionEdit, component: PromotionEdit },
+    { path: AdminConfig.routes.promotionDelete, component: PromotionDelete },
+
+    { path: AdminConfig.routes.payMethod, component: PayMethodList },
+    { path: AdminConfig.routes.payMethodAdd, component: PayMethodAdd },
+    { path: AdminConfig.routes.payMethodEdit, component: PayMethodEdit },
+    { path: AdminConfig.routes.payMethodDelete, component: PayMethodDelete },
 ];
 
 export { publicAdminRoutes };
