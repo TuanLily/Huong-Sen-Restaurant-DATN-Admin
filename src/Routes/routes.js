@@ -105,6 +105,11 @@ import ProductImageDelete from '../Pages/ProductImage/ProductImageDelete';
 import ProductImageDetailList from '../Pages/ProductImage/Detail/ProductImageDetailList';
 import ProductImageDetailAdd from '../Pages/ProductImage/Detail/ProductImageDetailAdd';
 import ProductImageDetailDelete from '../Pages/ProductImage/Detail/ProductImageDetailDelete';
+import PermissionsList from '../Pages/Permissions/PermissionsList';
+import PermissionsAdd from '../Pages/Permissions/PermissionsAdd';
+import PermissionsEdit from '../Pages/Permissions/PermissionsEdit';
+import PermissionsDelete from '../Pages/Permissions/PermissionsDelete';
+
 
 // Public routes
 const publicAdminRoutes = [
@@ -192,6 +197,12 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.RolesAdd, component: RolesAdd },
     { path: AdminConfig.routes.RolesEdit, component: RolesEdit },
     { path: AdminConfig.routes.RolesDelete, component: RolesDelete },
+
+    { path: AdminConfig.routes.Permissions, component: PermissionsList },
+    { path: AdminConfig.routes.PermissionsAdd, component: PermissionsAdd },
+    { path: AdminConfig.routes.PermissionsEdit, component: PermissionsEdit },
+    { path: AdminConfig.routes.PermissionsDelete, component: PermissionsDelete },
+
 ];
 
 export { publicAdminRoutes };
