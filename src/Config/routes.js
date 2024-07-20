@@ -73,6 +73,10 @@ const AdminRoutes = {
     CustomerGroupEdit: 'CustomerGroup/edit',
     CustomerGroupDelete: 'CustomerGroup/delete',
 
+    Places: 'Places',
+    PlacesAdd: 'Places/add',
+    PlacesEdit: 'Places/edit',
+    PlacesDelete: 'Places/delete',
     
 };
 

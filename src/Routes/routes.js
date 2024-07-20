@@ -73,6 +73,12 @@ import CustomerGroupAdd from '../Pages/CustomerGroup/CustomerGroup';
 import CustomerGroupEdit from '../Pages/CustomerGroup/CustomerGroupEdit';
 import CustomerGroupDelete from '../Pages/CustomerGroup/CustomerGroupDelete';
 
+import PlacesList from '../Pages/Places/PlacesList';
+import PlacesAdd from '../Pages/Places/PlacesAdd';
+import PlacesEdit from '../Pages/Places/PlacesEdit';
+import PlacesDelete from '../Pages/Places/PlacesDelete';
+
+
 // Public routes
 const publicAdminRoutes = [
     // *Admin routes
@@ -149,6 +155,11 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.CustomerGroupAdd, component: CustomerGroupAdd },
     { path: AdminConfig.routes.CustomerGroupEdit, component: CustomerGroupEdit },
     { path: AdminConfig.routes.CustomerGroupDelete, component: CustomerGroupDelete },
+
+    { path: AdminConfig.routes.Places, component: PlacesList },
+    { path: AdminConfig.routes.PlacesAdd, component: PlacesAdd },
+    { path: AdminConfig.routes.PlacesEdit, component: PlacesEdit },
+    { path: AdminConfig.routes.PlacesDelete, component: PlacesDelete },
 ];
 
 export { publicAdminRoutes };

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-export default function CustomerGroupEdit () {
+export default function PlacesAdd () {
     return (
         <div className="container">
             <div className="page-inner">
@@ -8,23 +8,21 @@ export default function CustomerGroupEdit () {
                     <form class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <div class="card-title">Thêm nhóm khách hàng</div>
+                                <div class="card-title">Thêm thứ hạng khách hàng</div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 col-lg-6">
                                         <div class="form-group">
-                                            <label for="name">Tên nhóm khách hàng</label>
-                                            <input type="text" class="form-control" id="name" placeholder="Nhập tên nhóm khách hàng"/>
+                                            <label for="name">Mã khách hàng</label>
+                                            <input type="text" class="form-control" id="name" placeholder="Nhập tên mã khách hàng"/>
                                         </div>
                                         <div class="form-group">
-                                            <label>Phần trăm ưu đãi</label>
+                                            <label>Thứ hạng</label>
                                             <select class="form-select">
-                                                <option>10%</option>
-                                                <option>15%</option>
-                                                <option>20%</option>
-                                                <option>25%</option>
-                                                <option>30%</option>
+                                                <option>Bạc</option>
+                                                <option>Vàng</option>
+                                                <option>Kim Cương</option>
                                             </select>
                                         </div>
                                         
@@ -43,8 +41,8 @@ export default function CustomerGroupEdit () {
                             </div>
                             <div class="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                <button class="btn btn-success">Xác nhận</button>
-                                <button class="btn btn-danger">Hủy</button>
+                                    <button class="btn btn-success">Xác nhận</button>
+                                    <button class="btn btn-danger">Hủy</button>
                                 </div>   
                             </div>
                         </div>

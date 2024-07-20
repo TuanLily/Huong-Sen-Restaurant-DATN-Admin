@@ -134,6 +134,11 @@ export default function MenuBar() {
                                             <span className="sub-item">Quản lý nhóm khách hàng</span>
                                         </Link>
                                     </li>
+                                    <li>
+                                        <Link to='Places'>
+                                            <span className="sub-item">Quản lý thứ hạng</span>
+                                        </Link>
+                                    </li>
                                 </ul>
                             </div>
                         </li>
