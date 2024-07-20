@@ -67,6 +67,13 @@ const AdminRoutes = {
     payMethodAdd: 'payMethod/add',
     payMethodEdit: 'payMethod/edit',
     payMethodDelete: 'payMethod/delete',
+
+    CustomerGroup: 'CustomerGroup',
+    CustomerGroupAdd: 'CustomerGroup/add',
+    CustomerGroupEdit: 'CustomerGroup/edit',
+    CustomerGroupDelete: 'CustomerGroup/delete',
+
+    
 };
 
 export default AdminRoutes;

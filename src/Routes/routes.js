@@ -68,6 +68,11 @@ import PayMethodAdd from '../Pages/PayMethod/PayMethodAdd';
 import PayMethodEdit from '../Pages/PayMethod/PayMethodEdit';
 import PayMethodDelete from '../Pages/PayMethod/PayMethodDelete';
 
+import CustomerGroupList from '../Pages/CustomerGroup/CustomerGroupList';
+import CustomerGroupAdd from '../Pages/CustomerGroup/CustomerGroup';
+import CustomerGroupEdit from '../Pages/CustomerGroup/CustomerGroupEdit';
+import CustomerGroupDelete from '../Pages/CustomerGroup/CustomerGroupDelete';
+
 // Public routes
 const publicAdminRoutes = [
     // *Admin routes
@@ -139,6 +144,11 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.payMethodAdd, component: PayMethodAdd },
     { path: AdminConfig.routes.payMethodEdit, component: PayMethodEdit },
     { path: AdminConfig.routes.payMethodDelete, component: PayMethodDelete },
+
+    { path: AdminConfig.routes.CustomerGroup, component: CustomerGroupList },
+    { path: AdminConfig.routes.CustomerGroupAdd, component: CustomerGroupAdd },
+    { path: AdminConfig.routes.CustomerGroupEdit, component: CustomerGroupEdit },
+    { path: AdminConfig.routes.CustomerGroupDelete, component: CustomerGroupDelete },
 ];
 
 export { publicAdminRoutes };
