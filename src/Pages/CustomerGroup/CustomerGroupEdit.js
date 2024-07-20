@@ -8,7 +8,7 @@ export default function CustomerGroupEdit () {
                     <form class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <div class="card-title">Thêm nhóm khách hàng</div>
+                                <div class="card-title">Sửa nhóm khách hàng</div>
                             </div>
                             <div class="card-body">
                                 <div class="row">

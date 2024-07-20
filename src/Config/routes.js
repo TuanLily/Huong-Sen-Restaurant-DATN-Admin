@@ -78,6 +78,11 @@ const AdminRoutes = {
     PlacesEdit: 'Places/edit',
     PlacesDelete: 'Places/delete',
     
+    Roles: 'Roles',
+    RolesAdd: 'Roles/add',
+    RolesEdit: 'Roles/edit',
+    RolesDelete: 'Roles/delete',
+    
 };
 
 export default AdminRoutes;
