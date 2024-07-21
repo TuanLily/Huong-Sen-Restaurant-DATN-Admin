@@ -16,16 +16,6 @@ import CustomerAdd from '../Pages/Customer/CustomerAdd';
 import CustomerEdit from '../Pages/Customer/CustomerEdit';
 import CustomerDelete from '../Pages/Customer/CustomerDelete';
 
-import EmployeeList from '../Pages/Employee/EmployeeList';
-import EmployeeAdd from '../Pages/Employee/EmployeeAdd';
-import EmployeeEdit from '../Pages/Employee/EmployeeEdit';
-import EmployeeDelete from '../Pages/Employee/EmployeeDelete';
-
-import BlogList from '../Pages/Blog/BlogList';
-import BlogAdd from '../Pages/Blog/BlogAdd';
-import BlogEdit from '../Pages/Blog/BlogEdit';
-import BlogDelete from '../Pages/Blog/BlogDelete';
-
 import CategoryBlogList from '../Pages/CategoryBlog/CategoryBlogList';
 import CategoryBlogAdd from '../Pages/CategoryBlog/CategoryBlogAdd';
 import CategoryBlogEdit from '../Pages/CategoryBlog/CategoryBlogEdit';
@@ -93,18 +83,7 @@ import BlogAdd from '../Pages/Blog/BlogAdd';
 import BlogEdit from '../Pages/Blog/BlogEdit';
 import BlogDelete from '../Pages/Blog/BlogDelete';
 
-import CategoryBlogList from '../Pages/CategoryBlog/CategoryBlogList';
-import CategoryBlogAdd from '../Pages/CategoryBlog/CategoryBlogAdd';
-import CategoryBlogEdit from '../Pages/CategoryBlog/CategoryBlogEdit';
-import CategoryBlogDelete from '../Pages/CategoryBlog/CategoryBlogDelete';
 
-import ProductImageList from '../Pages/ProductImage/ProductImageList';
-import ProductImageAdd from '../Pages/ProductImage/ProductImageAdd';
-import ProductImageDelete from '../Pages/ProductImage/ProductImageDelete';
-
-import ProductImageDetailList from '../Pages/ProductImage/Detail/ProductImageDetailList';
-import ProductImageDetailAdd from '../Pages/ProductImage/Detail/ProductImageDetailAdd';
-import ProductImageDetailDelete from '../Pages/ProductImage/Detail/ProductImageDetailDelete';
 import PermissionsList from '../Pages/Permissions/PermissionsList';
 import PermissionsAdd from '../Pages/Permissions/PermissionsAdd';
 import PermissionsEdit from '../Pages/Permissions/PermissionsEdit';
