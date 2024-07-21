@@ -87,6 +87,8 @@ const AdminRoutes = {
     PermissionsAdd: 'permissions/add',
     PermissionsEdit: 'permissions/edit',
     PermissionsDelete: 'permissions/delete',
+
+    RolesPermissions: 'rolespermissions',
     
     
 };

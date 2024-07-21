@@ -149,6 +149,11 @@ export default function MenuBar() {
                                             <span className="sub-item">Quản lý quyền hạn</span>
                                         </Link>
                                     </li>
+                                    <li>
+                                        <Link to='rolespermissions'>
+                                            <span className="sub-item">Quản lý vai trò quyền hạn</span>
+                                        </Link>
+                                    </li>
                                     
                                 </ul>
                             </div>

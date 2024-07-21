@@ -110,6 +110,7 @@ import PermissionsAdd from '../Pages/Permissions/PermissionsAdd';
 import PermissionsEdit from '../Pages/Permissions/PermissionsEdit';
 import PermissionsDelete from '../Pages/Permissions/PermissionsDelete';
 
+import RolesPermissionsList from '../Pages/RolesPermissions/RolesPermissionsList';
 
 // Public routes
 const publicAdminRoutes = [
@@ -203,6 +204,10 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.PermissionsEdit, component: PermissionsEdit },
     { path: AdminConfig.routes.PermissionsDelete, component: PermissionsDelete },
 
+    { path: AdminConfig.routes.RolesPermissions, component: RolesPermissionsList },
+    { path: AdminConfig.routes.RolesPermissionsAdd, component: RolesPermissionsAdd },
+    { path: AdminConfig.routes.RolesPermissionsEdit, component: RolesPermissionsEdit },
+    { path: AdminConfig.routes.RolesPermissionsDelete, component: RolesPermissionsDelete },
 ];
 
 export { publicAdminRoutes };
