@@ -115,6 +115,9 @@ import RolesPermissionsList from '../Pages/RolesPermissions/RolesPermissionsList
 import CommentProductsList from '../Pages/CommentProducts/CommentProductsList';
 import CommentProductsDelete from '../Pages/CommentProducts/CommentProductsDelete';
 
+import CommentBlogList from '../Pages/CommentBlog/CommentBlogList';
+import CommentBlogDelete from '../Pages/CommentBlog/CommentBlogDelete';
+
 // Public routes
 const publicAdminRoutes = [
     // *Admin routes
@@ -211,6 +214,9 @@ const publicAdminRoutes = [
 
     { path: AdminConfig.routes.CommentProducts, component: CommentProductsList },
     { path: AdminConfig.routes.CommentProductsDelete, component: CommentProductsDelete },
+
+    { path: AdminConfig.routes.CommentBlog, component: CommentBlogList },
+    { path: AdminConfig.routes.CommentBlogDelete, component: CommentBlogDelete },
    
 ];
 

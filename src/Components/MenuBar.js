@@ -159,6 +159,11 @@ export default function MenuBar() {
                                             <span className="sub-item">Quản lý vai trò đánh giá sản phẩm</span>
                                         </Link>
                                     </li>
+                                    <li>
+                                        <Link to='commentblog'>
+                                            <span className="sub-item">Quản lý bình luận blog</span>
+                                        </Link>
+                                    </li>
                                 </ul>
                             </div>
                         </li>
