@@ -112,6 +112,9 @@ import PermissionsDelete from '../Pages/Permissions/PermissionsDelete';
 
 import RolesPermissionsList from '../Pages/RolesPermissions/RolesPermissionsList';
 
+import CommentProductsList from '../Pages/CommentProducts/CommentProductsList';
+import CommentProductsDelete from '../Pages/CommentProducts/CommentProductsDelete';
+
 // Public routes
 const publicAdminRoutes = [
     // *Admin routes
@@ -205,9 +208,10 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.PermissionsDelete, component: PermissionsDelete },
 
     { path: AdminConfig.routes.RolesPermissions, component: RolesPermissionsList },
-    { path: AdminConfig.routes.RolesPermissionsAdd, component: RolesPermissionsAdd },
-    { path: AdminConfig.routes.RolesPermissionsEdit, component: RolesPermissionsEdit },
-    { path: AdminConfig.routes.RolesPermissionsDelete, component: RolesPermissionsDelete },
+
+    { path: AdminConfig.routes.CommentProducts, component: CommentProductsList },
+    { path: AdminConfig.routes.CommentProductsDelete, component: CommentProductsDelete },
+   
 ];
 
 export { publicAdminRoutes };

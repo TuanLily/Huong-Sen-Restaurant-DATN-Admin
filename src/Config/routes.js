@@ -89,6 +89,10 @@ const AdminRoutes = {
     PermissionsDelete: 'permissions/delete',
 
     RolesPermissions: 'rolespermissions',
+
+    CommentProducts: 'commentproducts',
+    CommentProductsDelete: 'commentproducts/delete',
+    
     
     
 };
