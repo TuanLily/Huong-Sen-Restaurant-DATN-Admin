@@ -7,14 +7,12 @@ import Footer from '../Components/Footer';
 
 export default function Layout() {
     return (
-        <div>
-            <div className='wrapper'>
-                <div className='main-panel'>
-                    <MenuBar />
-                    <Header />
-                    <Outlet className="mt-3"/>
-                    <Footer />
-                </div>
+        <div className='wrapper'>
+            <MenuBar />
+            <div className='main-panel'>
+                <Header />
+                <Outlet />
+                <Footer />
             </div>
         </div>
     )

@@ -1,7 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
+import { fetchCustomer } from '../../Actions/CustomerActions';
 
-export default function CustomerList () {
+export default function CustomerList() {
+    const dispatch = useDispatch();
+    const customerState = useSelector(state => state.customer);
+
+    useEffect(() => {
+        dispatch(fetchCustomer());
+    }, [dispatch]);
+
+
     return (
         <div className="container">
             <div className="page-inner">
@@ -60,78 +70,43 @@ export default function CustomerList () {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Nguyễn Văn Â</td>
-                                                <td>dtd872938@gmail.com</td>
-                                                <td>
-                                                    07878372822
-                                                </td>
-                                                <td>
-                                                    Dộng bàn tơ Việt Nam...
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/customer/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/customer/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Nguyễn Văn Â</td>
-                                                <td>dtd872938@gmail.com</td>
-                                                <td>
-                                                    07878372822
-                                                </td>
-                                                <td>
-                                                    Dộng bàn tơ Việt Nam...
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/customer/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/customer/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Nguyễn Văn Â</td>
-                                                <td>dtd872938@gmail.com</td>
-                                                <td>
-                                                    07878372822
-                                                </td>
-                                                <td>
-                                                    Dộng bàn tơ Việt Nam...
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/customer/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/customer/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            {customerState.customer && customerState.customer.map((item, index) => (
+                                                <tr key={index}>
+                                                    <td>{index + 1}</td>
+                                                    <td>
+                                                        <img className="img-fluid rounded w-100" src={item.avatar || '../Assets/Images/default.jpg'} alt="Avatar" />
+                                                    </td>
+                                                    <td>{item.fullname}</td>
+                                                    <td>{item.email}</td>
+                                                    <td>{item.tel}</td>
+                                                    <td>{item.address}</td>
+                                                    <td>
+                                                        <div className="btn-group mt-3" role="group">
+                                                            <button type="button" className="btn btn-outline-success">
+                                                                <Link to={`/customer/edit`}><span className='text-success'>Sửa</span></Link>
+                                                            </button>
+                                                            <button type="button" className="btn btn-outline-danger">
+                                                                <Link to={`/customer/delete/${item.id}`}><span className='text-danger'>Xóa</span></Link>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {customerState.loading && (
+                                                <tr>
+                                                    <td colSpan="7">Loading...</td>
+                                                </tr>
+                                            )}
+                                            {!customerState.loading && customerState.customer.length === 0 && (
+                                                <tr>
+                                                    <td colSpan="7">No customers found.</td>
+                                                </tr>
+                                            )}
+                                            {customerState.error && (
+                                                <tr>
+                                                    <td colSpan="7">Error: {customerState.error}</td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>

@@ -1,17 +1,19 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import logo from '../Assets/Images/huong-sen-logo.png'
 
 export default function MenuBar() {
     return (
         <div className="sidebar" data-background-color="dark">
             <div className="sidebar-logo">
-                <div className="logo-header" data-background-color="dark">
+                <div className="logo-header d-flex justify-content-center align-items-center" data-background-color="dark">
                     <Link to="" className="logo">
                         <img
-                            src="../Assets/Images/kaiadmin/logo_light.svg"
+                            src={logo}
                             alt="navbar brand"
                             className="navbar-brand"
-                            height="20"
+                            width={70}
+                            height="70"
                         />
                     </Link>
                     <div className="nav-toggle">

@@ -1,29 +1,33 @@
-import { Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 
 import AdminConfig from './Config';
 import { publicAdminRoutes } from './Routes/routes';
 import NotFound from './Components/NotFound';
 import Layout from './Layouts/Layout';
+import ProductList from './Pages/Product/ProductList';
+import ProductAdd from './Pages/Product/ProductAdd';
+import ProductEdit from './Pages/Product/ProductEdit';
+import ProductDelete from './Pages/Product/ProductDelete';
 
 
 function App() {
   return (
-    <div className="App">
-      <Routes>
-        {/* Admin Routes */}
-        <Route path={AdminConfig.routes.dashboard} element={<Layout />}>
-          {publicAdminRoutes
-            .filter(route => route.path.startsWith(AdminConfig.routes.dashboard)) // Filter admin routes
-            .map(({ path, component: Component }) => (
-              <Route key={path} path={path.replace(AdminConfig.routes.dashboard, '')} element={<Component />} />
+    <Router>
+      <div className="App">
+        <Routes>x
+          {/* Admin Routes */}
+          <Route path={AdminConfig.routes.dashboard} element={<Layout />}>
+            {publicAdminRoutes.map(({ path, component: Component }) => (
+              <Route key={path} path={path} element={<Component />} />
             ))}
-        </Route>
+          </Route>
 
-        {/* 404 Route */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </div>
+          {/* 404 Route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
