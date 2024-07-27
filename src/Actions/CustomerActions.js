@@ -41,9 +41,9 @@ export const addCustomer = (customer) => {
     return dispatch => {
         dispatch(fetchCustomerRequest());
         axios.post(`${API_ENDPOINT}/${AdminConfig.routes.customer}`, customer)
-            .then(response => {
-                const newCustomer = response.data;
-                dispatch(fetchCustomerSuccess(newCustomer));
+            .then(() => {
+                // Sau khi thêm khách hàng mới, gọi lại fetchCustomer để làm mới danh sách
+                dispatch(fetchCustomer());
             })
             .catch(error => {
                 const errorMsg = error.message;
@@ -66,16 +66,17 @@ export const addCustomer = (customer) => {
 //     };
 // };
 
-// export const deleteUnit = (id) => {
-//     return (dispatch) => {
-//         dispatch(fetchCustomerRequest());
-//         axios.delete(`https://knowledgehub.demopolyct.online/api/unit/${id}`)
-//             .then(() => {
-//                 dispatch(fetchCustomerSuccess(id));
-//             })
-//             .catch((error) => {
-//                 dispatch(fetchCustomerFailure(error.message));
-//             });
-//     };
-// };
-
+export const deleteCustomer = (id) => {
+    return dispatch => {
+        dispatch(fetchCustomerRequest());
+        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.customer}/${id}`)
+            .then(() => {
+                // Sau khi xóa khách hàng, gọi lại fetchCustomer để làm mới danh sách
+                dispatch(fetchCustomer());
+            })
+            .catch((error) => {
+                const errorMsg = error.message;
+                dispatch(fetchCustomerFailure(errorMsg));
+            });
+    };
+};

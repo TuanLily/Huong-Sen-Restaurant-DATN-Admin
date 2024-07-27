@@ -7,34 +7,44 @@ import { storage } from '../../Config/Firebase';
 const ImageUploadComponent = ({ id, onImageUpload }) => {
     const [pictures, setPictures] = useState([]);
 
-    const onDrop = (pictureFiles) => {
+    const onDrop = async (pictureFiles) => {
         const file = pictureFiles[0];
         if (!file) return;
 
         const storageRef = ref(storage, `images/${file.name}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
 
-        uploadTask.on(
-            'state_changed',
-            (snapshot) => {
-                // Theo dõi tiến trình upload
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-            },
-            (error) => {
-                // Xử lý lỗi
-                console.error('Upload failed:', error);
-            },
-            () => {
-                // Xử lý thành công
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    console.log('File available at', downloadURL);
-                    setPictures([downloadURL]);
-                    onImageUpload([downloadURL]); // Gọi callback để truyền URL lên component cha
-                });
-            }
-        );
+        try {
+            await new Promise((resolve, reject) => {
+                uploadTask.on(
+                    'state_changed',
+                    (snapshot) => {
+                        // Theo dõi tiến trình upload
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        console.log('Upload is ' + progress + '% done');
+                    },
+                    (error) => {
+                        // Xử lý lỗi
+                        console.error('Upload failed:', error);
+                        reject(error);
+                    },
+                    () => {
+                        // Hoàn thành upload
+                        resolve();
+                    }
+                );
+            });
+
+            // Lấy URL sau khi upload thành công
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            console.log('File available at', downloadURL);
+            setPictures([downloadURL]);
+            onImageUpload([downloadURL]); // Gọi callback để truyền URL lên component cha
+        } catch (error) {
+            console.error('Error during upload:', error);
+        }
     };
+
     return (
         <ImageUploader
             withIcon={true}
@@ -49,6 +59,7 @@ const ImageUploadComponent = ({ id, onImageUpload }) => {
         />
     );
 };
+
 
 
 export default ImageUploadComponent;

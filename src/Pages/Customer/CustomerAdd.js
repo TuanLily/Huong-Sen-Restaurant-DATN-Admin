@@ -24,7 +24,6 @@ export default function CustomerAdd() {
     };
 
     const onSubmit = (data) => {
-        // Thêm tên file ảnh vào data trước khi dispatch
         data.avatar = avatar;
         dispatch(addCustomer(data));
         navigate('/customer');

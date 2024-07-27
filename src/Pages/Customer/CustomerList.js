@@ -1,16 +1,37 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
-import { fetchCustomer } from '../../Actions/CustomerActions';
+import { deleteCustomer, fetchCustomer } from '../../Actions/CustomerActions';
+import DialogConfirm from '../../Components/Dialog/Dialog';
+import CustomPagination from '../../Components/Pagination/CustomPagination';
 
 export default function CustomerList() {
     const dispatch = useDispatch();
     const customerState = useSelector(state => state.customer);
 
+    const [open, setOpen] = useState(false);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+
     useEffect(() => {
         dispatch(fetchCustomer());
     }, [dispatch]);
 
+    const handleClickOpen = (customerId) => {
+        setSelectedCustomer(customerId);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedCustomer(null);
+    };
+
+    const handleConfirm = () => {
+        if (selectedCustomer) {
+            dispatch(deleteCustomer(selectedCustomer));
+            handleClose();
+        }
+    };
 
     return (
         <div className="container">
@@ -23,6 +44,7 @@ export default function CustomerList() {
                     <div className="ms-md-auto py-2 py-md-0">
                         <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
                         <Link to="/customer/add" className="btn btn-primary btn-round">Thêm khách hàng</Link>
+                        <DialogConfirm />
                     </div>
                 </div>
                 <div className="row">
@@ -70,28 +92,6 @@ export default function CustomerList() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {customerState.customer && customerState.customer.map((item, index) => (
-                                                <tr key={index}>
-                                                    <td>{index + 1}</td>
-                                                    <td>
-                                                        <img className="img-fluid rounded w-100" src={item.avatar || '../Assets/Images/default.jpg'} alt="Avatar" />
-                                                    </td>
-                                                    <td>{item.fullname}</td>
-                                                    <td>{item.email}</td>
-                                                    <td>{item.tel}</td>
-                                                    <td>{item.address}</td>
-                                                    <td>
-                                                        <div className="btn-group mt-3" role="group">
-                                                            <button type="button" className="btn btn-outline-success">
-                                                                <Link to={`/customer/edit`}><span className='text-success'>Sửa</span></Link>
-                                                            </button>
-                                                            <button type="button" className="btn btn-outline-danger">
-                                                                <Link to={`/customer/delete/${item.id}`}><span className='text-danger'>Xóa</span></Link>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
                                             {customerState.loading && (
                                                 <tr>
                                                     <td colSpan="7">Loading...</td>
@@ -107,14 +107,42 @@ export default function CustomerList() {
                                                     <td colSpan="7">Error: {customerState.error}</td>
                                                 </tr>
                                             )}
+                                            {customerState.customer && customerState.customer.map((item, index) => (
+                                                <tr key={index}>
+                                                    <td>{index + 1}</td>
+                                                    <td>
+                                                        <img className="img-fluid rounded w-100" src={item.avatar || '../Assets/Images/default.jpg'} alt="Avatar" />
+                                                    </td>
+                                                    <td>{item.fullname}</td>
+                                                    <td>{item.email}</td>
+                                                    <td>{item.tel}</td>
+                                                    <td>{item.address}</td>
+                                                    <td>
+                                                        <div className="btn-group mt-3" role="group">
+                                                            <button type="button" className="btn btn-outline-success">
+                                                                <Link to={`/customer/edit`}><span className='text-success'>Sửa</span></Link>
+                                                            </button>
+                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                <span className='text-danger'>Xóa</span>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
+                                    <CustomPagination />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <DialogConfirm
+                open={open}
+                onClose={handleClose}
+                onConfirm={handleConfirm}
+            />
         </div>
     )
 }
