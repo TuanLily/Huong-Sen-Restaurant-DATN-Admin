@@ -1,5 +1,7 @@
 import AdminConfig from '../Config/index';
 import Dashboard from '../Pages/Dashboard';
+import Login from '../Pages/Authentication/Login';
+import Forgot from '../Pages/Authentication/Forgot';
 
 import ProductList from '../Pages/Product/ProductList';
 import ProductAdd from '../Pages/Product/ProductAdd';
@@ -100,6 +102,8 @@ import CommentBlogDelete from '../Pages/CommentBlog/CommentBlogDelete';
 // Public routes
 const publicAdminRoutes = [
     // *Admin routes
+    { path: AdminConfig.routes.login, component: Login },
+    { path: AdminConfig.routes.forgot, component: Forgot },
     { path: AdminConfig.routes.dashboard, component: Dashboard },
 
     { path: AdminConfig.routes.product, component: ProductList },

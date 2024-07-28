@@ -1,23 +1,24 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 import AdminConfig from './Config';
 import { publicAdminRoutes } from './Routes/routes';
 import NotFound from './Components/NotFound';
 import Layout from './Layouts/Layout';
-import ProductList from './Pages/Product/ProductList';
-import ProductAdd from './Pages/Product/ProductAdd';
-import ProductEdit from './Pages/Product/ProductEdit';
-import ProductDelete from './Pages/Product/ProductDelete';
-
+import Login from './Pages/Authentication/Login';
+import Forgot from './Pages/Authentication/Forgot';
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <Routes>x
+        <Routes>
           {/* Admin Routes */}
-          <Route path={AdminConfig.routes.dashboard} element={<Layout />}>
+          <Route path="/" element={<Navigate to="/login" />} />
+
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot" element={<Forgot />} />
+
+          <Route path={''} element={<Layout />}>
             {publicAdminRoutes.map(({ path, component: Component }) => (
               <Route key={path} path={path} element={<Component />} />
             ))}
