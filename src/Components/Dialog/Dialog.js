@@ -6,13 +6,13 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-const DialogConfirm = ({ open, onClose, onConfirm }) => {
+const DialogConfirm = ({ open = false, onClose, onConfirm }) => {
     return (
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>Xác nhận xóa</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    Bạn có chắc chắn muốn xóa mục này không?
+                    Bạn có chắc chắn muốn xóa không?
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -24,5 +24,6 @@ const DialogConfirm = ({ open, onClose, onConfirm }) => {
         </Dialog>
     );
 };
+
 
 export default DialogConfirm;

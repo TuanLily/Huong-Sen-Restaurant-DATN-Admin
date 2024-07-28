@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
 import { addCustomer } from "../../Actions/CustomerActions";
 import ImageUploadComponent from "../../Components/ImageUpload/ImageUpload";
+import { SuccessAlert } from "../../Components/Alert/Alert";
 
 export default function CustomerAdd() {
     const dispatch = useDispatch();
-    const customerState = useSelector(state => state.customer);
     const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
 
     const navigate = useNavigate();
 
     const [avatar, setAvatar] = useState('');
+    const [openSuccess, setOpenSuccess] = useState(false);
 
     const password = watch('password');
 
@@ -23,16 +24,20 @@ export default function CustomerAdd() {
         }
     };
 
-    const onSubmit = (data) => {
-        data.avatar = avatar;
-        dispatch(addCustomer(data));
-        navigate('/customer');
-        reset();
+    const handleSuccessClose = () => {
+        setOpenSuccess(false);
     };
 
-    if (customerState.error) {
-        return <p>Error: {customerState.error}</p>;
-    }
+    const onSubmit = (data) => {
+        data.avatar = avatar;
+        dispatch(addCustomer(data))
+        setOpenSuccess(true);
+        reset();
+        setTimeout(() => {
+            navigate('/customer');
+        }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+
+    };
 
     return (
         <div className="container">
@@ -118,12 +123,12 @@ export default function CustomerAdd() {
                                                 {...register('tel', {
                                                     required: 'Số điện thoại là bắt buộc',
                                                     pattern: {
-                                                        value: /^\d{1,11}$/,
-                                                        message: 'Số điện thoại không hợp lệ',
+                                                        value: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/,
+                                                        message: 'Số điện thoại không không đúng định dạng',
                                                     },
                                                 })}
                                             />
-                                            {errors.tel && <p className="text-danger">{errors.phone.message}</p>}
+                                            {errors.tel && <p className="text-danger">{errors.tel.message}</p>}
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="confirmPassword">Mật khẩu xác nhận</label>
@@ -156,6 +161,7 @@ export default function CustomerAdd() {
                             </div>
                         </div>
                     </form>
+                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Thêm khách hàng thành công!" vertical="top" horizontal="right" />
                 </div>
             </div>
         </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { deleteCustomer, fetchCustomer } from '../../Actions/CustomerActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
@@ -8,6 +8,7 @@ import CustomPagination from '../../Components/Pagination/CustomPagination';
 export default function CustomerList() {
     const dispatch = useDispatch();
     const customerState = useSelector(state => state.customer);
+    const navigate = useNavigate();
 
     const [open, setOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -32,6 +33,11 @@ export default function CustomerList() {
             handleClose();
         }
     };
+
+    const handleEdit = (id) => {
+        navigate(`edit/${id}`);
+    };
+
 
     return (
         <div className="container">
@@ -86,8 +92,7 @@ export default function CustomerList() {
                                                 <th className='w-10' scope="col">Ảnh đại diện</th>
                                                 <th scope="col">Tên</th>
                                                 <th scope="col">Email</th>
-                                                <th scope="col">Sdt</th>
-                                                <th scope="col">Địa chỉ</th>
+                                                <th scope="col">Sđt</th>
                                                 <th scope="col">Thao tác</th>
                                             </tr>
                                         </thead>
@@ -108,20 +113,17 @@ export default function CustomerList() {
                                                 </tr>
                                             )}
                                             {customerState.customer && customerState.customer.map((item, index) => (
-                                                <tr key={index}>
+                                                <tr key={item.id}>
                                                     <td>{index + 1}</td>
                                                     <td>
-                                                        <img className="img-fluid rounded w-100" src={item.avatar || '../Assets/Images/default.jpg'} alt="Avatar" />
+                                                        <img className="img-fluid rounded" src={item.avatar || '../Assets/Images/default.jpg'} alt="Avatar" width={70} />
                                                     </td>
                                                     <td>{item.fullname}</td>
                                                     <td>{item.email}</td>
                                                     <td>{item.tel}</td>
-                                                    <td>{item.address}</td>
                                                     <td>
                                                         <div className="btn-group mt-3" role="group">
-                                                            <button type="button" className="btn btn-outline-success">
-                                                                <Link to={`/customer/edit`}><span className='text-success'>Sửa</span></Link>
-                                                            </button>
+                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
                                                             <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
                                                                 <span className='text-danger'>Xóa</span>
                                                             </button>
@@ -131,6 +133,8 @@ export default function CustomerList() {
                                             ))}
                                         </tbody>
                                     </table>
+                                </div>
+                                <div className='my-2'>
                                     <CustomPagination />
                                 </div>
                             </div>

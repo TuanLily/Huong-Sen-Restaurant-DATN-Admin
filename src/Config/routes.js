@@ -13,7 +13,7 @@ const AdminRoutes = {
 
     customer: 'customer',
     customerAdd: 'customer/add',
-    customerEdit: 'customer/edit',
+    customerEdit: 'customer/edit/:id',
     customerDelete: 'customer/delete',
 
     employee: 'employee',
@@ -48,7 +48,7 @@ const AdminRoutes = {
     reservationAdd: 'reservation/add',
     reservationEdit: 'reservation/edit',
     reservationDelete: 'reservation/delete',
-    
+
     order: 'order',
     orderAdd: 'order/add',
     orderEdit: 'order/edit',
@@ -77,7 +77,7 @@ const AdminRoutes = {
     PlacesAdd: 'Places/add',
     PlacesEdit: 'Places/edit',
     PlacesDelete: 'Places/delete',
-    
+
     Roles: 'Roles',
     RolesAdd: 'Roles/add',
     RolesEdit: 'Roles/edit',
@@ -95,7 +95,7 @@ const AdminRoutes = {
 
     CommentBlog: 'commentblog',
     CommentBlogDelete: 'commentblog/delete',
-    
+
 };
 
 export default AdminRoutes;
