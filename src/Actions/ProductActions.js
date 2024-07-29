@@ -42,7 +42,7 @@ export const addProduct = (product) => {
         dispatch(fetchProductRequest());
         axios.post(`${API_ENDPOINT}/${AdminConfig.routes.product}`, product)
             .then((response) => {
-                // Sau khi thêm san pham mới, gọi lại fetchCustomer để làm mới danh sách
+                // Sau khi thêm san pham mới, gọi lại fetchProduct để làm mới danh sách
                 dispatch(fetchProductSuccess(response.data.data));
                 dispatch(fetchProduct());
             })
@@ -54,19 +54,19 @@ export const addProduct = (product) => {
 };
 
 
-// export const updateCustomer = (id, data) => {
-//     return (dispatch) => {
-//         dispatch(fetchCustomerRequest());
-//         axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.customer}/${id}`, data)
-//             .then((response) => {
-//                 dispatch(fetchCustomerSuccess(response.data.data));
-//                 dispatch(fetchCustomer()); // Reload danh sách khách hàng sau khi cập nhật
-//             })
-//             .catch((error) => {
-//                 dispatch(fetchCustomerFailure(error.message));
-//             });
-//     };
-// };
+export const updateProduct = (id, data) => {
+    return (dispatch) => {
+        dispatch(fetchProductRequest());
+        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`, data)
+            .then((response) => {
+                dispatch(fetchProductSuccess(response.data.data));
+                dispatch(fetchProduct()); // Reload danh sách sau khi cập nhật
+            })
+            .catch((error) => {
+                dispatch(fetchProductFailure(error.message));
+            });
+    };
+};
 
 export const deleteProduct = (id) => {
     return dispatch => {

@@ -71,7 +71,7 @@ export default function ProductAdd () {
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="price">Giá niêm yết</label>
-                                            <input type="text" className="form-control" id="price" placeholder="Nhập giá niêm yết" {...register('price', { required: 'Vui lòng điền giá niêm yết!' })}/>
+                                            <input type="number" className="form-control" id="price" placeholder="Nhập giá niêm yết" {...register('price', { required: 'Vui lòng điền giá niêm yết!' })}/>
                                             {errors.price && <div className="text-danger">{errors.price.message}</div>}
                                         </div>
                                         <div className="form-group">
@@ -90,7 +90,7 @@ export default function ProductAdd () {
                                     <div className="col-md-6 col-lg-6">
                                         <div className="form-group">
                                             <label htmlFor="saleEmail">Giá khuyến mãi</label>
-                                            <input type="text" className="form-control" id="sale_price" placeholder="Nhập giá khuyến mãi" {...register('sale_price', { required: 'Vui lòng điền giá khuyến mãi!' })}/>
+                                            <input type="number" className="form-control" id="sale_price" placeholder="Nhập giá khuyến mãi" {...register('sale_price', { required: 'Vui lòng điền giá khuyến mãi!' })}/>
                                             {errors.sale_price && <div className="text-danger">{errors.sale_price.message}</div>}
                                         </div>
                                         <div className="form-group">

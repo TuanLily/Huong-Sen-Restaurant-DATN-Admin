@@ -18,7 +18,17 @@ export default function ProductList () {
     useEffect(() => {
         dispatch(fetchProduct());
         dispatch(fetchProductCategory());
-    }, [dispatch] , console.log (productCategoryState));
+    }, [dispatch]);
+
+    const itemsPerPage = 5;
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = Math.ceil(productState.product.length / itemsPerPage);
+    const indexOfLastProduct = currentPage * itemsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
+    const currentProducts = productState.product.slice(indexOfFirstProduct, indexOfLastProduct);
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
 
     const getCategoryName = (id) => {
         const product_category = productCategoryState.product_category.find(cat => cat.id === id);
@@ -120,9 +130,9 @@ export default function ProductList () {
                                                     <td colSpan="7">Error: {productState.error}</td>
                                                 </tr>
                                             )}
-                                            {productState.product && productState.product.map((item, index) => (
+                                            {productState.product && currentProducts.map((item, index) => (
                                                 <tr key={item.id}>
-                                                    <td>{index + 1}</td>
+                                                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                                                     <td>
                                                         <img className="img-fluid rounded w-100" src={item.image || '../Assets/Images/default.jpg'} alt="Image"/>
                                                     </td>
@@ -151,7 +161,7 @@ export default function ProductList () {
                                     </table>
                                 </div>
                                 <div className='my-2'>
-                                    <ProductPagination />
+                                    <ProductPagination count={totalPages} onPageChange={handlePageChange}/>
                                 </div>
                             </div>
                         </div>
