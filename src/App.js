@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import AdminConfig from './Config';
 import { publicAdminRoutes } from './Routes/routes';
@@ -14,7 +14,7 @@ function App() {
         <Routes>
           {/* Admin Routes */}
           <Route path="/" element={<Navigate to="/login" />} />
-
+          
           <Route path="/login" element={<Login />} />
           <Route path="/forgot" element={<Forgot />} />
 

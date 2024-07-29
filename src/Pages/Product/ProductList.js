@@ -1,7 +1,51 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { fetchProduct, deleteProduct } from '../../Actions/ProductActions';
+import { fetchProductCategory } from '../../Actions/ProductCategoryActions';
+import DialogConfirm from '../../Components/Dialog/Dialog';
+import ProductPagination from '../../Components/Pagination/ProductPagination';
 
 export default function ProductList () {
+    const dispatch = useDispatch();
+    const productState = useSelector(state => state.product);
+    const productCategoryState = useSelector(state => state.product_category);
+    const navigate = useNavigate();
+
+    const [open, setOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+
+    useEffect(() => {
+        dispatch(fetchProduct());
+        dispatch(fetchProductCategory());
+    }, [dispatch] , console.log (productCategoryState));
+
+    const getCategoryName = (id) => {
+        const product_category = productCategoryState.product_category.find(cat => cat.id === id);
+        return product_category ? product_category.name : 'Không xác định';
+    };
+
+    // const handleClickOpen = (productId) => {
+    //     setSelectedProduct(productId);
+    //     setOpen(true);
+    // };
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedProduct(null);
+    };
+
+    const handleConfirm = () => {
+        if (setSelectedProduct) {
+            dispatch(deleteProduct(selectedProduct));
+            handleClose();
+        }
+    };
+
+    const handleEdit = (id) => {
+        navigate(`edit/${id}`);
+    };
+
     return (
         <div className="container">
             <div className="page-inner">
@@ -13,6 +57,7 @@ export default function ProductList () {
                     <div className="ms-md-auto py-2 py-md-0">
                         <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
                         <Link to="/product/add" className="btn btn-primary btn-round">Thêm sản phẩm</Link>
+                        <DialogConfirm />
                     </div>
                 </div>
                 <div className="row">
@@ -60,89 +105,63 @@ export default function ProductList () {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Bánh mì thịt heo quay!</td>
-                                                <td>Bánh mì này ăn vào là chết, ...</td>
-                                                <td>
-                                                    <span className="badge badge-success">Thức ăn</span>
-                                                </td>
-                                                <td>
-                                                    <span className="text-danger text-decoration-line-through">100.000 VND</span>
-                                                    <div>20.000 VND</div>
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/product/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/product/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Bánh mì thịt heo quay!</td>
-                                                <td>Bánh mì này ăn vào là chết, ...</td>
-                                                <td>
-                                                    <span className="badge badge-success">Thức ăn</span>
-                                                </td>
-                                                <td>
-                                                    <span className="text-danger text-decoration-line-through">100.000 VND</span>
-                                                    <div>20.000 VND</div>
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/product/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/product/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Bánh mì thịt heo quay!</td>
-                                                <td>Bánh mì này ăn vào là chết, ...</td>
-                                                <td>
-                                                    <span className="badge badge-success">Thức ăn</span>
-                                                </td>
-                                                <td>
-                                                    <span className="text-danger text-decoration-line-through">100.000 VND</span>
-                                                    <div>20.000 VND</div>
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/product/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/product/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            {productState.loading && (
+                                                <tr>
+                                                    <td colSpan="7">Loading...</td>
+                                                </tr>
+                                            )}
+                                            {!productState.loading && productState.product.length === 0 && (
+                                                <tr>
+                                                    <td colSpan="7">No customers found.</td>
+                                                </tr>
+                                            )}
+                                            {productState.error && (
+                                                <tr>
+                                                    <td colSpan="7">Error: {productState.error}</td>
+                                                </tr>
+                                            )}
+                                            {productState.product && productState.product.map((item, index) => (
+                                                <tr key={item.id}>
+                                                    <td>{index + 1}</td>
+                                                    <td>
+                                                        <img className="img-fluid rounded w-100" src={item.image || '../Assets/Images/default.jpg'} alt="Image"/>
+                                                    </td>
+                                                    <td>{item.name}</td>
+                                                    <td>{item.description}</td>
+                                                    <td>
+                                                        <span className="badge badge-success">{getCategoryName(item.categories_id)}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span className="text-danger text-decoration-line-through">{item.price} VND</span>
+                                                        <div>{item.sale_price} VND</div>
+                                                    </td>
+                                                    <td>
+                                                        <div className="btn-group mt-3" role="group">
+                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
+                                                                Sửa
+                                                            </button>
+                                                            {/* <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                Xóa
+                                                            </button> */}
+                                                            <button type="button" className="btn btn-outline-danger">
+                                                                Xóa
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
+                                </div>
+                                <div className='my-2'>
+                                    <ProductPagination />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <DialogConfirm open={open} onClose={handleClose} onConfirm={handleConfirm} />
         </div>
     )
 }
