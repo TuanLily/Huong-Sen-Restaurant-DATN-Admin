@@ -25,10 +25,10 @@ export default function ProductList () {
         return product_category ? product_category.name : 'Không xác định';
     };
 
-    // const handleClickOpen = (productId) => {
-    //     setSelectedProduct(productId);
-    //     setOpen(true);
-    // };
+    const handleClickOpen = (productId) => {
+        setSelectedProduct(productId);
+        setOpen(true);
+    };
 
     const handleClose = () => {
         setOpen(false);
@@ -140,10 +140,7 @@ export default function ProductList () {
                                                             <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
                                                                 Sửa
                                                             </button>
-                                                            {/* <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
-                                                                Xóa
-                                                            </button> */}
-                                                            <button type="button" className="btn btn-outline-danger">
+                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
                                                                 Xóa
                                                             </button>
                                                         </div>
