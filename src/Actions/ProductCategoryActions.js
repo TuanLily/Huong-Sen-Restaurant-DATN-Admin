@@ -35,3 +35,48 @@ export const fetchProductCategory = () => {
             });
     };
 };
+
+export const addProductCategory = (product) => {
+    return dispatch => {
+        dispatch(fetchProductCategoryRequest());
+        axios.post(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}`, product)
+            .then((response) => {
+                // Sau khi thêm san pham mới, gọi lại fetchProduct để làm mới danh sách
+                dispatch(fetchProductCategorySuccess(response.data.data));
+                dispatch(fetchProductCategory());
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchProductCategoryFailure(errorMsg));
+            });
+    };
+};
+
+export const updateProductCategory = (id, data) => {
+    return (dispatch) => {
+        dispatch(fetchProductCategoryRequest());
+        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`, data)
+            .then((response) => {
+                dispatch(fetchProductCategorySuccess(response.data.data));
+                dispatch(fetchProductCategory()); // Reload danh sách sau khi cập nhật
+            })
+            .catch((error) => {
+                dispatch(fetchProductCategoryFailure(error.message));
+            });
+    };
+};
+
+export const deleteProductCategory = (id) => {
+    return dispatch => {
+        dispatch(fetchProductCategoryRequest());
+        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`)
+            .then(() => {
+                // Sau khi xóa danh muc, gọi lại fetchProductCategory để làm mới danh sách
+                dispatch(fetchProductCategory());
+            })
+            .catch((error) => {
+                const errorMsg = error.message;
+                dispatch(fetchProductCategoryFailure(errorMsg));
+            });
+    };
+};

@@ -1,7 +1,53 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { fetchProductCategory, deleteProductCategory } from '../../Actions/ProductCategoryActions';
+import DialogConfirm from '../../Components/Dialog/Dialog';
+import ProductCategoryPagination from '../../Components/Pagination/ProductCategoryPagination';
 
 export default function CategoryProductList () {
+    const dispatch = useDispatch();
+    const productCategoryState = useSelector(state => state.product_category);
+    const navigate = useNavigate();
+
+    const [open, setOpen] = useState(false);
+    const [selectedProductCategory, setSelectedProductCategory] = useState(null);
+
+    useEffect(() => {
+        dispatch(fetchProductCategory());
+    }, [dispatch]);
+
+    const itemsPerPage = 5;
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = Math.ceil(productCategoryState.product_category.length / itemsPerPage);
+    const indexOfLastProduct = currentPage * itemsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
+    const currentProductCategory = productCategoryState.product_category.slice(indexOfFirstProduct, indexOfLastProduct);
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    // const handleClickOpen = (categories_id) => {
+    //     setSelectedProductCategory(categories_id);
+    //     setOpen(true);
+    // };
+
+    // const handleClose = () => {
+    //     setOpen(false);
+    //     setSelectedProductCategory(null);
+    // };
+
+    // const handleConfirm = () => {
+    //     if (setSelectedProductCategory) {
+    //         dispatch(deleteProductCategory(selectedProductCategory));
+    //         handleClose();
+    //     }
+    // };
+
+    const handleEdit = (id) => {
+        navigate(`edit/${id}`);
+    };
+
     return (
         <div className="container">
             <div className="page-inner">
@@ -13,6 +59,7 @@ export default function CategoryProductList () {
                     <div className="ms-md-auto py-2 py-md-0">
                         <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
                         <Link to="/categoryProduct/add" className="btn btn-primary btn-round">Thêm danh mục</Link>
+                        <DialogConfirm />
                     </div>
                 </div>
                 <div className="row">
@@ -54,78 +101,65 @@ export default function CategoryProductList () {
                                                 <th scope="col">Tên danh mục</th>
                                                 <th scope="col">Trạng thái</th>
                                                 <th scope="col">Ngày tạo</th>
+                                                <th scope="col">Ngày cập nhật</th>
                                                 <th scope="col">Thao tác</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>Thức uống</td>
-                                                <td>
-                                                    <span className="badge badge-success">Thức ăn</span>
-                                                </td>
-                                                <td>
-                                                    2023/22/11
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/categoryProduct/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/categoryProduct/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>Thức uống</td>
-                                                <td>
-                                                    <span className="badge badge-success">Thức ăn</span>
-                                                </td>
-                                                <td>
-                                                    2023/22/11
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/categoryProduct/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/categoryProduct/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>Thức uống</td>
-                                                <td>
-                                                    <span className="badge badge-success">Thức ăn</span>
-                                                </td>
-                                                <td>
-                                                    2023/22/11
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/categoryProduct/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/categoryProduct/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            {productCategoryState.loading && (
+                                                <tr>
+                                                    <td colSpan="7">Loading...</td>
+                                                </tr>
+                                            )}
+                                            {!productCategoryState.loading && productCategoryState.product_category.length === 0 && (
+                                                <tr>
+                                                    <td colSpan="7">No customers found.</td>
+                                                </tr>
+                                            )}
+                                            {productCategoryState.error && (
+                                                <tr>
+                                                    <td colSpan="7">Error: {productCategoryState.error}</td>
+                                                </tr>
+                                            )}
+                                            {productCategoryState.product_category && currentProductCategory.map((item, index) => (
+                                                <tr key={item.id}>
+                                                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                                                    <td>{item.name}</td>
+                                                    <td>
+                                                        <span className="badge badge-success">
+                                                            {item.status == 1 ? 'Hoạt động' : 'Ngưng hoạt động'}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        {item.created_at.substring(0, 10)}
+                                                    </td>
+                                                    <td>
+                                                        {item.updated_at.substring(0, 10)}
+                                                    </td>
+                                                    <td>
+                                                        <div className="btn-group mt-3" role="group">
+                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
+                                                                Sửa
+                                                            </button>
+                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                Xóa
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
+                                </div>
+                                <div className='my-2'>
+                                    <ProductCategoryPagination count={totalPages} onPageChange={handlePageChange}/>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            {/* <DialogConfirm open={open} onClose={handleClose} onConfirm={handleConfirm} /> */}
         </div>
     )
 }
