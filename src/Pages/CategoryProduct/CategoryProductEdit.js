@@ -1,29 +1,78 @@
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams, useNavigate } from 'react-router-dom';
+import { fetchProductCategory, updateProductCategory } from '../../Actions/ProductCategoryActions';
+import { SuccessAlert } from '../../Components/Alert/Alert';
+import { useForm } from 'react-hook-form';
 
 export default function CategoryProductEdit () {
+    const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
+
+    const { id } = useParams();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const productCategoryState = useSelector(state => state.product_category);
+
+    const [openSuccess, setOpenSuccess] = useState(false);
+
+    useEffect(() => {
+        dispatch(fetchProductCategory());
+    }, [dispatch]);
+
+    useEffect(() => {
+        const product_category = productCategoryState.product_category.find((cust) => cust.id === parseInt(id));
+        if (product_category) {
+            setValue('name', product_category.name);
+            setValue('status', product_category.status);
+        }
+    }, [productCategoryState.product_category, id, setValue]);
+
+    const handleSuccessClose = () => {
+        setOpenSuccess(false);
+    };
+
+    const onSubmit = (data) => {
+        const updatedData = {
+            ...data,
+        };
+
+        dispatch(updateProductCategory(id, updatedData));
+
+        setOpenSuccess(true);
+        setTimeout(() => {
+            navigate('/categoryProduct');
+        }, 2000);
+    };
+
+    if (productCategoryState.error) {
+        return <p>Error: {productCategoryState.error}</p>;
+    }
+
     return (
         <div className="container">
             <div className="page-inner">
                 <div className="row">
-                    <form className="col-md-12">
+                    <form className="col-md-12" onSubmit={handleSubmit(onSubmit)}>
                         <div className="card">
                             <div className="card-header">
-                                <div className="card-title">Sửa danh mục</div>
+                                <div className="card-title">Cập nhật danh mục</div>
                             </div>
                             <div className="card-body">
                                 <div className="row">
                                     <div className="col-md-6 col-lg-6">
                                         <div className="form-group">
-                                            <label for="name">Tên danh mục</label>
-                                            <input type="text" className="form-control" id="name" placeholder="Nhập tên sản phẩm"/>
+                                            <label htmlFor="name">Tên danh mục</label>
+                                            <input type="text" className="form-control" id="name" placeholder="Nhập tên danh mục" {...register('name', { required: 'Vui lòng điền tên danh mục!' })}/>
+                                            {errors.name && <div className="text-danger">{errors.name.message}</div>}
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-lg-6">
                                         <div className="form-group h-75">
                                             <label>Trạng thái</label>
-                                            <select className="form-select h-75">
-                                                <option>Hoạt động</option>
-                                                <option>Ngưng hoạt động</option>
+                                            <select className="form-select h-75" id='status' {...register('status')}>
+                                                <option value='1'>Hoạt động</option>
+                                                <option value="0">Ngưng hoạt động</option>
                                             </select>
                                         </div>
                                     </div>
@@ -32,11 +81,12 @@ export default function CategoryProductEdit () {
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
                                     <button className="btn btn-success">Submit</button>
-                                    <button className="btn btn-danger">Cancel</button>
+                                    <button className="btn btn-danger" onClick={() => navigate('/categoryProduct')}>Cancel</button>
                                 </div>   
                             </div>
                         </div>
                     </form>
+                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Cập nhật danh mục thành công!" vertical="top" horizontal="right" />
                 </div>
             </div>
         </div>
