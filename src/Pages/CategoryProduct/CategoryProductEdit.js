@@ -41,7 +41,7 @@ export default function CategoryProductEdit () {
 
         setOpenSuccess(true);
         setTimeout(() => {
-            navigate('/categoryProduct');
+            navigate('/category-product');
         }, 2000);
     };
 
@@ -81,7 +81,7 @@ export default function CategoryProductEdit () {
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
                                     <button className="btn btn-success">Submit</button>
-                                    <button className="btn btn-danger" onClick={() => navigate('/categoryProduct')}>Cancel</button>
+                                    <button className="btn btn-danger" onClick={() => navigate('/category-product')}>Cancel</button>
                                 </div>   
                             </div>
                         </div>

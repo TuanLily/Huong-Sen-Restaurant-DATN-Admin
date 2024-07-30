@@ -23,7 +23,7 @@ export default function CategoryProductAdd () {
         setOpenSuccess(true);
         reset();
         setTimeout(() => {
-            navigate('/categoryProduct');
+            navigate('/category-product');
         }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
 
     };
@@ -60,7 +60,7 @@ export default function CategoryProductAdd () {
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
                                     <button className="btn btn-success">Submit</button>
-                                    <button className="btn btn-danger" onClick={() => navigate('/categoryProduct')}>Cancel</button>
+                                    <button className="btn btn-danger" onClick={() => navigate('/category-product')}>Cancel</button>
                                 </div>   
                             </div>
                         </div>

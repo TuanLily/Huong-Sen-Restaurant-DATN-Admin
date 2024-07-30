@@ -66,7 +66,7 @@ export default function MenuBar() {
                             <div className="collapse" id="productManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <Link to='categoryProduct'>
+                                        <Link to='category-product'>
                                             <span className="sub-item">Danh mục sản phẩm</span>
                                         </Link>
                                     </li>

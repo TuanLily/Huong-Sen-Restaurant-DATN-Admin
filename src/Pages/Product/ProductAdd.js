@@ -19,6 +19,7 @@ export default function ProductAdd () {
 
     const navigate = useNavigate();
 
+    const [imageError, setImageError] = useState('');
     const [image, setImage] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
 
@@ -33,8 +34,14 @@ export default function ProductAdd () {
     };
 
     const onSubmit = (data) => {
+        if (!image) {
+            setImageError ('Vui lòng chọn ảnh sản phẩm!');
+            return;
+        }
+        
+        setImageError('');
+
         data.image = image;
-        console.log (data);
         if (!data.description) {
             data.description = 'Không có mô tả';
         }
@@ -103,6 +110,7 @@ export default function ProductAdd () {
                                         <div className="form-group">
                                             <label htmlFor="exampleFormControlFile1">Ảnh sản phẩm</label><br/>
                                             <ImageUploadComponent id="image" onImageUpload={handleImageUpload} />
+                                            {imageError && <div className="text-danger">{imageError}</div>}
                                         </div>
                                     </div>
                                 </div>

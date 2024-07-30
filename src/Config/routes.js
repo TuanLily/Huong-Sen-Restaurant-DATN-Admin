@@ -8,10 +8,10 @@ const AdminRoutes = {
     productEdit: 'product/edit/:id',
     productDelete: 'product/delete',
 
-    categoryProduct: 'categoryProduct',
-    categoryProductAdd: 'categoryProduct/add',
-    categoryProductEdit: 'categoryProduct/edit',
-    categoryProductDelete: 'categoryProduct/delete',
+    categoryProduct: 'category-product',
+    categoryProductAdd: 'category-product/add',
+    categoryProductEdit: 'category-product/edit/:id',
+    categoryProductDelete: 'category-product/delete',
 
     customer: 'customer',
     customerAdd: 'customer/add',

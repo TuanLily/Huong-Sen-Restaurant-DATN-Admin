@@ -27,22 +27,22 @@ export default function CategoryProductList () {
         setCurrentPage(page);
     };
 
-    // const handleClickOpen = (categories_id) => {
-    //     setSelectedProductCategory(categories_id);
-    //     setOpen(true);
-    // };
+    const handleClickOpen = (categories_id) => {
+        setSelectedProductCategory(categories_id);
+        setOpen(true);
+    };
 
-    // const handleClose = () => {
-    //     setOpen(false);
-    //     setSelectedProductCategory(null);
-    // };
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedProductCategory(null);
+    };
 
-    // const handleConfirm = () => {
-    //     if (setSelectedProductCategory) {
-    //         dispatch(deleteProductCategory(selectedProductCategory));
-    //         handleClose();
-    //     }
-    // };
+    const handleConfirm = () => {
+        if (setSelectedProductCategory) {
+            dispatch(deleteProductCategory(selectedProductCategory));
+            handleClose();
+        }
+    };
 
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
@@ -58,7 +58,7 @@ export default function CategoryProductList () {
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
                         <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
-                        <Link to="/categoryProduct/add" className="btn btn-primary btn-round">Thêm danh mục</Link>
+                        <Link to="/category-product/add" className="btn btn-primary btn-round">Thêm danh mục</Link>
                         <DialogConfirm />
                     </div>
                 </div>
@@ -159,7 +159,7 @@ export default function CategoryProductList () {
                     </div>
                 </div>
             </div>
-            {/* <DialogConfirm open={open} onClose={handleClose} onConfirm={handleConfirm} /> */}
+            <DialogConfirm open={open} onClose={handleClose} onConfirm={handleConfirm} />
         </div>
     )
 }
