@@ -3,6 +3,7 @@ import axios from "axios";
 export const FETCH_CUSTOMER_REQUEST = 'FETCH_CUSTOMER_REQUEST';
 export const FETCH_CUSTOMER_SUCCESS = 'FETCH_CUSTOMER_SUCCESS';
 export const FETCH_CUSTOMER_FAILURE = 'FETCH_CUSTOMER_FAILURE';
+export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
@@ -21,6 +22,11 @@ export const fetchCustomerFailure = error => ({
     payload: error
 });
 
+export const setCurrentPage = (page) => ({
+    type: SET_CURRENT_PAGE,
+    payload: page
+});
+
 export const fetchCustomer = () => {
     return dispatch => {
         dispatch(fetchCustomerRequest());
@@ -35,6 +41,7 @@ export const fetchCustomer = () => {
             });
     };
 };
+
 
 
 export const addCustomer = (customer) => {

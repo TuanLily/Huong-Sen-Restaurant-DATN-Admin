@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom'
-import { deleteCustomer, fetchCustomer } from '../../Actions/CustomerActions';
+import { deleteCustomer, fetchCustomer, setCurrentPage } from '../../Actions/CustomerActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 
 export default function CustomerList() {
     const dispatch = useDispatch();
     const customerState = useSelector(state => state.customer);
+
     const navigate = useNavigate();
 
     const [open, setOpen] = useState(false);
@@ -16,6 +17,12 @@ export default function CustomerList() {
     useEffect(() => {
         dispatch(fetchCustomer());
     }, [dispatch]);
+
+    useEffect(() => {
+        if (customerState.allCustomers.length > 0) {
+            dispatch(setCurrentPage(customerState.currentPage));
+        }
+    }, [dispatch, customerState.allCustomers, customerState.currentPage]);
 
     const handleClickOpen = (customerId) => {
         setSelectedCustomer(customerId);
@@ -37,7 +44,6 @@ export default function CustomerList() {
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
     };
-
 
     return (
         <div className="container">
@@ -107,11 +113,6 @@ export default function CustomerList() {
                                                     <td colSpan="7">No customers found.</td>
                                                 </tr>
                                             )}
-                                            {customerState.error && (
-                                                <tr>
-                                                    <td colSpan="7">Error: {customerState.error}</td>
-                                                </tr>
-                                            )}
                                             {customerState.customer && customerState.customer.map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>{index + 1}</td>
@@ -135,7 +136,12 @@ export default function CustomerList() {
                                     </table>
                                 </div>
                                 <div className='my-2'>
-                                    <CustomPagination />
+                                    <CustomPagination
+                                        count={Math.ceil((customerState.allCustomers).length / customerState.pageSize)}
+                                        onPageChange={(page) => {
+                                            dispatch(setCurrentPage(page));
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </div>

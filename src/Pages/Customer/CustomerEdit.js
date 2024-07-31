@@ -13,16 +13,12 @@ export default function CustomerEdit() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const customerState = useSelector((state) => state.customer);
+    const customerState = useSelector(state => state.customer);
     
     const [initialAvatar, setInitialAvatar] = useState(null);
     const [avatar, setAvatar] = useState('');
     const [initialPassword, setInitialPassword] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
-
-    useEffect(() => {
-        dispatch(fetchCustomer());
-    }, [dispatch]);
 
     useEffect(() => {
         const customer = customerState.customer.find((cust) => cust.id === parseInt(id));
@@ -66,10 +62,6 @@ export default function CustomerEdit() {
             setValue('avatar', fileNames[0]); // Cập nhật giá trị của avatar trong form
         }
     };
-
-    if (customerState.error) {
-        return <p>Error: {customerState.error}</p>;
-    }
 
     return (
         <div className="container">
