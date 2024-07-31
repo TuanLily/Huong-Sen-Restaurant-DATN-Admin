@@ -28,10 +28,10 @@ const AdminRoutes = {
     blogEdit: 'blog/edit',
     blogDelete: 'blog/delete',
 
-    categoryBlog: 'categoryBlog',
-    categoryBlogAdd: 'categoryBlog/add',
-    categoryBlogEdit: 'categoryBlog/edit',
-    categoryBlogDelete: 'categoryBlog/delete',
+    categoryBlog: 'category-blog',
+    categoryBlogAdd: 'category-blog/add',
+    categoryBlogEdit: 'category-blog/edit/:id',
+    categoryBlogDelete: 'category-blog/delete',
 
     productImage: 'productImage',
     productImageAdd: 'productImage/add',

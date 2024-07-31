@@ -4,6 +4,7 @@ import productReducer from "./ProductReducers";
 import productCategoryReducer from "./ProductCategoryDeducers";
 import roleReducer from "./RoleReducers";
 import permissionsReducer from "./PermissionsReducers";
+import blogsCategoriesReducer from "./BlogsCategoriesReducers";
 
 
 const rootReducer = combineReducers({
@@ -13,7 +14,9 @@ const rootReducer = combineReducers({
     customer: customerReducer,
     role: roleReducer,
     customer: customerReducer,
-    permissions: permissionsReducer
+    permissions: permissionsReducer,
+    customer: customerReducer,
+    categories: blogsCategoriesReducer,
 });
 
 export default rootReducer;
