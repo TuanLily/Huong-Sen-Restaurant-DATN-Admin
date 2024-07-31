@@ -1,41 +1,123 @@
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
+import { useParams, useNavigate } from "react-router-dom";
+import { updateCategoryBlog } from "../../Actions/BlogsCategoriesActions";
+import { SuccessAlert } from "../../Components/Alert/Alert";
 
-export default function CategoryBlogEdit () {
-    return (
-        <div className="container">
-            <div className="page-inner">
+export default function CategoryBlogEdit() {
+  const dispatch = useDispatch();
+  const { id } = useParams();
+  const categoryBlogState = useSelector((state) =>
+    state.categories.categories.find((category) => category.id === parseInt(id))
+  );
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    reset,
+  } = useForm();
+  const navigate = useNavigate();
+
+  const [openSuccess, setOpenSuccess] = useState(false);
+
+  const handleSuccessClose = () => {
+    setOpenSuccess(false);
+  };
+
+  useEffect(() => {
+    if (categoryBlogState) {
+      setValue("name", categoryBlogState.name);
+      setValue("status", categoryBlogState.status);
+    }
+  }, [categoryBlogState, setValue]);
+
+  const onSubmit = (data) => {
+    const updatedData = {
+      ...data,
+      updated_at: new Date().toISOString(),
+    };
+
+    dispatch(updateCategoryBlog(id, updatedData))
+        setOpenSuccess(true);
+        reset();
+        setTimeout(() => {
+          navigate("/category-blog");
+        }, 2000);
+      ((error) => {
+        console.error("Error updating category blog:", error);
+      });
+  };
+
+  return (
+    <div className="container">
+      <div className="page-inner">
+        <div className="row">
+          <form className="col-md-12" onSubmit={handleSubmit(onSubmit)}>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Sửa danh mục</div>
+              </div>
+              <div className="card-body">
                 <div className="row">
-                    <form className="col-md-12">
-                        <div className="card">
-                            <div className="card-header">
-                                <div className="card-title">Cập nhật danh mục</div>
-                            </div>
-                            <div className="card-body">
-                                <div className="row">
-                                    <div className="col-md-6 col-lg-6">
-                                        <div className="form-group">
-                                            <label for="name">Tên danh mục</label>
-                                            <input type="text" className="form-control" id="name" placeholder="Nhập tên danh mục"/>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6 col-lg-6">
-                                        <div className="form-group">
-                                            <label for="description">Mô tả</label>
-                                            <textarea className="form-control" id="description" rows="1"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="card-action">
-                                <div className="btn-group mt-3" role="group">
-                                    <button className="btn btn-success">Submit</button>
-                                    <button className="btn btn-danger">Cancel</button>
-                                </div>   
-                            </div>
-                        </div>
-                    </form>
+                  <div className="col-md-6 col-lg-6">
+                    <div className="form-group">
+                      <label htmlFor="name">Tên danh mục</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="name"
+                        placeholder="Nhập tên danh mục"
+                        {...register("name", {
+                          required: "Tên danh mục là bắt buộc",
+                        })}
+                      />
+                      {errors.name && (
+                        <p className="text-danger">{errors.name.message}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col-md-6 col-lg-6">
+                    <div className="form-group">
+                      <label htmlFor="status">Trạng thái</label>
+                      <select
+                        id="status"
+                        className="form-control"
+                        {...register("status")}
+                      >
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
+              </div>
+              <div className="card-footer">
+                <div className="btn-group mt-3" role="group">
+                  <button type="submit" className="btn btn-success">
+                    Cập nhật
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => navigate("/category-blog")}
+                  >
+                    Hủy
+                  </button>
+                </div>
+              </div>
             </div>
+          </form>
+          <SuccessAlert
+            open={openSuccess}
+            onClose={handleSuccessClose}
+            message="Cập nhật danh mục thành công!"
+            vertical="top"
+            horizontal="right"
+          />
         </div>
-    )
+      </div>
+    </div>
+  );
 }
