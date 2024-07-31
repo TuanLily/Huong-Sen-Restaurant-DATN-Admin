@@ -264,6 +264,11 @@ export default function MenuBar() {
                             <div className="collapse" id="roleManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
+                                        <Link to='role'>
+                                            <span className="sub-item">Quản lý vai trò</span>
+                                        </Link>
+                                    </li>
+                                    <li>
                                         <Link to='permissions'>
                                             <span className="sub-item">Quản lý quyền hạn</span>
                                         </Link>
