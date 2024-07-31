@@ -1,7 +1,62 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { deletePermissions, fetchPermissions } from '../../Actions/PermissionsActions';
+import DialogConfirm from '../../Components/Dialog/Dialog';
+import CustomPagination from '../../Components/Pagination/CustomPagination';
 
-export default function PermissionsList () {
+export default function PermissionsList() {
+    const dispatch = useDispatch();
+    const permissionsState = useSelector(state => state.permissions);
+    console.log(permissionsState);
+    const navigate = useNavigate();
+
+    const [open, setOpen] = useState(false);
+    const [selectedPermissions, setSelectedPermissions] = useState(null);
+
+    // Pagination state
+    const itemsPerPage = 5;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    useEffect(() => {
+        dispatch(fetchPermissions(currentPage));
+    }, [dispatch, currentPage]);
+
+    const handlePageChange = (event, page) => {
+        setCurrentPage(page);
+    };
+
+    // Calculate paginated data
+    const totalPages = Math.ceil((permissionsState.total || 0) / itemsPerPage); // Ensure total is defined
+    const indexOfLastPermission = currentPage * itemsPerPage;
+    const indexOfFirstPermission = indexOfLastPermission - itemsPerPage;
+
+    // Ensure permissionsState.permissions is an array
+    const currentPermissions = Array.isArray(permissionsState.permissions)
+        ? permissionsState.permissions.slice(indexOfFirstPermission, indexOfLastPermission)
+        : [];
+
+    const handleClickOpen = (permissionId) => {
+        setSelectedPermissions(permissionId);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedPermissions(null);
+    };
+
+    const handleConfirm = () => {
+        if (selectedPermissions) {
+            dispatch(deletePermissions(selectedPermissions));
+            handleClose();
+        }
+    };
+
+    const handleEdit = (id) => {
+        navigate(`edit/${id}`);
+    };
+
     return (
         <div className="container">
             <div className="page-inner">
@@ -11,8 +66,9 @@ export default function PermissionsList () {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
+                        <Link to="/permissions/manage" className="btn btn-label-info btn-round me-2">Manage</Link>
                         <Link to="/permissions/add" className="btn btn-primary btn-round">Thêm quyền hạn</Link>
+                        <DialogConfirm />
                     </div>
                 </div>
                 <div className="row">
@@ -20,7 +76,7 @@ export default function PermissionsList () {
                         <div className="card card-round">
                             <div className="card-header">
                                 <div className="card-head-row card-tools-still-right">
-                                    <div className="card-title">Danh sách</div>
+                                    <div className="card-title">Danh sách quyền hạn</div>
                                     <div className="card-tools">
                                         <div className="dropdown">
                                             <button
@@ -51,55 +107,56 @@ export default function PermissionsList () {
                                         <thead className="thead-light">
                                             <tr>
                                                 <th scope="col">STT</th>
-                                                <th className='w-10' scope="col">Hình ảnh</th>
                                                 <th scope="col">Tên quyền hạn</th>
                                                 <th scope="col">Thao tác</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Xem</td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/permissions/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/permissions/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>02</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Chỉnh sửa</td>                                              
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/permissions/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/permissions/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                           
+                                            {permissionsState.loading && (
+                                                <tr>
+                                                    <td colSpan="3">Loading...</td>
+                                                </tr>
+                                            )}
+                                            {!permissionsState.loading && (Array.isArray(permissionsState.permissions) && permissionsState.permissions.length === 0) && (
+                                                <tr>
+                                                    <td colSpan="3">No permissions found.</td>
+                                                </tr>
+                                            )}
+                                            {permissionsState.error && (
+                                                <tr>
+                                                    <td colSpan="3">Error: {permissionsState.error}</td>
+                                                </tr>
+                                            )}
+                                            {currentPermissions.map((item, index) => (
+                                                <tr key={item.id}>
+                                                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
+                                                    <td>{item.name}</td>
+                                                    <td>
+                                                        <div className="btn-group mt-3" role="group">
+                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
+                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                <span className='text-danger'>Xóa</span>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
+                                </div>
+                                <div className='my-2'>
+                                    <CustomPagination count={totalPages} onPageChange={handlePageChange} />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <DialogConfirm
+                open={open}
+                onClose={handleClose}
+                onConfirm={handleConfirm}
+            />
         </div>
-    )
+    );
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import Pagination from '@mui/material/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCustomer } from '../../Actions/CustomerActions';
+import { fetchPermissions } from '../../Actions/PermissionsActions';
 
 const CustomPagination = ({ count, onPageChange }) => {
     const dispatch = useDispatch();
@@ -14,6 +15,8 @@ const CustomPagination = ({ count, onPageChange }) => {
         }
         // Dispatch hành động để cập nhật dữ liệu cho trang hiện tại
         dispatch(fetchCustomer(page));
+        
+        
     };
 
     return (
