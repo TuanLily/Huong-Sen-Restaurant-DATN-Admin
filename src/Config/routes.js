@@ -23,10 +23,10 @@ const AdminRoutes = {
     employeeEdit: 'employee/edit',
     employeeDelete: 'employee/delete',
 
-    blog: 'blog',
-    blogAdd: 'blog/add',
-    blogEdit: 'blog/edit',
-    blogDelete: 'blog/delete',
+    blog: 'blogs',
+    blogAdd: 'blogs/add',
+    blogEdit: 'blogs/edit/:id',
+    blogDelete: 'blogs/delete',
 
     categoryBlog: 'category-blog',
     categoryBlogAdd: 'category-blog/add',

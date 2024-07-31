@@ -1,7 +1,43 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { fetchBlog, deleteBlog } from '../../Actions/BlogActions';
+import DialogConfirm from '../../Components/Dialog/Dialog';
+import BlogPagination from '../../Components/Pagination/BlogPagination';
 
-export default function BlogList () {
+export default function BlogList() {
+    const dispatch = useDispatch();
+    const blogState = useSelector(state => state.blog);
+    const navigate = useNavigate();
+
+    const [open, setOpen] = useState(false);
+    const [selectedBlog, setSelectedBlog] = useState(null);
+
+    useEffect(() => {
+        dispatch(fetchBlog());
+    }, [dispatch]);
+
+    const handleClickOpen = (blogId) => {
+        setSelectedBlog(blogId);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedBlog(null);
+    };
+
+    const handleConfirm = () => {
+        if (selectedBlog) {
+            dispatch(deleteBlog(selectedBlog));
+            handleClose();
+        }
+    };
+
+    const handleEdit = (id) => {
+        navigate(`edit/${id}`);
+    };
+
     return (
         <div className="container">
             <div className="page-inner">
@@ -12,7 +48,7 @@ export default function BlogList () {
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
                         <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
-                        <Link to="/blog/add" className="btn btn-primary btn-round">Thêm bài viết</Link>
+                        <Link to="/blogs/add" className="btn btn-primary btn-round">Thêm bài viết</Link>
                     </div>
                 </div>
                 <div className="row">
@@ -51,107 +87,66 @@ export default function BlogList () {
                                         <thead className="thead-light">
                                             <tr>
                                                 <th scope="col">STT</th>
-                                                <th className='w-10' scope="col">Ảnh bài viết</th>
                                                 <th scope="col">Tiêu đề</th>
                                                 <th scope="col">Nội dung</th>
                                                 <th scope="col">Tác giả</th>
-                                                <th scope="col">Danh mục</th>
+                                                <th scope='col'>Hình ảnh</th>
+                                                {/* <th scope="col">Danh mục</th> */}
                                                 <th scope="col">Thao tác</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid w-100 rounded" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>
-                                                    Thức ăn
-                                                </td>
-                                                <td>
-                                                    Thức ăn là một cái giống gì đó tất yếu với bao tử...
-                                                </td>
-                                                <td>
-                                                    Trần Quốc Hẹo
-                                                </td>
-                                                <td>
-                                                <span className="badge badge-success">Mẹo vặt</span>
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/blog/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/blog/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid w-100 rounded" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>
-                                                    Thức ăn
-                                                </td>
-                                                <td>
-                                                    Thức ăn là một cái giống gì đó tất yếu với bao tử...
-                                                </td>
-                                                <td>
-                                                    Trần Quốc Hẹo
-                                                </td>
-                                                <td>
-                                                <span className="badge badge-success">Mẹo vặt</span>
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/blog/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/blog/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid w-100 rounded" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>
-                                                    Thức ăn
-                                                </td>
-                                                <td>
-                                                    Thức ăn là một cái giống gì đó tất yếu với bao tử...
-                                                </td>
-                                                <td>
-                                                    Trần Quốc Hẹo
-                                                </td>
-                                                <td>
-                                                <span className="badge badge-success">Mẹo vặt</span>
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/blog/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/blog/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            {blogState.loading && (
+                                                <tr>
+                                                    <td colSpan="7">Loading...</td>
+                                                </tr>
+                                            )}
+                                            {!blogState.loading && blogState.blog.length === 0 && (
+                                                <tr>
+                                                    <td colSpan="7">No blogs found.</td>
+                                                </tr>
+                                            )}
+                                            {blogState.error && (
+                                                <tr>
+                                                    <td colSpan="7">Error: {blogState.error}</td>
+                                                </tr>
+                                            )}
+                                            {blogState.blog && blogState.blog.map((item, index) => (
+                                                <tr key={item.id}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{item.title}</td>
+                                                    <td>{item.content}</td>
+                                                    <td>{item.author}</td>
+                                                    <td>     <img className="img-fluid rounded" src={item.poster || '../Assets/Images/default.jpg'} alt="poster" width={70} /></td>
+                                                    {/* <td>
+                                                        <span className="badge badge-success">{item.blog_category_id}</span>
+                                                    </td> */}
+                                                    <td>
+                                                        <div className="btn-group mt-3" role="group">
+                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
+                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                <span className='text-danger'>Xóa</span>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
+                                </div>
+                                <div className='my-2'>
+                                    <BlogPagination />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <DialogConfirm
+                open={open}
+                onClose={handleClose}
+                onConfirm={handleConfirm}
+            />
         </div>
-    )
+    );
 }

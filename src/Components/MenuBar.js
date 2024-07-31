@@ -108,7 +108,7 @@ export default function MenuBar() {
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to='blog'>
+                                        <Link to='blogs'>
                                             <span className="sub-item">Bài viết</span>
                                         </Link>
                                     </li>
