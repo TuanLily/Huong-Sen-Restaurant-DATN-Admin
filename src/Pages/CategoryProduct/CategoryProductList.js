@@ -126,9 +126,7 @@ export default function CategoryProductList () {
                                                     <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                                                     <td>{item.name}</td>
                                                     <td>
-                                                        <span className="badge badge-success">
-                                                            {item.status == 1 ? 'Hoạt động' : 'Ngưng hoạt động'}
-                                                        </span>
+                                                        {item.status == 1 ? <span className="badge badge-success">Hoạt động</span> : <span className="badge badge-danger">Ngưng hoạt động</span>}
                                                     </td>
                                                     <td>
                                                         {item.created_at.substring(0, 10)}

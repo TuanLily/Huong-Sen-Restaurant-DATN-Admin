@@ -49,10 +49,12 @@ export default function CategoryProductAdd () {
                                     <div className="col-md-6 col-lg-6">
                                         <div className="form-group h-75">
                                             <label>Trạng thái</label>
-                                            <select className="form-select h-75" id='status' {...register('status')}>
+                                            <select className="form-select h-75" id='status' {...register('status' , { required: 'Vui lòng chọn trạng thái!' })}>
+                                                <option value="">---</option>
                                                 <option value="1">Hoạt động</option>
                                                 <option value="0">Ngưng hoạt động</option>
                                             </select>
+                                            {errors.status && <div className="text-danger">{errors.status.message}</div>}
                                         </div>
                                     </div>
                                 </div>

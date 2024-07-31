@@ -8,7 +8,7 @@ import { SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
 
 export default function ProductEdit () {
-    const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
+    const { register, handleSubmit, setValue, formState: { errors }, reset, watch } = useForm();
 
     const { id } = useParams();
     const dispatch = useDispatch();
@@ -89,7 +89,7 @@ export default function ProductEdit () {
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="code">Mã hiệu sản phẩm</label>
-                                            <input type="text" className="form-control" id="product_code" placeholder="Nhập mã hiệu sản phẩm" {...register('product_code', { required: 'Vui lòng điền mã hiệu!' })}/>
+                                            <input type="text" className="form-control" id="product_code" placeholder="Nhập mã hiệu sản phẩm" {...register('product_code', { required: 'Vui lòng điền mã hiệu!' , validate: value => {const exists = productState.product.some (p => p.product_code == value && p.id !== parseInt(id)) ; return !exists || 'Mã hiệu sản phẩm đã tồn tại!' } })}/>
                                             {errors.product_code && <div className="text-danger">{errors.product_code.message}</div>}
                                         </div>
                                         <div className="form-group">
@@ -118,7 +118,7 @@ export default function ProductEdit () {
                                     <div className="col-md-6 col-lg-6">
                                         <div className="form-group">
                                             <label htmlFor="saleEmail">Giá khuyến mãi</label>
-                                            <input type="number" className="form-control" id="sale_price" placeholder="Nhập giá khuyến mãi" {...register('sale_price', { required: 'Vui lòng điền giá khuyến mãi!' })}/>
+                                            <input type="number" className="form-control" id="sale_price" placeholder="Nhập giá khuyến mãi" {...register('sale_price', { required: 'Vui lòng điền giá khuyến mãi!' , validate: value => {const price = Number(watch('price')) ; const sale_price = Number(value) ; return sale_price <= price || 'Giá khuyến mãi không được lớn hơn giá niêm yết!' ;}})}/>
                                             {errors.sale_price && <div className="text-danger">{errors.sale_price.message}</div>}
                                         </div>
                                         <div className="form-group">

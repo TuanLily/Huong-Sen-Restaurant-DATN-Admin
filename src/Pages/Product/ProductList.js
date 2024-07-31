@@ -5,6 +5,8 @@ import { fetchProduct, deleteProduct } from '../../Actions/ProductActions';
 import { fetchProductCategory } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import ProductPagination from '../../Components/Pagination/ProductPagination';
+import { WidthFull } from '@mui/icons-material';
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function ProductList () {
     const dispatch = useDispatch();
@@ -106,10 +108,11 @@ export default function ProductList () {
                                         <thead className="thead-light">
                                             <tr>
                                                 <th scope="col">STT</th>
-                                                <th className='w-10' scope="col">Hình ảnh</th>
+                                                <th style={{ width: '10%' }} scope="col">Hình ảnh</th>
                                                 <th scope="col">Tên sản phẩm</th>
                                                 <th scope="col">Mô tả</th>
                                                 <th scope="col">Danh mục</th>
+                                                <th scope="col">Trạng thái</th>
                                                 <th scope="col">Giá</th>
                                                 <th scope="col">Thao tác</th>
                                             </tr>
@@ -117,7 +120,7 @@ export default function ProductList () {
                                         <tbody>
                                             {productState.loading && (
                                                 <tr>
-                                                    <td colSpan="7">Loading...</td>
+                                                    <td colSpan="7"><CustomSpinner/></td>
                                                 </tr>
                                             )}
                                             {!productState.loading && productState.product.length === 0 && (
@@ -138,8 +141,12 @@ export default function ProductList () {
                                                     </td>
                                                     <td>{item.name}</td>
                                                     <td>{item.description}</td>
+                                                    <td>{getCategoryName(item.categories_id)}</td>
                                                     <td>
-                                                        <span className="badge badge-success">{getCategoryName(item.categories_id)}</span>
+                                                        {
+                                                            item.status === 1 ? <span className="badge badge-success">Hoạt động</span> : <span className="badge badge-danger">Ngừng kinh doanh</span>
+                                                        }
+                                                        {/* <span className="badge badge-success">{item.status == 1 ? 'Hoạt động' : 'Ngừng kinh doanh'}</span> */}
                                                     </td>
                                                     <td>
                                                         <span className="text-danger text-decoration-line-through">{item.price} VND</span>
