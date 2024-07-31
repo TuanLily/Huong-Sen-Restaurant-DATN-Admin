@@ -183,10 +183,10 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.PlacesEdit, component: PlacesEdit },
     { path: AdminConfig.routes.PlacesDelete, component: PlacesDelete },
     
-    { path: AdminConfig.routes.Roles, component: RolesList },
-    { path: AdminConfig.routes.RolesAdd, component: RolesAdd },
-    { path: AdminConfig.routes.RolesEdit, component: RolesEdit },
-    { path: AdminConfig.routes.RolesDelete, component: RolesDelete },
+    { path: AdminConfig.routes.role, component: RolesList },
+    { path: AdminConfig.routes.roleAdd, component: RolesAdd },
+    { path: AdminConfig.routes.roleEdit, component: RolesEdit },
+    { path: AdminConfig.routes.roleDelete, component: RolesDelete },
 
     { path: AdminConfig.routes.Permissions, component: PermissionsList },
     { path: AdminConfig.routes.PermissionsAdd, component: PermissionsAdd },

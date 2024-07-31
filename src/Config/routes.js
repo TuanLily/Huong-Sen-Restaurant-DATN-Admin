@@ -80,10 +80,10 @@ const AdminRoutes = {
     PlacesEdit: 'Places/edit',
     PlacesDelete: 'Places/delete',
 
-    Roles: 'Roles',
-    RolesAdd: 'Roles/add',
-    RolesEdit: 'Roles/edit',
-    RolesDelete: 'Roles/delete',
+    role: 'role',
+    roleAdd: 'role/add',
+    roleEdit: 'role/edit/:id',
+    roleDelete: 'role/delete',
 
     Permissions: 'permissions',
     PermissionsAdd: 'permissions/add',

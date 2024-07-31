@@ -1,18 +1,57 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom'
+import { deleteRole, fetchRole } from '../../Actions/RoleActions';
+import DialogConfirm from '../../Components/Dialog/Dialog';
+import RolePagination from '../../Components/Pagination/RolePagination';
+import { format } from 'date-fns';
 
-export default function RolesList () {
+export default function RolesList() {
+    const dispatch = useDispatch();
+    const roleState = useSelector(state => state.role);
+    const navigate = useNavigate();
+
+    const [open, setOpen] = useState(false);
+    const [selectedRole, setSelectedRole] = useState(null);
+
+    useEffect(() => {
+        dispatch(fetchRole());
+    }, [dispatch]);
+
+    const handleClickOpen = (roleID) => {
+        setSelectedRole(roleID);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedRole(null);
+    };
+
+    const handleConfirm = () => {
+        if (selectedRole) {
+            dispatch(deleteRole(selectedRole));
+            handleClose();
+        }
+    };
+
+    const handleEdit = (id) => {
+        navigate(`edit/${id}`);
+    };
+
+
     return (
         <div className="container">
             <div className="page-inner">
                 <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
                     <div>
-                        <h3 className="fw-bold mb-3">Quản lý vai trò</h3>
+                        <h3 className="fw-bold mb-3">Quản lý khách hàng</h3>
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
-                        <Link to="/Roles/add" className="btn btn-primary btn-round">Thêm thứ hạng</Link>
+                        <Link to="#" className="btn btn-label-info btn-round me-2">Manage</Link>
+                        <Link to="/role/add" className="btn btn-primary btn-round">Thêm vai trò</Link>
+                        <DialogConfirm />
                     </div>
                 </div>
                 <div className="row">
@@ -51,75 +90,65 @@ export default function RolesList () {
                                         <thead className="thead-light">
                                             <tr>
                                                 <th scope="col">STT</th>
-                                                <th className='w-10' scope="col">Hình ảnh</th>
-                                                <th scope="col">Tên vai trò</th>
+                                                <th scope="col">Tên</th>
                                                 <th scope="col">Mô tả</th>
+                                                <th scope="col">Ngày tạo</th>
                                                 <th scope="col">Thao tác</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Admin</td>
-                                                <td>Mô tả</td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/Roles/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/Roles/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>02</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Nhân viên</td>
-                                                <td>Mô tả</td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/Roles/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/Roles/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>03</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Quản lý</td>
-                                                <td>Mô tả</td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/Roles/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/Roles/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                        {roleState?.loading && (
+                                                <tr>
+                                                    <td colSpan="7">Loading...</td>
+                                                </tr>
+                                            )}
+                                            {!roleState?.loading && roleState?.role?.length === 0 && (
+                                                <tr>
+                                                    <td colSpan="7">No role found.</td>
+                                                </tr>
+                                            )}
+                                            {roleState?.error && (
+                                                <tr>
+                                                    <td colSpan="7">Error: {roleState?.error}</td>
+                                                </tr>
+                                            )}
+                                            {roleState.role && roleState.role.map((item, index) => (
+                                                <tr key={item.id}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{item.name}</td>
+                                                    <td>{item.description}</td>
+                                                    <td>
+                                                        <div className="d-flex flex-column">
+                                                        <span>Ngày tạo: {format(new Date(item.created_at), 'dd/MM/yyyy HH:mm')}</span>
+                                                        <span>Ngày cập nhật: {format(new Date(item.updated_at), 'dd/MM/yyyy HH:mm')}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div className="btn-group mt-3" role="group">
+                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
+                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                <span className='text-danger'>Xóa</span>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
+                                </div>
+                                <div className='my-2'>
+                                    <RolePagination />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <DialogConfirm
+                open={open}
+                onClose={handleClose}
+                onConfirm={handleConfirm}
+            />
         </div>
     )
 }
