@@ -5,6 +5,7 @@ import { fetchCustomer, updateCustomer } from '../../Actions/CustomerActions';
 import ImageUploadComponent from '../../Components/ImageUpload/ImageUpload';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function CustomerEdit() {
     const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
@@ -14,46 +15,57 @@ export default function CustomerEdit() {
     const navigate = useNavigate();
 
     const customerState = useSelector(state => state.customer);
-    
+
     const [initialAvatar, setInitialAvatar] = useState(null);
     const [avatar, setAvatar] = useState('');
     const [initialPassword, setInitialPassword] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
+    const [loading, setLoading] = useState(false);
+
 
     useEffect(() => {
-        const customer = customerState.customer.find((cust) => cust.id === parseInt(id));
-        if (customer) {
-            setValue('fullname', customer.fullname);
-            setValue('email', customer.email);
-            setValue('address', customer.address);
-            setValue('tel', customer.tel);
-            setValue('password', ''); // Đặt giá trị mật khẩu mặc định rỗng
-            setInitialAvatar(customer.avatar);
-            setAvatar(customer.avatar); // Đặt avatar để hiển thị
-            setInitialPassword(customer.password);
-        }
-    }, [customerState.customer, id, setValue]);
+        const fetchCustomer = async () => {
+            setLoading(true); // Bắt đầu spinner khi tải dữ liệu
+            const customer = customerState.customer.find((cust) => cust.id === parseInt(id));
+            if (customer) {
+                setValue('fullname', customer.fullname);
+                setValue('email', customer.email);
+                setValue('address', customer.address);
+                setValue('tel', customer.tel);
+                setValue('password', ''); // Đặt giá trị mật khẩu mặc định rỗng
+                setInitialAvatar(customer.avatar);
+                setAvatar(customer.avatar); // Đặt avatar để hiển thị
+                setInitialPassword(customer.password);
+            }
+            setLoading(false); // Dừng spinner khi dữ liệu đã được tải
+        };
 
+        fetchCustomer();
+    }, [customerState.customer, id, setValue]);
     const handleSuccessClose = () => {
         setOpenSuccess(false);
     };
 
-    const onSubmit = (data) => {
-        // Nếu không có mật khẩu mới, giữ lại mật khẩu ban đầu
+    const onSubmit = async (data) => {
+        setLoading(true); // Bắt đầu spinner khi gửi form
         const updatedData = {
             ...data,
             password: data.password || initialPassword, // Cập nhật mật khẩu nếu có
             avatar: avatar || initialAvatar // Cập nhật avatar nếu có ảnh mới
         };
 
-        // Gửi dữ liệu cập nhật
-        dispatch(updateCustomer(id, updatedData));
-
-        // Hiển thị thông báo thành công và điều hướng
-        setOpenSuccess(true);
-        setTimeout(() => {
-            navigate('/customer');
-        }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+        try {
+            await dispatch(updateCustomer(id, updatedData));
+            setOpenSuccess(true);
+            reset();
+            setTimeout(() => {
+                navigate('/customer');
+            }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+        } catch (error) {
+            console.error('Error updating customer:', error);
+        } finally {
+            setLoading(false); // Dừng spinner khi hoàn tất gửi form
+        }
     };
 
     const handleImageUpload = (fileNames) => {
@@ -62,6 +74,14 @@ export default function CustomerEdit() {
             setValue('avatar', fileNames[0]); // Cập nhật giá trị của avatar trong form
         }
     };
+
+    if (customerState.loading && loading) {
+        return (
+            <div className="container">
+                <CustomSpinner />
+            </div>
+        );
+    }
 
     return (
         <div className="container">

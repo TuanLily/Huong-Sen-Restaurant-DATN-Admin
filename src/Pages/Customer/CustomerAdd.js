@@ -4,7 +4,8 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
 import { addCustomer } from "../../Actions/CustomerActions";
 import ImageUploadComponent from "../../Components/ImageUpload/ImageUpload";
-import { SuccessAlert } from "../../Components/Alert/Alert";
+import { DangerAlert, SuccessAlert } from "../../Components/Alert/Alert";
+import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 
 export default function CustomerAdd() {
     const dispatch = useDispatch();
@@ -14,9 +15,10 @@ export default function CustomerAdd() {
 
     const [avatar, setAvatar] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
+    const [openError, setOpenError] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const password = watch('password');
-
 
     const handleImageUpload = (fileNames) => {
         if (fileNames.length > 0) {
@@ -28,16 +30,34 @@ export default function CustomerAdd() {
         setOpenSuccess(false);
     };
 
-    const onSubmit = (data) => {
-        data.avatar = avatar;
-        dispatch(addCustomer(data))
-        setOpenSuccess(true);
-        reset();
-        setTimeout(() => {
-            navigate('/customer');
-        }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
-
+    const handleErrorClose = () => {
+        setOpenError(false);
     };
+
+    const onSubmit = async (data) => {
+        setLoading(true); // Bắt đầu spinner
+        data.avatar = avatar;
+        try {
+            await dispatch(addCustomer(data));
+            setOpenSuccess(true);
+            setTimeout(() => {
+                navigate('/customer');
+            }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+        } catch (error) {
+            setOpenError(true); // Hiển thị thông báo lỗi
+            console.error('Error adding customer:', error);
+        } finally {
+            setLoading(false); // Dừng spinner
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="container">
+                <CustomSpinner />
+            </div>
+        );
+    }
 
     return (
         <div className="container">
@@ -124,7 +144,7 @@ export default function CustomerAdd() {
                                                     required: 'Số điện thoại là bắt buộc',
                                                     pattern: {
                                                         value: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/,
-                                                        message: 'Số điện thoại không không đúng định dạng',
+                                                        message: 'Số điện thoại không đúng định dạng',
                                                     },
                                                 })}
                                             />
@@ -155,13 +175,14 @@ export default function CustomerAdd() {
                             </div>
                             <div className="card-footer">
                                 <div className="btn-group mt-3" role="group">
-                                    <button type="submit" className="btn btn-success">Submit</button>
+                                    <button type="submit" className="btn btn-success" disabled={loading}>Submit</button>
                                     <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Cancel</button>
                                 </div>
                             </div>
                         </div>
                     </form>
                     <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Thêm khách hàng thành công!" vertical="top" horizontal="right" />
+                    <DangerAlert open={openError} onClose={handleErrorClose} message="Có lỗi khi thêm tài khoản" vertical="top" horizontal="right" />
                 </div>
             </div>
         </div>

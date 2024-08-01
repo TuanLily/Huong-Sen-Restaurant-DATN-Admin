@@ -1,22 +1,16 @@
 import React from 'react';
 import Pagination from '@mui/material/Pagination';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCustomer } from '../../Actions/CustomerActions';
-import { fetchPermissions } from '../../Actions/PermissionsActions';
 
-const CustomPagination = ({ count, onPageChange }) => {
+const CustomPagination = ({ count, onPageChange, currentPageSelector, fetchAction }) => {
     const dispatch = useDispatch();
-    const currentPage = useSelector(state => state.customer.currentPage); // Giả sử bạn lưu trang hiện tại trong Redux
+    const currentPage = useSelector(currentPageSelector); // Lấy trang hiện tại từ Redux
 
     const handlePageChange = (event, page) => {
-        // Gọi hàm onPageChange từ props
         if (onPageChange) {
-            onPageChange(page);
+            onPageChange(page); // Gọi hàm onPageChange từ props nếu có
         }
-        // Dispatch hành động để cập nhật dữ liệu cho trang hiện tại
-        dispatch(fetchCustomer(page));
-        
-        
+        dispatch(fetchAction(page)); // Dispatch hành động để cập nhật dữ liệu cho trang hiện tại
     };
 
     return (

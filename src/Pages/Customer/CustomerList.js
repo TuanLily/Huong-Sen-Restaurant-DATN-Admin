@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { deleteCustomer, fetchCustomer, setCurrentPage } from '../../Actions/CustomerActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function CustomerList() {
     const dispatch = useDispatch();
@@ -105,7 +106,7 @@ export default function CustomerList() {
                                         <tbody>
                                             {customerState.loading && (
                                                 <tr>
-                                                    <td colSpan="7">Loading...</td>
+                                                    <td colSpan="7"><CustomSpinner /></td>
                                                 </tr>
                                             )}
                                             {!customerState.loading && customerState.customer.length === 0 && (
@@ -137,7 +138,8 @@ export default function CustomerList() {
                                 </div>
                                 <div className='my-2'>
                                     <CustomPagination
-                                        count={Math.ceil((customerState.allCustomers).length / customerState.pageSize)}
+                                        count={Math.ceil((customerState.allCustomers).length / customerState.pageSize)} currentPageSelector={state => state.customer.currentPage}
+                                        fetchAction={fetchCustomer}
                                         onPageChange={(page) => {
                                             dispatch(setCurrentPage(page));
                                         }}
