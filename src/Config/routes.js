@@ -20,7 +20,7 @@ const AdminRoutes = {
 
     employee: 'employee',
     employeeAdd: 'employee/add',
-    employeeEdit: 'employee/edit',
+    employeeEdit: 'employee/edit/:id',
     employeeDelete: 'employee/delete',
 
     blog: 'blogs',

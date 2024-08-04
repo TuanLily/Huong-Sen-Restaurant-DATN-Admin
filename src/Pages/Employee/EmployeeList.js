@@ -1,7 +1,63 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import {
+    deleteEmployee,
+    fetchEmployees,
+    setCurrentPage,
+} from "../../Actions/EmployeeActions";
+import DialogConfirm from "../../Components/Dialog/Dialog";
+import EmployeePagination from "../../Components/Pagination/EmployeePagination";
+import { fetchRole } from "../../Actions/RoleActions";
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
-export default function EmployeeList () {
+export default function EmployeeList() {
+    const dispatch = useDispatch();
+    const employeeState = useSelector((state) => state.employee);
+    const roleState = useSelector((state) => state.role);
+
+    const navigate = useNavigate();
+
+    const [open, setOpen] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+    useEffect(() => {
+        dispatch(fetchEmployees());
+        dispatch(fetchRole());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (employeeState.allEmployees.length > 0) {
+            dispatch(setCurrentPage(employeeState.currentPage));
+        }
+    }, [dispatch, employeeState.allEmployees, employeeState.currentPage]);
+
+    const getRoleName = (id) => {
+        const role = roleState.role.find((rol) => rol.id === id);
+        return role ? role.name : "Không xác định";
+    };
+
+    const handleClickOpen = (employeeId) => {
+        setSelectedEmployee(employeeId);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedEmployee(null);
+    };
+
+    const handleConfirm = () => {
+        if (selectedEmployee) {
+            dispatch(deleteEmployee(selectedEmployee));
+            handleClose();
+        }
+    };
+
+    const handleEdit = (id) => {
+        navigate(`edit/${id}`);
+    };
+
     return (
         <div className="container">
             <div className="page-inner">
@@ -11,8 +67,13 @@ export default function EmployeeList () {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
-                        <Link to="/employee/add" className="btn btn-primary btn-round">Thêm nhân viên</Link>
+                        <Link to="" className="btn btn-label-info btn-round me-2">
+                            Manage
+                        </Link>
+                        <Link to="/employee/add" className="btn btn-primary btn-round">
+                            Thêm nhân viên
+                        </Link>
+                        <DialogConfirm />
                     </div>
                 </div>
                 <div className="row">
@@ -37,9 +98,15 @@ export default function EmployeeList () {
                                                 className="dropdown-menu"
                                                 aria-labelledby="dropdownMenuButton"
                                             >
-                                                <a className="dropdown-item" href="#">Action</a>
-                                                <a className="dropdown-item" href="#">Another action</a>
-                                                <a className="dropdown-item" href="#">Something else here</a>
+                                                <a className="dropdown-item" href="#">
+                                                    Action
+                                                </a>
+                                                <a className="dropdown-item" href="#">
+                                                    Another action
+                                                </a>
+                                                <a className="dropdown-item" href="#">
+                                                    Something else here
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -51,9 +118,10 @@ export default function EmployeeList () {
                                         <thead className="thead-light">
                                             <tr>
                                                 <th scope="col">STT</th>
-                                                <th className='w-10' scope="col">Ảnh đại diện</th>
-                                                <th scope="col">Học và tên</th>
-                                                <th scope="col">Tên đăng nhập</th>
+                                                <th className="w-10" scope="col">
+                                                    Ảnh đại diện
+                                                </th>
+                                                <th scope="col">Họ và tên</th>
                                                 <th scope="col">Email</th>
                                                 <th scope="col">Sdt</th>
                                                 <th scope="col">Vai trò</th>
@@ -62,42 +130,97 @@ export default function EmployeeList () {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>
-                                                    <img className="img-fluid rounded w-100" src='../Assets/Images/a1.jpg'/>
-                                                </td>
-                                                <td>Nguyễn Văn Â</td>
-                                                <td>Văn Â</td>
-                                                <td>dtd872938@gmail.com</td>
-                                                <td>
-                                                    07878372822
-                                                </td>
-                                                <td>
-                                                    <span className="badge badge-success">Quản lý đặt bàn</span>
-                                                </td>
-                                                <td>
-                                                    Đang làm việc
-                                                </td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/employee/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/employee/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            {employeeState.loading && (
+                                                <tr>
+                                                    <td colSpan="9"><CustomSpinner/></td>
+                                                </tr>
+                                            )}
+                                            {!employeeState.loading &&
+                                                employeeState.employee.length === 0 && (
+                                                    <tr>
+                                                        <td colSpan="9">No employees found.</td>
+                                                    </tr>
+                                                )}
+                                            {employeeState.employee &&
+                                                employeeState.employee.map((item, index) => (
+                                                    <tr key={item.id}>
+                                                        <td>{index + 1}</td>
+                                                        <td>
+                                                            <img
+                                                                className="img-fluid rounded w-100"
+                                                                src={
+                                                                    item.avatar || "../Assets/Images/default.jpg"
+                                                                }
+                                                                alt="Avatar"
+                                                                width={70}
+                                                            />
+                                                        </td>
+                                                        <td>{item.fullname}</td>
+                                                        <td>{item.email}</td>
+                                                        <td>{item.tel}</td>
+                                                        <td>
+                                                            <span className="badge" style={{backgroundColor: "green"}}>
+                                                                {getRoleName(item.role_id)}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <span
+                                                                className="badge"
+                                                                style={{
+                                                                    backgroundColor:
+                                                                        item.status === 1 ? "green" : "red",
+                                                                    color: "white",
+                                                                    
+                                                                }}
+                                                            >
+                                                                {item.status === 1
+                                                                    ? "Đang làm việc"
+                                                                    : "Nghỉ việc"}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <div className="btn-group mt-3" role="group">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-outline-success"
+                                                                    onClick={() => handleEdit(item.id)}
+                                                                >
+                                                                    Sửa
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-outline-danger"
+                                                                    onClick={() => handleClickOpen(item.id)}
+                                                                >
+                                                                    <span className="text-danger">Xóa</span>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
                                         </tbody>
                                     </table>
+                                </div>
+                                <div className="my-2">
+                                    <EmployeePagination
+                                        count={Math.ceil(
+                                            employeeState.allEmployees.length / employeeState.pageSize
+                                        )}
+                                        onPageChange={(page) => {
+                                            dispatch(setCurrentPage(page));
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <DialogConfirm
+                open={open}
+                onClose={handleClose}
+                onConfirm={handleConfirm}
+            />
         </div>
-    )
+    );
 }
