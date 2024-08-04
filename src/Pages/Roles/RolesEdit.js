@@ -58,7 +58,7 @@ export default function RolesEdit() {
                             </div>
                             <div className="card-body">
                                 <div className="row">
-                                    <div className="col-md-6 col-lg-6">
+                                    <div className="col-md-6">
                                         <div className="form-group">
                                             <label htmlFor="name">Tên vai trò</label>
                                             <input
@@ -70,9 +70,11 @@ export default function RolesEdit() {
                                             />
                                             {errors.name && <p>{errors.name.message}</p>}
                                         </div>
+                                        </div>
+                                        <div className="col-md-6">
                                         <div className="form-group">
                                             <label htmlFor="description">Mô tả</label>
-                                            <input
+                                            <textarea
                                                 type="text"
                                                 className="form-control"
                                                 id="description"

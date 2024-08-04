@@ -3,6 +3,7 @@ import axios from "axios";
 export const FETCH_ROLE_REQUEST = 'FETCH_ROLE_REQUEST';
 export const FETCH_ROLE_SUCCESS = 'FETCH_ROLE_SUCCESS';
 export const FETCH_ROLE_FAILURE = 'FETCH_ROLE_FAILURE';
+export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
@@ -19,6 +20,11 @@ export const fetchRoleSuccess = roles => ({
 export const fetchRoleFailure = error => ({
     type: FETCH_ROLE_FAILURE,
     payload: error
+});
+
+export const setCurrentPage = (page) => ({
+    type: SET_CURRENT_PAGE,
+    payload: page
 });
 
 export const fetchRole = () => {

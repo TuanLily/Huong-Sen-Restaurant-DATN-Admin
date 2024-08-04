@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom'
-import { deleteRole, fetchRole } from '../../Actions/RoleActions';
+import { Link, useNavigate } from 'react-router-dom';
+import { deleteRole, fetchRole, setCurrentPage } from '../../Actions/RoleActions'; // Ensure setCurrentPage is imported
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import RolePagination from '../../Components/Pagination/RolePagination';
 import { format } from 'date-fns';
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function RolesList() {
     const dispatch = useDispatch();
@@ -17,6 +18,12 @@ export default function RolesList() {
     useEffect(() => {
         dispatch(fetchRole());
     }, [dispatch]);
+
+    useEffect(() => {
+        if (roleState.allRoles.length > 0) {
+            dispatch(setCurrentPage(roleState.currentPage));
+        }
+    }, [dispatch, roleState.allRoles, roleState.currentPage]);
 
     const handleClickOpen = (roleID) => {
         setSelectedRole(roleID);
@@ -39,13 +46,12 @@ export default function RolesList() {
         navigate(`edit/${id}`);
     };
 
-
     return (
         <div className="container">
             <div className="page-inner">
                 <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
                     <div>
-                        <h3 className="fw-bold mb-3">Quản lý khách hàng</h3>
+                        <h3 className="fw-bold mb-3">Quản lý vai trò</h3>
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
@@ -97,9 +103,9 @@ export default function RolesList() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        {roleState?.loading && (
+                                            {roleState?.loading && (
                                                 <tr>
-                                                    <td colSpan="7">Loading...</td>
+                                                    <td colSpan="7"><CustomSpinner/></td>
                                                 </tr>
                                             )}
                                             {!roleState?.loading && roleState?.role?.length === 0 && (
@@ -112,15 +118,15 @@ export default function RolesList() {
                                                     <td colSpan="7">Error: {roleState?.error}</td>
                                                 </tr>
                                             )}
-                                            {roleState.role && roleState.role.map((item, index) => (
+                                            {roleState?.role && roleState.role.map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>{index + 1}</td>
                                                     <td>{item.name}</td>
                                                     <td>{item.description}</td>
                                                     <td>
                                                         <div className="d-flex flex-column">
-                                                        <span>Ngày tạo: {format(new Date(item.created_at), 'dd/MM/yyyy HH:mm')}</span>
-                                                        <span>Ngày cập nhật: {format(new Date(item.updated_at), 'dd/MM/yyyy HH:mm')}</span>
+                                                            <span>Ngày tạo: {format(new Date(item.created_at), 'dd/MM/yyyy HH:mm')}</span>
+                                                            <span>Ngày cập nhật: {format(new Date(item.updated_at), 'dd/MM/yyyy HH:mm')}</span>
                                                         </div>
                                                     </td>
                                                     <td>
@@ -136,9 +142,16 @@ export default function RolesList() {
                                         </tbody>
                                     </table>
                                 </div>
-                                <div className='my-2'>
-                                    <RolePagination />
-                                </div>
+                                {roleState.allRoles && (
+                                    <div className='my-2'>
+                                        <RolePagination 
+                                            count={Math.ceil((roleState.allRoles).length / roleState.pageSize)}
+                                            onPageChange={(page) => {
+                                                dispatch(setCurrentPage(page));
+                                            }} 
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

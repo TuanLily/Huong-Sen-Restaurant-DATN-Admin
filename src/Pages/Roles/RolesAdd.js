@@ -49,9 +49,11 @@ export default function RolesAdd() {
                                             />
                                             {errors.name && <p className="text-danger">{errors.name.message}</p>}
                                         </div>
+                                        </div>
+                                        <div className="col-md-6">
                                         <div className="form-group">
                                             <label htmlFor="description">Mô tả</label>
-                                            <input
+                                            <textarea
                                                 type="text"
                                                 className="form-control"
                                                 id="description"
