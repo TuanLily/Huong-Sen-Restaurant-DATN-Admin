@@ -36,21 +36,20 @@ export const fetchPromotion = () => {
     };
 };
 
-// export const addProductCategory = (product) => {
-//     return dispatch => {
-//         dispatch(fetchProductCategoryRequest());
-//         axios.post(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}`, product)
-//             .then((response) => {
-//                 // Sau khi thêm san pham mới, gọi lại fetchProduct để làm mới danh sách
-//                 dispatch(fetchProductCategorySuccess(response.data.data));
-//                 dispatch(fetchProductCategory());
-//             })
-//             .catch(error => {
-//                 const errorMsg = error.message;
-//                 dispatch(fetchProductCategoryFailure(errorMsg));
-//             });
-//     };
-// };
+export const addPromotion = (product) => {
+    return dispatch => {
+        dispatch(fetchPromotionRequest());
+        axios.post(`${API_ENDPOINT}/${AdminConfig.routes.promotion}`, product)
+            .then((response) => {
+                dispatch(fetchPromotionSuccess(response.data.data));
+                dispatch(fetchPromotion());
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchPromotionsFailure(errorMsg));
+            });
+    };
+};
 
 // export const updateProductCategory = (id, data) => {
 //     return (dispatch) => {
