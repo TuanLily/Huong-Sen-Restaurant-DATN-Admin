@@ -58,6 +58,10 @@ export default function ProductList () {
         navigate(`edit/${id}`);
     };
 
+    const formatCurrency = (value) => {
+        return `${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
+    };
+
     return (
         <div className="container">
             <div className="page-inner">
@@ -146,11 +150,10 @@ export default function ProductList () {
                                                         {
                                                             item.status === 1 ? <span className="badge badge-success">Hoạt động</span> : <span className="badge badge-danger">Ngừng kinh doanh</span>
                                                         }
-                                                        {/* <span className="badge badge-success">{item.status == 1 ? 'Hoạt động' : 'Ngừng kinh doanh'}</span> */}
                                                     </td>
                                                     <td>
-                                                        <span className="text-danger text-decoration-line-through">{item.price} VND</span>
-                                                        <div>{item.sale_price} VND</div>
+                                                        <span className="text-danger text-decoration-line-through">{formatCurrency(item.price)}</span>
+                                                        <div>{formatCurrency(item.sale_price)}</div>
                                                     </td>
                                                     <td>
                                                         <div className="btn-group mt-3" role="group">

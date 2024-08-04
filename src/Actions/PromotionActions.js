@@ -51,19 +51,19 @@ export const addPromotion = (product) => {
     };
 };
 
-// export const updateProductCategory = (id, data) => {
-//     return (dispatch) => {
-//         dispatch(fetchProductCategoryRequest());
-//         axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`, data)
-//             .then((response) => {
-//                 dispatch(fetchProductCategorySuccess(response.data.data));
-//                 dispatch(fetchProductCategory()); // Reload danh sách sau khi cập nhật
-//             })
-//             .catch((error) => {
-//                 dispatch(fetchProductCategoryFailure(error.message));
-//             });
-//     };
-// };
+export const updatePromotions = (id, data) => {
+    return (dispatch) => {
+        dispatch(fetchPromotionRequest());
+        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.promotion}/${id}`, data)
+            .then((response) => {
+                dispatch(fetchPromotionSuccess(response.data.data));
+                dispatch(fetchPromotion()); // Reload danh sách sau khi cập nhật
+            })
+            .catch((error) => {
+                dispatch(fetchPromotionsFailure(error.message));
+            });
+    };
+};
 
 export const deletePromotion = (id) => {
     return dispatch => {
