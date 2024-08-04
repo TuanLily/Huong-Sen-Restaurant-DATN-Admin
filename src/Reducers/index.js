@@ -7,6 +7,7 @@ import permissionsReducer from "./PermissionsReducers";
 import blogsCategoriesReducer from "./BlogsCategoriesReducers";
 import blogReducer from "./BlogReducers";
 import promotionReducer from "./PromotionsReducers";
+import employeeReducer from "./EmployeeReducers";
 
 
 const rootReducer = combineReducers({
@@ -21,7 +22,8 @@ const rootReducer = combineReducers({
     categories: blogsCategoriesReducer,
     customer: customerReducer,
     blog: blogReducer,
-    promotion: promotionReducer
+    promotion: promotionReducer,
+    employee: employeeReducer,
 });
 
 export default rootReducer;
