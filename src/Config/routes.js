@@ -60,10 +60,10 @@ const AdminRoutes = {
     orderDetailAdd: 'orderDetail/add',
     orderDetailDelete: 'orderDetail/delete',
 
-    promotion: 'promotion',
-    promotionAdd: 'promotion/add',
-    promotionEdit: 'promotion/edit',
-    promotionDelete: 'promotion/delete',
+    promotion: 'promotions',
+    promotionAdd: 'promotions/add',
+    promotionEdit: 'promotions/edit/:id',
+    promotionDelete: 'promotions/delete',
 
     payMethod: 'payMethod',
     payMethodAdd: 'payMethod/add',

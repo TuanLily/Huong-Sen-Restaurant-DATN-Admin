@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { fetchProductCategory, deleteProductCategory } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import ProductCategoryPagination from '../../Components/Pagination/ProductCategoryPagination';
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function CategoryProductList () {
     const dispatch = useDispatch();
@@ -37,7 +38,7 @@ export default function CategoryProductList () {
         setSelectedProductCategory(null);
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         if (setSelectedProductCategory) {
             dispatch(deleteProductCategory(selectedProductCategory));
             handleClose();
@@ -108,12 +109,12 @@ export default function CategoryProductList () {
                                         <tbody>
                                             {productCategoryState.loading && (
                                                 <tr>
-                                                    <td colSpan="7">Loading...</td>
+                                                    <td colSpan="7"><CustomSpinner/></td>
                                                 </tr>
                                             )}
                                             {!productCategoryState.loading && productCategoryState.product_category.length === 0 && (
                                                 <tr>
-                                                    <td colSpan="7">No customers found.</td>
+                                                    <td colSpan="7">No categories found.</td>
                                                 </tr>
                                             )}
                                             {productCategoryState.error && (

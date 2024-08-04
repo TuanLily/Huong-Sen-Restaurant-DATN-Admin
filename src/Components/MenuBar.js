@@ -130,7 +130,7 @@ export default function MenuBar() {
                             <div className="collapse" id="otherManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <Link to='promotion'>
+                                        <Link to='promotions'>
                                             <span className="sub-item">Quản lý khuyến mãi</span>
                                         </Link>
                                     </li>
