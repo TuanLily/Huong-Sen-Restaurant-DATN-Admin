@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchProduct, deleteProduct } from '../../Actions/ProductActions';
+import { fetchProduct, deleteProduct, setCurrentPage } from '../../Actions/ProductActions';
 import { fetchProductCategory } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
-import ProductPagination from '../../Components/Pagination/ProductPagination';
-import { WidthFull } from '@mui/icons-material';
+import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function ProductList () {
@@ -22,15 +21,11 @@ export default function ProductList () {
         dispatch(fetchProductCategory());
     }, [dispatch]);
 
-    const itemsPerPage = 5;
-    const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = Math.ceil(productState.product.length / itemsPerPage);
-    const indexOfLastProduct = currentPage * itemsPerPage;
-    const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
-    const currentProducts = productState.product.slice(indexOfFirstProduct, indexOfLastProduct);
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
-    };
+    useEffect(() => {
+        if (productState.allProducts.length > 0) {
+            dispatch(setCurrentPage(productState.currentPage));
+        }
+    }, [dispatch, productState.allProducts, productState.currentPage]);
 
     const getCategoryName = (id) => {
         const product_category = productCategoryState.product_category.find(cat => cat.id === id);
@@ -132,46 +127,49 @@ export default function ProductList () {
                                                     <td colSpan="7">No customers found.</td>
                                                 </tr>
                                             )}
-                                            {productState.error && (
-                                                <tr>
-                                                    <td colSpan="7">Error: {productState.error}</td>
-                                                </tr>
-                                            )}
-                                            {productState.product && currentProducts.map((item, index) => (
-                                                <tr key={item.id}>
-                                                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                                                    <td>
-                                                        <img className="img-fluid rounded w-100" src={item.image || '../Assets/Images/default.jpg'} alt="Image"/>
-                                                    </td>
-                                                    <td>{item.name}</td>
-                                                    <td>{item.description}</td>
-                                                    <td>{getCategoryName(item.categories_id)}</td>
-                                                    <td>
-                                                        {
-                                                            item.status === 1 ? <span className="badge badge-success">Hoạt động</span> : <span className="badge badge-danger">Ngừng kinh doanh</span>
-                                                        }
-                                                    </td>
-                                                    <td>
-                                                        <span className="text-danger text-decoration-line-through">{formatCurrency(item.price)}</span>
-                                                        <div>{formatCurrency(item.sale_price)}</div>
-                                                    </td>
-                                                    <td>
-                                                        <div className="btn-group mt-3" role="group">
-                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
-                                                                Sửa
-                                                            </button>
-                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
-                                                                Xóa
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {productState.product && productState.product.map((item, index) => {
+                                                const stt = (productState.currentPage - 1) * productState.pageSize + index + 1;
+                                                return (
+                                                    <tr key={item.id}>
+                                                        <td>{stt}</td>
+                                                        <td>
+                                                            <img className="img-fluid rounded w-100" src={item.image || '../Assets/Images/default.jpg'} alt="Image"/>
+                                                        </td>
+                                                        <td>{item.name}</td>
+                                                        <td>{item.description}</td>
+                                                        <td>{getCategoryName(item.categories_id)}</td>
+                                                        <td>
+                                                            {
+                                                                item.status === 1 ? <span className="badge badge-success">Hoạt động</span> : <span className="badge badge-danger">Ngừng kinh doanh</span>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            <span className="text-danger text-decoration-line-through">{formatCurrency(item.price)}</span>
+                                                            <div>{formatCurrency(item.sale_price)}</div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="btn-group mt-3" role="group">
+                                                                <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
+                                                                    Sửa
+                                                                </button>
+                                                                <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                    Xóa
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>
                                 <div className='my-2'>
-                                    <ProductPagination count={totalPages} onPageChange={handlePageChange}/>
+                                    <CustomPagination
+                                        count={Math.ceil((productState.allProducts).length / productState.pageSize)} 
+                                        currentPageSelector={state => state.product.currentPage}
+                                        fetchAction={fetchProduct}
+                                        onPageChange={(page) => { dispatch(setCurrentPage(page)) }}
+                                    />
                                 </div>
                             </div>
                         </div>

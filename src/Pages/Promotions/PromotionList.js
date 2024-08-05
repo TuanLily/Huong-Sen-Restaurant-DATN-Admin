@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchPromotion, deletePromotion } from '../../Actions/PromotionActions';
+import { fetchPromotion, deletePromotion, setCurrentPage } from '../../Actions/PromotionActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
-import PromotionPaginations from '../../Components/Pagination/PromotionPaginations';
+import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function PromotionList () {
@@ -18,15 +18,11 @@ export default function PromotionList () {
         dispatch(fetchPromotion());
     }, [dispatch]);
 
-    const itemsPerPage = 5;
-    const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = Math.ceil(promotionState.promotion.length / itemsPerPage);
-    const indexOfLast = currentPage * itemsPerPage;
-    const indexOfFirst = indexOfLast - itemsPerPage;
-    const currentPromotion = promotionState.promotion.slice(indexOfFirst, indexOfLast);
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
-    };
+    useEffect(() => {
+        if (promotionState.allPromotions.length > 0) {
+            dispatch(setCurrentPage(promotionState.currentPage));
+        }
+    }, [dispatch, promotionState.allPromotions, promotionState.currentPage]);
 
     const handleClickOpen = (promotion_id) => {
         setSelectedPromotion(promotion_id);
@@ -117,41 +113,44 @@ export default function PromotionList () {
                                                     <td colSpan="7">No promotion found.</td>
                                                 </tr>
                                             )}
-                                            {promotionState.error && (
-                                                <tr>
-                                                    <td colSpan="7">Error: {promotionState.error}</td>
-                                                </tr>
-                                            )}
-                                            {promotionState.promotion && currentPromotion.map((item, index) => (
-                                                <tr key={item.id}>
-                                                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                                                    <td>{item.name}</td>
-                                                    <td>
-                                                        <span className="badge badge-success">{item.discount}%</span>
-                                                    </td>
-                                                    <td>
-                                                        {item.valid_from.substring(0, 10)}
-                                                    </td>
-                                                    <td>
-                                                        {item.valid_to.substring(0, 10)}
-                                                    </td>
-                                                    <td>
-                                                        <div className="btn-group mt-3" role="group">
-                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
-                                                                Sửa
-                                                            </button>
-                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
-                                                                Xóa
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {promotionState.promotion && promotionState.promotion.map((item, index) => {
+                                                const stt = (promotionState.currentPage - 1) * promotionState.pageSize + index + 1;
+                                                return (
+                                                    <tr key={item.id}>
+                                                        <td>{stt}</td>
+                                                        <td>{item.name}</td>
+                                                        <td>
+                                                            <span className="badge badge-success">{item.discount}%</span>
+                                                        </td>
+                                                        <td>
+                                                            {item.valid_from.substring(0, 10)}
+                                                        </td>
+                                                        <td>
+                                                            {item.valid_to.substring(0, 10)}
+                                                        </td>
+                                                        <td>
+                                                            <div className="btn-group mt-3" role="group">
+                                                                <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
+                                                                    Sửa
+                                                                </button>
+                                                                <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                    Xóa
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>
                                 <div className='my-2'>
-                                    <PromotionPaginations count={totalPages} onPageChange={handlePageChange}/>
+                                    <CustomPagination
+                                        count={Math.ceil((promotionState.allPromotions).length / promotionState.pageSize)} 
+                                        currentPageSelector={state => state.promotion.currentPage}
+                                        fetchAction={fetchPromotion}
+                                        onPageChange={(page) => { dispatch(setCurrentPage(page)) }}
+                                    />
                                 </div>
                             </div>
                         </div>

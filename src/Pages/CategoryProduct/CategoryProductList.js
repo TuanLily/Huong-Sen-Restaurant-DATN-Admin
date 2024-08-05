@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchProductCategory, deleteProductCategory } from '../../Actions/ProductCategoryActions';
+import { fetchProductCategory, deleteProductCategory, setCurrentPage } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
-import ProductCategoryPagination from '../../Components/Pagination/ProductCategoryPagination';
+import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function CategoryProductList () {
@@ -18,15 +18,11 @@ export default function CategoryProductList () {
         dispatch(fetchProductCategory());
     }, [dispatch]);
 
-    const itemsPerPage = 5;
-    const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = Math.ceil(productCategoryState.product_category.length / itemsPerPage);
-    const indexOfLastProduct = currentPage * itemsPerPage;
-    const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
-    const currentProductCategory = productCategoryState.product_category.slice(indexOfFirstProduct, indexOfLastProduct);
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
-    };
+    useEffect(() => {
+        if (productCategoryState.allProduct_categorys.length > 0) {
+            dispatch(setCurrentPage(productCategoryState.currentPage));
+        }
+    }, [dispatch, productCategoryState.allProduct_categorys, productCategoryState.currentPage]);
 
     const handleClickOpen = (categories_id) => {
         setSelectedProductCategory(categories_id);
@@ -117,41 +113,44 @@ export default function CategoryProductList () {
                                                     <td colSpan="7">No categories found.</td>
                                                 </tr>
                                             )}
-                                            {productCategoryState.error && (
-                                                <tr>
-                                                    <td colSpan="7">Error: {productCategoryState.error}</td>
-                                                </tr>
-                                            )}
-                                            {productCategoryState.product_category && currentProductCategory.map((item, index) => (
-                                                <tr key={item.id}>
-                                                    <td>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                                                    <td>{item.name}</td>
-                                                    <td>
-                                                        {item.status == 1 ? <span className="badge badge-success">Hoạt động</span> : <span className="badge badge-danger">Ngưng hoạt động</span>}
-                                                    </td>
-                                                    <td>
-                                                        {item.created_at.substring(0, 10)}
-                                                    </td>
-                                                    <td>
-                                                        {item.updated_at.substring(0, 10)}
-                                                    </td>
-                                                    <td>
-                                                        <div className="btn-group mt-3" role="group">
-                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
-                                                                Sửa
-                                                            </button>
-                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
-                                                                Xóa
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {productCategoryState.product_category && productCategoryState.product_category.map((item, index) => {
+                                                const stt = (productCategoryState.currentPage - 1) * productCategoryState.pageSize + index + 1;
+                                                return (
+                                                    <tr key={item.id}>
+                                                        <td>{stt}</td>
+                                                        <td>{item.name}</td>
+                                                        <td>
+                                                            {item.status == 1 ? <span className="badge badge-success">Hoạt động</span> : <span className="badge badge-danger">Ngưng hoạt động</span>}
+                                                        </td>
+                                                        <td>
+                                                            {item.created_at.substring(0, 10)}
+                                                        </td>
+                                                        <td>
+                                                            {item.updated_at.substring(0, 10)}
+                                                        </td>
+                                                        <td>
+                                                            <div className="btn-group mt-3" role="group">
+                                                                <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
+                                                                    Sửa
+                                                                </button>
+                                                                <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                    Xóa
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>
                                 <div className='my-2'>
-                                    <ProductCategoryPagination count={totalPages} onPageChange={handlePageChange}/>
+                                    <CustomPagination
+                                        count={Math.ceil((productCategoryState.allProduct_categorys).length / productCategoryState.pageSize)} 
+                                        currentPageSelector={state => state.product_category.currentPage}
+                                        fetchAction={fetchProductCategory}
+                                        onPageChange={(page) => { dispatch(setCurrentPage(page)) }}
+                                    />
                                 </div>
                             </div>
                         </div>

@@ -3,6 +3,7 @@ import axios from "axios";
 export const FETCH_PRODUCT_REQUEST = 'FETCH_PRODUCT_REQUEST';
 export const FETCH_PRODUCT_SUCCESS = 'FETCH_PRODUCT_SUCCESS';
 export const FETCH_PRODUCT_FAILURE = 'FETCH_PRODUCT_FAILURE';
+export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
@@ -19,6 +20,11 @@ export const fetchProductSuccess = product => ({
 export const fetchProductFailure = error => ({
     type: FETCH_PRODUCT_FAILURE,
     payload: error
+});
+
+export const setCurrentPage = (page) => ({
+    type: SET_CURRENT_PAGE,
+    payload: page
 });
 
 export const fetchProduct = () => {
