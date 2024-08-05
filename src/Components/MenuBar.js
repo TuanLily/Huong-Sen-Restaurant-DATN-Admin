@@ -214,7 +214,7 @@ export default function MenuBar() {
                             <div className="collapse" id="tableManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <Link to='table'>
+                                        <Link to='tables'>
                                             <span className="sub-item">Quản lý bàn ăn</span>
                                         </Link>
                                     </li>

@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { addCategoryBlog } from "../../Actions/BlogsCategoriesActions";
-import { SuccessAlert } from "../../Components/Alert/Alert";
+import { SuccessAlert, DangerAlert } from "../../Components/Alert/Alert";
 
 export default function CategoryBlogAdd() {
   const dispatch = useDispatch();
@@ -16,12 +16,18 @@ export default function CategoryBlogAdd() {
   const navigate = useNavigate();
 
   const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSuccessClose = () => {
     setOpenSuccess(false);
   };
 
-  const onSubmit = (data) => {
+  const handleErrorClose = () => {
+    setOpenError(false);
+  };
+
+  const onSubmit = async (data) => {
     const currentDate = new Date().toISOString();
     const categoryData = {
       ...data,
@@ -30,15 +36,17 @@ export default function CategoryBlogAdd() {
       updated_at: currentDate,
     };
 
-    dispatch(addCategoryBlog(categoryData))
-        setOpenSuccess(true);
-        reset();
-        setTimeout(() => {
-          navigate("/category-blog");
-        }, 2000);
-      ((error) => {
-        console.error("Failed to add category blog:", error);
-      });
+    try {
+      await dispatch(addCategoryBlog(categoryData));
+      setOpenSuccess(true);
+      reset();
+      setTimeout(() => {
+        navigate("/category-blog");
+      }, 2000);
+    } catch (error) {
+      setErrorMessage(error.message);
+      setOpenError(true);
+    }
   };
 
   return (
@@ -77,8 +85,8 @@ export default function CategoryBlogAdd() {
                         className="form-control"
                         {...register("status")}
                       >
-                        <option value="1">Active</option>
-                        <option value="0">Inactive</option>
+                        <option value="1">Hoạt động</option>
+                        <option value="0">Ngưng hoạt động</option>
                       </select>
                     </div>
                   </div>
@@ -104,6 +112,13 @@ export default function CategoryBlogAdd() {
             open={openSuccess}
             onClose={handleSuccessClose}
             message="Thêm danh mục thành công!"
+            vertical="top"
+            horizontal="right"
+          />
+          <DangerAlert
+            open={openError}
+            onClose={handleErrorClose}
+            message={errorMessage}
             vertical="top"
             horizontal="right"
           />

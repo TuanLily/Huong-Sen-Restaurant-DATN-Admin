@@ -41,10 +41,10 @@ const AdminRoutes = {
     productImageDetailAdd: 'productImage/productImageDetail/add',
     productImageDetailDelete: 'productImage/productImageDetail/delete',
 
-    table: 'table',
-    tableAdd: 'table/add',
-    tableEdit: 'table/edit',
-    tableDelete: 'table/delete',
+    table: 'tables',
+    tableAdd: 'tables/add',
+    tableEdit: 'tables/edit/:id',
+    tableDelete: 'tables/delete',
 
     reservation: 'reservation',
     reservationAdd: 'reservation/add',

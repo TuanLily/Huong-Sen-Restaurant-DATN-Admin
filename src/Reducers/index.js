@@ -8,6 +8,7 @@ import blogsCategoriesReducer from "./BlogsCategoriesReducers";
 import blogReducer from "./BlogReducers";
 import promotionReducer from "./PromotionsReducers";
 import employeeReducer from "./EmployeeReducers";
+import tablesReducer from "./TablesReducers";
 
 
 const rootReducer = combineReducers({
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
     blog: blogReducer,
     promotion: promotionReducer,
     employee: employeeReducer,
+    tables: tablesReducer,
 });
 
 export default rootReducer;

@@ -1,7 +1,45 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import DialogConfirm from '../../Components/Dialog/Dialog';
+import { fetchTables, deleteTable, setCurrentPage } from '../../Actions/TablesActions'; // Import setCurrentPage
+import CustomPagination from '../../Components/Pagination/CustomPagination';
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
-export default function TableList () {
+
+export default function TableList() {
+    const dispatch = useDispatch();
+    const tableState = useSelector(state => state.tables);
+    const navigate = useNavigate();
+
+    const [open, setOpen] = useState(false);
+    const [selectedTable, setSelectedTable] = useState(null);
+
+    useEffect(() => {
+        dispatch(fetchTables());
+    }, [dispatch]);
+
+    const handleClickOpen = (tableId) => {
+        setSelectedTable(tableId);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setSelectedTable(null);
+    };
+
+    const handleConfirm = () => {
+        if (selectedTable) {
+            dispatch(deleteTable(selectedTable));
+            handleClose();
+        }
+    };
+
+    const handleEdit = (id) => {
+        navigate(`edit/${id}`);
+    };
+
     return (
         <div className="container">
             <div className="page-inner">
@@ -12,7 +50,7 @@ export default function TableList () {
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
                         <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
-                        <Link to="/table/add" className="btn btn-primary btn-round">Thêm bàn ăn</Link>
+                        <Link to="/tables/add" className="btn btn-primary btn-round">Thêm bàn ăn</Link>
                     </div>
                 </div>
                 <div className="row">
@@ -20,7 +58,7 @@ export default function TableList () {
                         <div className="card card-round">
                             <div className="card-header">
                                 <div className="card-head-row card-tools-still-right">
-                                    <div className="card-title">Danh sách</div>
+                                    <div className="card-title">Danh sách bàn</div>
                                     <div className="card-tools">
                                         <div className="dropdown">
                                             <button
@@ -53,71 +91,67 @@ export default function TableList () {
                                                 <th scope="col">STT</th>
                                                 <th scope="col">Số bàn</th>
                                                 <th scope="col">Loại bàn</th>
-                                                <th scope="col">Số lượng</th>
                                                 <th scope="col">Trạng thái</th>
                                                 <th scope="col">Thao tác</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>97</td>
-                                                <td>Thường</td>
-                                                <td>4</td>
-                                                <td>Trống</td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/table/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/table/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>97</td>
-                                                <td>Thường</td>
-                                                <td>4</td>
-                                                <td>Trống</td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/table/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/table/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>01</td>
-                                                <td>97</td>
-                                                <td>Thường</td>
-                                                <td>4</td>
-                                                <td>Trống</td>
-                                                <td>
-                                                    <div className="btn-group mt-3" role="group">
-                                                        <button type="button" className="btn btn-outline-success">
-                                                            <Link to='/table/edit'><span className='text-success'>Sửa</span></Link>
-                                                        </button>
-                                                        <button type="button" className="btn btn-outline-danger">
-                                                            <Link to='/table/delete'><span className='text-danger'>Xóa</span></Link>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            {tableState.loading && (
+                                                <tr>
+                                                    <td colSpan="3"><CustomSpinner /></td>
+                                                </tr>
+                                            )}
+                                            {!tableState.loading && tableState.tables.length === 0 && (
+                                                <tr>
+                                                    <td colSpan="3">No tables found.</td>
+                                                </tr>
+                                            )}
+                                            {tableState.error && (
+                                                <tr>
+                                                    <td colSpan="3">Error: {tableState.error}</td>
+                                                </tr>
+                                            )}
+                                            {tableState.tables && tableState.tables.map((item, index) => (
+                                                <tr key={item.id}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{item.number}</td>
+                                                    <td>{item.type === 1 ? 'Bàn Thường' : 'Bàn Vip'}</td>
+                                                    <td>{item.status === 1 ? <span className='badge badge-success'>Còn bàn</span> : <span className='badge badge-danger'>Hết bàn</span>}</td>
+                                                    <td>
+                                                        <div className="btn-group mt-3" role="group">
+                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
+                                                                <span className='text-success'>Sửa</span>
+                                                            </button>
+                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                <span className='text-danger'>Xóa</span>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
+                                </div>
+                                <div className='my-2'>
+                                    <CustomPagination
+                                        count={Math.ceil((tableState.allTables).length / tableState.pageSize)} 
+                                        currentPageSelector={state => state.tables.currentPage} // Đảm bảo truy cập đúng state
+                                        fetchAction={fetchTables}
+                                        onPageChange={(page) => {
+                                            dispatch(setCurrentPage(page)); // Sử dụng setCurrentPage
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <DialogConfirm
+                open={open}
+                onClose={handleClose}
+                onConfirm={handleConfirm}
+            />
         </div>
-    )
+    );
 }

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { useParams, useNavigate } from "react-router-dom";
 import { updateCategoryBlog } from "../../Actions/BlogsCategoriesActions";
-import { SuccessAlert } from "../../Components/Alert/Alert";
+import { SuccessAlert, DangerAlert } from "../../Components/Alert/Alert";
 
 export default function CategoryBlogEdit() {
   const dispatch = useDispatch();
@@ -11,6 +11,7 @@ export default function CategoryBlogEdit() {
   const categoryBlogState = useSelector((state) =>
     state.categories.categories.find((category) => category.id === parseInt(id))
   );
+
   const {
     register,
     handleSubmit,
@@ -21,9 +22,15 @@ export default function CategoryBlogEdit() {
   const navigate = useNavigate();
 
   const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSuccessClose = () => {
     setOpenSuccess(false);
+  };
+
+  const handleErrorClose = () => {
+    setOpenError(false);
   };
 
   useEffect(() => {
@@ -33,21 +40,23 @@ export default function CategoryBlogEdit() {
     }
   }, [categoryBlogState, setValue]);
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const updatedData = {
       ...data,
       updated_at: new Date().toISOString(),
     };
 
-    dispatch(updateCategoryBlog(id, updatedData))
-        setOpenSuccess(true);
-        reset();
-        setTimeout(() => {
-          navigate("/category-blog");
-        }, 2000);
-      ((error) => {
-        console.error("Error updating category blog:", error);
-      });
+    try {
+      await dispatch(updateCategoryBlog(id, updatedData));
+      setOpenSuccess(true);
+      reset();
+      setTimeout(() => {
+        navigate("/category-blog");
+      }, 2000);
+    } catch (error) {
+      setErrorMessage(error.message);
+      setOpenError(true);
+    }
   };
 
   return (
@@ -86,8 +95,8 @@ export default function CategoryBlogEdit() {
                         className="form-control"
                         {...register("status")}
                       >
-                        <option value="1">Active</option>
-                        <option value="0">Inactive</option>
+                        <option value="1">Hoạt động</option>
+                        <option value="0">Ngưng hoạt động</option>
                       </select>
                     </div>
                   </div>
@@ -113,6 +122,13 @@ export default function CategoryBlogEdit() {
             open={openSuccess}
             onClose={handleSuccessClose}
             message="Cập nhật danh mục thành công!"
+            vertical="top"
+            horizontal="right"
+          />
+          <DangerAlert
+            open={openError}
+            onClose={handleErrorClose}
+            message={errorMessage}
             vertical="top"
             horizontal="right"
           />

@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import DialogConfirm from '../../Components/Dialog/Dialog';
-import { fetchCategoryBlog, deleteCategoryBlog } from '../../Actions/BlogsCategoriesActions';
-import BlogCatePagination from '../../Components/Pagination/BlogCatePagination';
+import { fetchCategoryBlog, deleteCategoryBlog, setCurrentPage } from '../../Actions/BlogsCategoriesActions';
+import CustomPagination from '../../Components/Pagination/CustomPagination';
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+
 
 export default function CategoryBlogList() {
     const dispatch = useDispatch();
@@ -95,24 +97,24 @@ export default function CategoryBlogList() {
                                         <tbody>
                                             {categoryBlogState.loading && (
                                                 <tr>
-                                                    <td colSpan="3">Loading...</td>
+                                                    <td colSpan="4"><CustomSpinner /></td>
                                                 </tr>
                                             )}
                                             {!categoryBlogState.loading && categoryBlogState.categories.length === 0 && (
                                                 <tr>
-                                                    <td colSpan="3">No categories found.</td>
+                                                    <td colSpan="4">No categories found.</td>
                                                 </tr>
                                             )}
                                             {categoryBlogState.error && (
                                                 <tr>
-                                                    <td colSpan="3">Error: {categoryBlogState.error}</td>
+                                                    <td colSpan="4">Error: {categoryBlogState.error}</td>
                                                 </tr>
                                             )}
                                             {categoryBlogState.categories && categoryBlogState.categories.map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>{index + 1}</td>
                                                     <td>{item.name}</td>
-                                                    <td>{item.status === 1 ? 'Active' : 'Inactive'}</td>
+                                                    <td>{item.status === 1 ? <span className='badge badge-success'>Hoạt động</span> : <span className='badge badge-danger'>Không hoạt động</span>}</td>
                                                     <td>
                                                         <div className="btn-group mt-3" role="group">
                                                             <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
@@ -129,7 +131,14 @@ export default function CategoryBlogList() {
                                     </table>
                                 </div>
                                 <div className='my-2'>
-                                    <BlogCatePagination />
+                                    <CustomPagination
+                                        count={Math.ceil(categoryBlogState.allCategories.length / categoryBlogState.pageSize)} 
+                                        currentPageSelector={(state) => state.categories.currentPage}
+                                        fetchAction={fetchCategoryBlog}
+                                        onPageChange={(page) => {
+                                            dispatch(setCurrentPage(page));
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </div>

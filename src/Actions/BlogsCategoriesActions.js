@@ -3,6 +3,8 @@ import axios from "axios";
 export const FETCH_CATEGORY_BLOG_REQUEST = "FETCH_CATEGORY_BLOG_REQUEST";
 export const FETCH_CATEGORY_BLOG_SUCCESS = "FETCH_CATEGORY_BLOG_SUCCESS";
 export const FETCH_CATEGORY_BLOG_FAILURE = "FETCH_CATEGORY_BLOG_FAILURE";
+export const SET_CURRENT_PAGE = "SET_CATEGORY_BLOG_CURRENT_PAGE";
+
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from "../Config/index";
@@ -22,6 +24,12 @@ export const fetchCategoryBlogFailure = (error) => ({
   payload: error,
 });
 
+export const setCurrentPage = (page) => ({
+  type: SET_CURRENT_PAGE,
+  payload: page,
+});
+
+
 // Thunk action creator for fetching categories
 export const fetchCategoryBlog = () => {
   return (dispatch) => {
@@ -40,35 +48,34 @@ export const fetchCategoryBlog = () => {
 };
 
 export const addCategoryBlog = (categoryBlog) => {
-  return (dispatch) => {
+  return async (dispatch) => {
     dispatch(fetchCategoryBlogRequest());
-    axios
-      .post(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}`, categoryBlog)
-      .then((response) => {
-        dispatch(fetchCategoryBlogSuccess(response.data.data));
-        dispatch(fetchCategoryBlog());
-      })
-      .catch((error) => {
-        const errorMsg = error.message;
-        dispatch(fetchCategoryBlogFailure(errorMsg));
-        throw error;
-      });
+    try {
+      const response = await axios.post(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}`, categoryBlog);
+      dispatch(fetchCategoryBlogSuccess(response.data.data));
+      dispatch(fetchCategoryBlog()); // Refresh the list
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message || 'Lỗi không xác định';
+      dispatch(fetchCategoryBlogFailure(errorMsg));
+      console.error("Error adding category blog:", errorMsg);
+      throw new Error(errorMsg);
+    }
   };
 };
 
 export const updateCategoryBlog = (id, data) => {
-  return (dispatch) => {
+  return async (dispatch) => {
     dispatch(fetchCategoryBlogRequest());
-    axios
-      .patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`, data)
-      .then((response) => {
-        dispatch(fetchCategoryBlogSuccess(response.data.data));
-        dispatch(fetchCategoryBlog());
-      })
-      .catch((error) => {
-        const errorMsg = error.message;
-        dispatch(fetchCategoryBlogFailure(errorMsg));
-      });
+    try {
+      const response = await axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`, data);
+      dispatch(fetchCategoryBlogSuccess(response.data.data));
+      dispatch(fetchCategoryBlog()); // Refresh the list
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message || 'Lỗi không xác định';
+      dispatch(fetchCategoryBlogFailure(errorMsg));
+      console.error("Error updating category blog:", errorMsg);
+      throw new Error(errorMsg);
+    }
   };
 };
 
