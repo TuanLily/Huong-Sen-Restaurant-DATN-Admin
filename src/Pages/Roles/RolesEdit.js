@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchRole, updateRole } from '../../Actions/RoleActions';
-import { SuccessAlert } from '../../Components/Alert/Alert';
+import { DangerAlert, SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
 
 export default function RolesEdit() {
@@ -14,6 +14,8 @@ export default function RolesEdit() {
 
     const roleState = useSelector((state) => state.role);
     const [openSuccess, setOpenSuccess] = useState(false);
+    const [openError, setOpenError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
         dispatch(fetchRole()); 
@@ -31,16 +33,24 @@ export default function RolesEdit() {
         setOpenSuccess(false);
     };
 
-    const onSubmit = (data) => {
+    const handleErrorClose = () => {
+        setOpenError(false);
+    };
+
+    const onSubmit = async (data) => {
         const updatedData = {
             ...data,
         };
-
-        dispatch(updateRole(id, updatedData));
-        setOpenSuccess(true);
-        setTimeout(() => {
-            navigate('/role');
-        }, 2000);
+        try {
+            await dispatch(updateRole(id, updatedData));
+            setOpenSuccess(true);
+            setTimeout(() => {
+                navigate('/role');
+            }, 2000);
+        } catch (error){
+            setErrorMessage(error.message);
+            setOpenError(true);
+        }
     };
 
     if (roleState.error) {
@@ -70,8 +80,8 @@ export default function RolesEdit() {
                                             />
                                             {errors.name && <p>{errors.name.message}</p>}
                                         </div>
-                                        </div>
-                                        <div className="col-md-6">
+                                    </div>
+                                    <div className="col-md-6">
                                         <div className="form-group">
                                             <label htmlFor="description">Mô tả</label>
                                             <textarea
@@ -95,6 +105,13 @@ export default function RolesEdit() {
                         </div>
                     </form>
                     <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Cập nhật vai trò thành công!" vertical="top" horizontal="right" />
+                    <DangerAlert
+                        open={openError}
+                        onClose={handleErrorClose}
+                        message={errorMessage}
+                        vertical="top"
+                        horizontal="right"
+                    />
                 </div>
             </div>
         </div>

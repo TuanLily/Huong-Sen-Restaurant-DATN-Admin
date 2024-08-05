@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
 import { addRole } from "../../Actions/RoleActions";
-import { SuccessAlert } from "../../Components/Alert/Alert";
+import { DangerAlert, SuccessAlert } from "../../Components/Alert/Alert";
 
 export default function RolesAdd() {
     const dispatch = useDispatch();
@@ -12,18 +12,29 @@ export default function RolesAdd() {
     const navigate = useNavigate();
 
     const [openSuccess, setOpenSuccess] = useState(false);
+    const [openError, setOpenError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
-    const onSubmit = (data) => {
-        dispatch(addRole(data));
-        setOpenSuccess(true);
-        reset();
-        setTimeout(() => {
-            navigate('/role');
-        }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+    const onSubmit = async (data) => {
+        try {
+            await dispatch(addRole(data)); 
+            setOpenSuccess(true);
+            reset();
+            setTimeout(() => {
+                navigate('/role');
+            }, 2000);
+        } catch (error) {
+            setErrorMessage(error.message);
+            setOpenError(true);
+        }
     };
 
     const handleSuccessClose = () => {
         setOpenSuccess(false);
+    };
+
+    const handleErrorClose = () => {
+        setOpenError(false);
     };
 
     return (
@@ -49,8 +60,8 @@ export default function RolesAdd() {
                                             />
                                             {errors.name && <p className="text-danger">{errors.name.message}</p>}
                                         </div>
-                                        </div>
-                                        <div className="col-md-6">
+                                    </div>
+                                    <div className="col-md-6">
                                         <div className="form-group">
                                             <label htmlFor="description">Mô tả</label>
                                             <textarea
@@ -74,6 +85,13 @@ export default function RolesAdd() {
                         </div>
                     </form>
                     <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Thêm vai trò thành công!" vertical="top" horizontal="right" />
+                    <DangerAlert
+                        open={openError}
+                        onClose={handleErrorClose}
+                        message={errorMessage}
+                        vertical="top"
+                        horizontal="right"
+                    />
                 </div>
             </div>
         </div>

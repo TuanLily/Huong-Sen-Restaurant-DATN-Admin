@@ -43,32 +43,34 @@ export const fetchRole = () => {
 };
 
 export const addRole = (role) => {
-    return dispatch => {
+    return async (dispatch) => {
         dispatch(fetchRoleRequest());
-        axios.post(`${API_ENDPOINT}/${AdminConfig.routes.role}`, role)
-            .then((response) => {
-                // Sau khi thêm vai trò mới, gọi lại fetchRole để làm mới danh sách
-                dispatch(fetchRoleSuccess(response.data));
-                dispatch(fetchRole());
-            })
-            .catch(error => {
-                const errorMsg = error.message;
-                dispatch(fetchRoleFailure(errorMsg));
-            });
+        try {
+            const response = await axios.post(`${API_ENDPOINT}/${AdminConfig.routes.role}`, role);
+            dispatch(fetchRoleSuccess(response.data));
+            dispatch(fetchRole());
+        } catch (error) {
+            const errorMsg = error.response?.data?.error || error.message || 'Lỗi không xác định';
+            dispatch(fetchRoleFailure(errorMsg));
+            console.error("Error adding role:", errorMsg);
+            throw new Error(errorMsg); 
+        }
     };
 };
 
 export const updateRole = (id, data) => {
-    return (dispatch) => {
+    return async (dispatch) => {
         dispatch(fetchRoleRequest());
-        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.role}/${id}`, data)
-            .then((response) => {
-                dispatch(fetchRoleSuccess(response.data));
-                dispatch(fetchRole()); // Reload danh sách vai trò sau khi cập nhật
-            })
-            .catch((error) => {
-                dispatch(fetchRoleFailure(error.message));
-            });
+        try {
+            const response = await axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.role}/${id}`, data);
+            dispatch(fetchRoleSuccess(response.data));
+            dispatch(fetchRole());
+        } catch (error) {
+            const errorMsg = error.response?.data?.error || error.message || 'Lỗi không xác định';
+            dispatch(fetchRoleFailure(errorMsg));
+            console.error("Error updating role:", errorMsg);
+            throw new Error(errorMsg); 
+        }
     };
 };
 

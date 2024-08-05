@@ -23,11 +23,12 @@ const roleReducer = (state = initialState, action) => {
                 loading: true
             };
         case FETCH_ROLE_SUCCESS:
+            const roles = Array.isArray(action.payload) ? action.payload : []; // Đảm bảo payload là một mảng
             return {
                 ...state,
                 loading: false,
-                allRoles: action.payload,
-                role: action.payload.slice(0, state.pageSize)
+                allRoles: roles,
+                role: roles.slice(0, state.pageSize)
             };
         case FETCH_ROLE_FAILURE:
             return {

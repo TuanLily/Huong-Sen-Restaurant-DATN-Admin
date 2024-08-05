@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { deleteRole, fetchRole, setCurrentPage } from '../../Actions/RoleActions'; // Ensure setCurrentPage is imported
 import DialogConfirm from '../../Components/Dialog/Dialog';
-import RolePagination from '../../Components/Pagination/RolePagination';
+import CustomPagination from '../../Components/Pagination/CustomPagination';
 import { format } from 'date-fns';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
@@ -144,12 +144,13 @@ export default function RolesList() {
                                 </div>
                                 {roleState.allRoles && (
                                     <div className='my-2'>
-                                        <RolePagination 
-                                            count={Math.ceil((roleState.allRoles).length / roleState.pageSize)}
-                                            onPageChange={(page) => {
-                                                dispatch(setCurrentPage(page));
-                                            }} 
-                                        />
+                                    <CustomPagination
+                                        count={Math.ceil((roleState.allRoles).length / roleState.pageSize)} currentPageSelector={state => state.role.currentPage}
+                                        fetchAction={fetchRole}
+                                        onPageChange={(page) => {
+                                            dispatch(setCurrentPage(page));
+                                        }}
+                                    />
                                     </div>
                                 )}
                             </div>
