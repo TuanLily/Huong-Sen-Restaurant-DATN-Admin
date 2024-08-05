@@ -3,6 +3,7 @@ import axios from "axios";
 export const FETCH_PERMISSIONS_REQUEST = 'FETCH_PERMISSIONS_REQUEST';
 export const FETCH_PERMISSIONS_SUCCESS = 'FETCH_PERMISSIONS_SUCCESS';
 export const FETCH_PERMISSIONS_FAILURE = 'FETCH_PERMISSIONS_FAILURE';
+export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
@@ -19,6 +20,11 @@ export const fetchPermissionsSuccess = permissions => ({
 export const fetchPermissionsFailure = error => ({
     type: FETCH_PERMISSIONS_FAILURE,
     payload: error
+});
+
+export const setCurrentPage = (page) => ({
+    type: SET_CURRENT_PAGE,
+    payload: page
 });
 
 export const fetchPermissions = (page = 1) => (dispatch) => {

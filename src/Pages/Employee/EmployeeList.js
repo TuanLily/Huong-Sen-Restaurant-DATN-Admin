@@ -7,7 +7,6 @@ import {
     setCurrentPage,
 } from "../../Actions/EmployeeActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
-import EmployeePagination from "../../Components/Pagination/EmployeePagination";
 import { fetchRole } from "../../Actions/RoleActions";
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 import CustomPagination from "../../Components/Pagination/CustomPagination";

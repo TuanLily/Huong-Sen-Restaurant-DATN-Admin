@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchBlog, deleteBlog } from '../../Actions/BlogActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
-import BlogPagination from '../../Components/Pagination/BlogPagination';
+// import BlogPagination from '../../Components/Pagination/BlogPagination';
 
 export default function BlogList() {
     const dispatch = useDispatch();
@@ -135,7 +135,7 @@ export default function BlogList() {
                                     </table>
                                 </div>
                                 <div className='my-2'>
-                                    <BlogPagination />
+                                    {/* <BlogPagination /> */}
                                 </div>
                             </div>
                         </div>

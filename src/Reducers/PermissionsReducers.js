@@ -1,15 +1,17 @@
 import {
     FETCH_PERMISSIONS_REQUEST,
     FETCH_PERMISSIONS_SUCCESS,
-    FETCH_PERMISSIONS_FAILURE
+    FETCH_PERMISSIONS_FAILURE,
+    SET_CURRENT_PAGE
 } from '../Actions/PermissionsActions';
 
 const initialState = {
+    allPermissions: [],
     permissions: [],
+    currentPage: 1,
+    pageSize: 5, // Số lượng khách hàng trên mỗi trang
     loading: false,
-    error: null,
-    currentPage: 1, // Nếu bạn lưu trạng thái trang hiện tại
-    total: 0 // Tổng số lượng mục (nếu cần thiết)
+    error: ''
 };
 
 const permissionsReducer = (state = initialState, action) => {
@@ -17,22 +19,28 @@ const permissionsReducer = (state = initialState, action) => {
         case FETCH_PERMISSIONS_REQUEST:
             return {
                 ...state,
-                loading: true,
-                error: ''
+                loading: true
             };
         case FETCH_PERMISSIONS_SUCCESS:
             return {
+                ...state,
                 loading: false,
-                permissions: Array.isArray(action.payload) ? action.payload : [],
-                currentPage: action.payload.page, // Nếu API trả về số trang hiện tại
-                total: action.payload.total ,
-                error: ''
+                allPermissions: action.payload,
+                permissions: action.payload.slice(0, state.pageSize) // Chia dữ liệu cho trang đầu tiên
             };
         case FETCH_PERMISSIONS_FAILURE:
             return {
+                ...state,
                 loading: false,
-                permissions: [],
                 error: action.payload
+            };
+        case SET_CURRENT_PAGE:
+            const start = (action.payload - 1) * state.pageSize;
+            const end = start + state.pageSize;
+            return {
+                ...state,
+                currentPage: action.payload,
+                permissions: state.allPermissions.slice(start, end) // Chia dữ liệu cho trang hiện tại
             };
         default:
             return state;
