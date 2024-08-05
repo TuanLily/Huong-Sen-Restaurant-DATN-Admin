@@ -10,6 +10,7 @@ import DialogConfirm from "../../Components/Dialog/Dialog";
 import EmployeePagination from "../../Components/Pagination/EmployeePagination";
 import { fetchRole } from "../../Actions/RoleActions";
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import CustomPagination from "../../Components/Pagination/CustomPagination";
 
 export default function EmployeeList() {
     const dispatch = useDispatch();
@@ -147,7 +148,7 @@ export default function EmployeeList() {
                                                         <td>{index + 1}</td>
                                                         <td>
                                                             <img
-                                                                className="img-fluid rounded w-100"
+                                                                className="img-fluid rounded"
                                                                 src={
                                                                     item.avatar || "../Assets/Images/default.jpg"
                                                                 }
@@ -202,10 +203,9 @@ export default function EmployeeList() {
                                     </table>
                                 </div>
                                 <div className="my-2">
-                                    <EmployeePagination
-                                        count={Math.ceil(
-                                            employeeState.allEmployees.length / employeeState.pageSize
-                                        )}
+                                <CustomPagination
+                                        count={Math.ceil((employeeState.allEmployees).length / employeeState.pageSize)} currentPageSelector={state => state.employee.currentPage}
+                                        fetchAction={fetchEmployees}
                                         onPageChange={(page) => {
                                             dispatch(setCurrentPage(page));
                                         }}

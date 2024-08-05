@@ -63,12 +63,24 @@ export default function EmployeeAdd () {
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="email">Email</label>
-                                            <input type="email" className="form-control" id="email" placeholder="Nhập email" {...register('email', { required: 'Vui lòng điền email!' })}/>
+                                            <input type="email" className="form-control" id="email" placeholder="Nhập email" {...register('email', { 
+                                                required: 'Vui lòng điền email!',
+                                                pattern: {
+                                                        value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                                                        message: 'Email không hợp lệ',
+                                                    }, 
+                                                })}/>
                                             {errors.email && <div className="text-danger">{errors.email.message}</div>}
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="tel">Số điện thoại</label>
-                                            <input type="text" className="form-control" id="tel" placeholder="Nhập số điện thoại" {...register('tel', { required: 'Vui lòng điền số điện thoại!' })}/>
+                                            <input type="text" className="form-control" id="tel" placeholder="Nhập số điện thoại" {...register('tel', { 
+                                                required: 'Vui lòng điền số điện thoại!',
+                                                pattern: {
+                                                        value: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/,
+                                                        message: 'Số điện thoại không không đúng định dạng',
+                                                    },
+                                                })}/>
                                             {errors.tel && <div className="text-danger">{errors.tel.message}</div>}
                                         </div>
                                         <div className="form-group">
@@ -88,7 +100,17 @@ export default function EmployeeAdd () {
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="password">Mật khẩu</label>
-                                            <input type="password" className="form-control" id="password" placeholder="Nhập mật khẩu" {...register('password', { required: 'Vui lòng điền mật khẩu!' })}/>
+                                            <input type="password" className="form-control" id="password" placeholder="Nhập mật khẩu" {...register('password', { 
+                                                required: 'Vui lòng điền mật khẩu!',
+                                                minLength: {
+                                                        value: 8,
+                                                        message: 'Mật khẩu phải có ít nhất 8 ký tự',
+                                                    },
+                                                    pattern: {
+                                                        value: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+                                                        message: 'Mật khẩu phải bao gồm số và ký tự đặc biệt',
+                                                    }, 
+                                                })}/>
                                             {errors.password && <div className="text-danger">{errors.password.message}</div>}
                                         </div>
                                         <div className="form-group">

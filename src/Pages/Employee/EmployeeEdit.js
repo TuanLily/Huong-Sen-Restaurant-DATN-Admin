@@ -18,16 +18,26 @@ export default function EmployeeEdit () {
                                             <input type="text" className="form-control" id="name" placeholder="Nhập họ và tên"/>
                                         </div>
                                         <div className="form-group">
-                                            <label for="tdn">Tên đăng nhập</label>
-                                            <input type="text" className="form-control" id="tdn" placeholder="Nhập tên đăng nhập"/>
+                                            <label htmlFor="email">Email</label>
+                                            <input type="email" className="form-control" id="email" placeholder="Nhập email" {...register('email', { 
+                                                required: 'Vui lòng điền email!',
+                                                pattern: {
+                                                        value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                                                        message: 'Email không hợp lệ',
+                                                    }, 
+                                                })}/>
+                                            {errors.email && <div className="text-danger">{errors.email.message}</div>}
                                         </div>
                                         <div className="form-group">
-                                            <label for="email">Email</label>
-                                            <input type="email" className="form-control" id="email" placeholder="Nhập email"/>
-                                        </div>
-                                        <div className="form-group">
-                                            <label for="pass">Mật khẩu</label>
-                                            <input type="text" className="form-control" id="pass" placeholder="Nhập mật khẩu"/>
+                                            <label htmlFor="tel">Số điện thoại</label>
+                                            <input type="text" className="form-control" id="tel" placeholder="Nhập số điện thoại" {...register('tel', { 
+                                                required: 'Vui lòng điền số điện thoại!',
+                                                pattern: {
+                                                        value: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/,
+                                                        message: 'Số điện thoại không không đúng định dạng',
+                                                    },
+                                                })}/>
+                                            {errors.tel && <div className="text-danger">{errors.tel.message}</div>}
                                         </div>
                                         <div className="form-group">
                                             <label>Vai trò</label>
