@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchBlog, deleteBlog } from '../../Actions/BlogActions';
+import { fetchBlog, deleteBlog,setCurrentPage } from '../../Actions/BlogActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
-// import BlogPagination from '../../Components/Pagination/BlogPagination';
+import CustomPagination from '../../Components/Pagination/CustomPagination';
 
 export default function BlogList() {
     const dispatch = useDispatch();
@@ -14,8 +14,8 @@ export default function BlogList() {
     const [selectedBlog, setSelectedBlog] = useState(null);
 
     useEffect(() => {
-        dispatch(fetchBlog());
-    }, [dispatch]);
+        dispatch(fetchBlog(blogState.currentPage));
+    }, [dispatch, blogState.currentPage]);
 
     const handleClickOpen = (blogId) => {
         setSelectedBlog(blogId);
@@ -90,25 +90,24 @@ export default function BlogList() {
                                                 <th scope="col">Tiêu đề</th>
                                                 <th scope="col">Nội dung</th>
                                                 <th scope="col">Tác giả</th>
-                                                <th scope='col'>Hình ảnh</th>
-                                                {/* <th scope="col">Danh mục</th> */}
+                                                <th scope="col">Hình ảnh</th>
                                                 <th scope="col">Thao tác</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {blogState.loading && (
                                                 <tr>
-                                                    <td colSpan="7">Loading...</td>
+                                                    <td colSpan="6">Loading...</td>
                                                 </tr>
                                             )}
                                             {!blogState.loading && blogState.blog.length === 0 && (
                                                 <tr>
-                                                    <td colSpan="7">No blogs found.</td>
+                                                    <td colSpan="6">No blogs found.</td>
                                                 </tr>
                                             )}
                                             {blogState.error && (
                                                 <tr>
-                                                    <td colSpan="7">Error: {blogState.error}</td>
+                                                    <td colSpan="6">Error: {blogState.error}</td>
                                                 </tr>
                                             )}
                                             {blogState.blog && blogState.blog.map((item, index) => (
@@ -117,16 +116,13 @@ export default function BlogList() {
                                                     <td>{item.title}</td>
                                                     <td>{item.content}</td>
                                                     <td>{item.author}</td>
-                                                    <td>     <img className="img-fluid rounded" src={item.poster || '../Assets/Images/default.jpg'} alt="poster" width={70} /></td>
-                                                    {/* <td>
-                                                        <span className="badge badge-success">{item.blog_category_id}</span>
-                                                    </td> */}
+                                                    <td>
+                                                        <img className="img-fluid rounded" src={item.poster || '../Assets/Images/default.jpg'} alt="poster" width={70} />
+                                                    </td>
                                                     <td>
                                                         <div className="btn-group mt-3" role="group">
                                                             <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
-                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
-                                                                <span className='text-danger'>Xóa</span>
-                                                            </button>
+                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>Xóa</button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -135,7 +131,14 @@ export default function BlogList() {
                                     </table>
                                 </div>
                                 <div className='my-2'>
-                                    {/* <BlogPagination /> */}
+                                    <CustomPagination
+                                        count={Math.ceil((blogState.allBlogs || []).length / blogState.pageSize)}
+                                        currentPageSelector={state => state.blog.currentPage}
+                                        fetchAction={fetchBlog}
+                                        onPageChange={(page) => {
+                                            dispatch(setCurrentPage(page));
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </div>

@@ -1,34 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
 import ImageUploadComponent from "../../Components/ImageUpload/ImageUpload";
+import { fetchCategoryBlog } from "../../Actions/BlogsCategoriesActions";
 import { addBlog } from "../../Actions/BlogActions";
 import { SuccessAlert } from "../../Components/Alert/Alert";
-
 export default function BlogAdd() {
     const dispatch = useDispatch();
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
+    const blogCategoryState = useSelector(state => state.categories)
+    
+    useEffect(() => {
+        dispatch(fetchCategoryBlog());
+    }, [dispatch]);
+    
     const navigate = useNavigate();
 
     const [poster, setPoster] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
-    const [categories, setCategories] = useState([]);
-
-    useEffect(() => {
-        // Fetch categories from the API
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch('/api/category_blogs'); // Adjust the endpoint as needed
-                const data = await response.json();
-                setCategories(data);
-            } catch (error) {
-                console.error('Failed to fetch categories:', error);
-            }
-        };
-
-        fetchCategories();
-    }, []);
 
     const handleImageUpload = (fileNames) => {
         if (fileNames.length > 0) {
@@ -96,7 +86,15 @@ export default function BlogAdd() {
                                         </div>
                                     </div>
                                     <div className="col-md-6">
-                                       
+                                    <div className="form-group">
+                                            <label>Danh mục</label>
+                                            <select className="form-select" id="blog_category_id" {...register('blog_category_id', { required: 'Vui lòng chọn danh mục!' })}>
+                                                {blogCategoryState.categories && blogCategoryState.categories.map((item) => (
+                                                    <option key={item.id} value={item.id}>{item.name}</option>
+                                                ))}
+                                            </select>
+                                            {errors.category_id && <p className="text-danger">{errors.category_id.message}</p>}
+                                        </div>
                                         <div className="form-group">
                                             <label htmlFor="poster">Ảnh poster</label><br />
                                             <ImageUploadComponent id="poster" onImageUpload={handleImageUpload} />

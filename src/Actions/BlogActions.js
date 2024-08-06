@@ -3,8 +3,7 @@ import axios from "axios";
 export const FETCH_BLOG_REQUEST = "FETCH_BLOG_REQUEST";
 export const FETCH_BLOG_SUCCESS = "FETCH_BLOG_SUCCESS";
 export const FETCH_BLOG_FAILURE = "FETCH_BLOG_FAILURE";
-
-
+export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from "../Config/index";
 
@@ -23,6 +22,11 @@ export const fetchBlogSuccess = (blog) => ({
 export const fetchBlogFailure = (error) => ({
   type: FETCH_BLOG_FAILURE,
   payload: error,
+});
+
+export const setCurrentPage = (page) => ({
+  type: SET_CURRENT_PAGE,
+  payload: page
 });
 
 export const fetchBlog = () => {
@@ -49,7 +53,7 @@ export const addBlog = (blog) => {
       .then((response) => {
         dispatch(fetchBlogSuccess(response.data.data));
         dispatch(fetchBlog());
-        dispatch(fetchCategoryBlogAction()); // Dispatching fetchCategoryBlogAction
+        // dispatch(fetchCategoryBlogAction()); // Dispatching fetchCategoryBlogAction
       })
       .catch((error) => {
         const errorMsg = error.message;
@@ -87,3 +91,4 @@ export const deleteBlog = (id) => {
             });
     };
 };
+
