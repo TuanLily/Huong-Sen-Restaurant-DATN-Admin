@@ -1,11 +1,84 @@
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams, useNavigate } from 'react-router-dom';
+import { fetchEmployees, updateEmployee } from '../../Actions/EmployeeActions';
+import { fetchRole } from "../../Actions/RoleActions";
+import ImageUploadComponent from '../../Components/ImageUpload/ImageUpload';
+import { SuccessAlert } from '../../Components/Alert/Alert';
+import { useForm } from 'react-hook-form';
 
-export default function EmployeeEdit () {
+export default function EmployeeEdit() {
+    const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
+
+    const { id } = useParams();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const employeeState = useSelector((state) => state.employee);
+    const roleState = useSelector(state => state.role);
+
+    const [initialAvatar, setInitialAvatar] = useState(null);
+    const [avatar, setAvatar] = useState('');
+    const [initialPassword, setInitialPassword] = useState('');
+    const [openSuccess, setOpenSuccess] = useState(false);
+
+    useEffect(() => {
+        dispatch(fetchEmployees());
+        dispatch(fetchRole());
+    }, [dispatch]);
+
+    useEffect(() => {
+        const employee = employeeState.employee.find((emp) => emp.id === parseInt(id));
+        if (employee) {
+            setValue('fullname', employee.fullname);
+            setValue('email', employee.email);
+            setValue('tel', employee.tel);
+            setValue('address', employee.address);
+            setValue('password', '');
+            setValue('role_id', employee.role_id);
+            setValue('status', employee.status);
+            setInitialAvatar(employee.avatar);
+            setAvatar(employee.avatar); // Đặt avatar để hiển thị
+            setInitialPassword(employee.password);
+        }
+    }, [employeeState.employee, id, setValue]);
+
+    const handleSuccessClose = () => {
+        setOpenSuccess(false);
+    };
+
+    const onSubmit = (data) => {
+        const updatedData = {
+            ...data,
+            password: data.password || initialPassword, // Cập nhật mật khẩu nếu có
+            avatar: avatar || initialAvatar // Cập nhật avatar nếu có ảnh mới
+        };
+
+
+        dispatch(updateEmployee(id, updatedData));
+
+        setOpenSuccess(true);
+        setTimeout(() => {
+            navigate('/employee');
+        }, 2000);
+    };
+
+    const handleImageUpload = (fileNames) => {
+        if (fileNames.length > 0) {
+            setAvatar(fileNames[0]); // Cập nhật avatar với file mới
+            setValue('avatar', fileNames[0]); // Cập nhật giá trị của avatar trong form
+        }
+    };
+
+    if (employeeState.error) {
+        return <p>Error: {employeeState.error}</p>;
+    }
+
     return (
         <div className="container">
             <div className="page-inner">
                 <div className="row">
-                    <form className="col-md-12">
+                <form className="col-md-12" onSubmit={handleSubmit(onSubmit)}>
                         <div className="card">
                             <div className="card-header">
                                 <div className="card-title">Cập nhật nhân viên</div>
@@ -14,8 +87,9 @@ export default function EmployeeEdit () {
                                 <div className="row">
                                     <div className="col-md-6 col-lg-6">
                                         <div className="form-group">
-                                            <label for="name">Họ và tên</label>
-                                            <input type="text" className="form-control" id="name" placeholder="Nhập họ và tên"/>
+                                            <label htmlFor="fullname">Họ và tên</label>
+                                            <input type="text" className="form-control" id="fullname" placeholder="Nhập họ và tên" {...register('fullname', { required: 'Vui lòng điền họ và tên!' })}/>
+                                            {errors.fullname && <div className="text-danger">{errors.fullname.message}</div>}
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="email">Email</label>
@@ -41,37 +115,38 @@ export default function EmployeeEdit () {
                                         </div>
                                         <div className="form-group">
                                             <label>Vai trò</label>
-                                            <select className="form-select">
-                                                <option>1</option>
-                                                <option>2</option>
-                                                <option>3</option>
-                                                <option>4</option>
-                                                <option>5</option>
+                                            <select className="form-select" id="role_id" {...register('role_id', { required: 'Vui lòng chọn vai trò!' })}>
+                                                {roleState.role && roleState.role.map((item, index) => (
+                                                    <option key={item.id} value={item.id}>{item.name}</option>
+                                                ))}
                                             </select>
                                         </div>
                                     </div>
                                     <div className="col-md-6 col-lg-6">
                                         <div className="form-group">
-                                            <label for="diaChi">Địa chỉ</label>
-                                            <input type="text" className="form-control" id="diaChi" placeholder="Nhập địa chỉ"/>
+                                            <label htmlFor="address">Địa chỉ</label>
+                                            <input type="text" className="form-control" id="address" placeholder="Nhập địa chỉ" {...register('address', { required: 'Vui lòng điền địa chỉ!' })}/>
+                                            {errors.address && <div className="text-danger">{errors.address.message}</div>}
                                         </div>
                                         <div className="form-group">
-                                            <label for="sdt">Số điện thoại</label>
-                                            <input type="text" className="form-control" id="sdt" placeholder="Nhập số điện thoại"/>
+                                            <label htmlFor="password">Mật khẩu</label>
+                                            <input type="password" className="form-control" id="password" placeholder="Nhập mật khẩu" {...register('password')}/>
                                         </div>
                                         <div className="form-group">
                                             <label>Trạng thái</label>
-                                            <select className="form-select">
-                                                <option>1</option>
-                                                <option>2</option>
-                                                <option>3</option>
-                                                <option>4</option>
-                                                <option>5</option>
+                                            <select className="form-select" id="status" {...register('status', { required: 'Vui lòng chọn trạng thái!' })}>
+                                                <option value='1'>Đang làm việc</option>
+                                                <option value='0'>Nghỉ việc</option>
                                             </select>
                                         </div>
                                         <div className="form-group">
-                                            <label for="exampleFormControlFile1">Ảnh đại diện</label><br/>
-                                            <input type="file" className="form-control-file" id="exampleFormControlFile1"/>
+                                            <label htmlFor="avatar">Ảnh nhân viên</label><br/>
+                                            <ImageUploadComponent id="avatar" onImageUpload={handleImageUpload} />
+                                            {initialAvatar && (
+                                                <div>
+                                                    <img src={initialAvatar} alt="Avatar" style={{ maxWidth: '100px', marginTop: '10px' }} />
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -79,13 +154,14 @@ export default function EmployeeEdit () {
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
                                     <button className="btn btn-success">Submit</button>
-                                    <button className="btn btn-danger">Cancel</button>
+                                    <button className="btn btn-danger" onClick={() => navigate('/employee')}>Cancel</button>
                                 </div>   
                             </div>
                         </div>
                     </form>
+                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Cập nhật thông tin nhân viên thành công!" vertical="top" horizontal="right" />
                 </div>
             </div>
         </div>
-    )
+    );
 }
