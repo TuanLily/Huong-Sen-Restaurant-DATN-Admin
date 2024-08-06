@@ -80,7 +80,7 @@ export default function ProductAdd () {
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="price">Giá niêm yết</label>
-                                            <input type="number" className="form-control" id="price" placeholder="Nhập giá niêm yết" {...register('price', { required: 'Vui lòng điền giá niêm yết!' })}/>
+                                            <input type="number" className="form-control" id="price" placeholder="Nhập giá niêm yết" {...register('price', { required: 'Vui lòng điền giá niêm yết!', validate: value => value >= 0 || 'Giá niêm yết không được là số âm!' })}/>
                                             {errors.price && <div className="text-danger">{errors.price.message}</div>}
                                         </div>
                                         <div className="form-group">
@@ -105,7 +105,7 @@ export default function ProductAdd () {
                                         <div className="form-group">
                                             <label htmlFor="saleEmail">Giá khuyến mãi</label>
                                             <input type="number" className="form-control" id="sale_price" placeholder="Nhập giá khuyến mãi" 
-                                            {...register('sale_price', { required: 'Vui lòng điền giá khuyến mãi!' , validate: value => {const price = Number(watch('price')) ; const sale_price = Number(value) ; return sale_price <= price || 'Giá khuyến mãi không được lớn hơn giá niêm yết!' ;}})}/>
+                                            {...register('sale_price', { required: 'Vui lòng điền giá khuyến mãi!' , validate: value => {const price = Number(watch('price')) ; const sale_price = Number(value) ; if (sale_price < 0) {return 'Giá khuyến mãi không được là số âm!'} if (sale_price >= price) {return 'Giá khuyến mãi không hợp lệ!'}}})}/>
                                             {errors.sale_price && <div className="text-danger">{errors.sale_price.message}</div>}
                                         </div>
                                         <div className="form-group">

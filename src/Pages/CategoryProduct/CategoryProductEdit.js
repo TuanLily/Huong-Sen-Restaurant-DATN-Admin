@@ -45,10 +45,6 @@ export default function CategoryProductEdit () {
         }, 2000);
     };
 
-    if (productCategoryState.error) {
-        return <p>Error: {productCategoryState.error}</p>;
-    }
-
     return (
         <div className="container">
             <div className="page-inner">
@@ -63,7 +59,7 @@ export default function CategoryProductEdit () {
                                     <div className="col-md-6 col-lg-6">
                                         <div className="form-group">
                                             <label htmlFor="name">Tên danh mục</label>
-                                            <input type="text" className="form-control" id="name" placeholder="Nhập tên danh mục" {...register('name', { required: 'Vui lòng điền tên danh mục!' })}/>
+                                            <input type="text" className="form-control" id="name" placeholder="Nhập tên danh mục" {...register('name', { required: 'Vui lòng điền tên danh mục!', validate: value => {const exists = productCategoryState.product_category.some (p => p.name == value && p.id !== parseInt(id)) ; return !exists || 'Tên danh mục đã tồn tại!' }})}/>
                                             {errors.name && <div className="text-danger">{errors.name.message}</div>}
                                         </div>
                                     </div>

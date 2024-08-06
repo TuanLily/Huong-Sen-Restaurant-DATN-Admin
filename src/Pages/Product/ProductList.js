@@ -145,8 +145,14 @@ export default function ProductList () {
                                                             }
                                                         </td>
                                                         <td>
-                                                            <span className="text-danger text-decoration-line-through">{formatCurrency(item.price)}</span>
-                                                            <div>{formatCurrency(item.sale_price)}</div>
+                                                            {item.sale_price > 0 ? (
+                                                                <div>
+                                                                    <span className="text-danger text-decoration-line-through">{formatCurrency(item.price)}</span>
+                                                                    <div>{formatCurrency(item.price - item.sale_price)}</div>
+                                                                </div>
+                                                            ) : (
+                                                                <div>{formatCurrency(item.price)}</div>
+                                                            )}
                                                         </td>
                                                         <td>
                                                             <div className="btn-group mt-3" role="group">

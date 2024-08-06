@@ -2,12 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
-import { addProductCategory } from "../../Actions/ProductCategoryActions";
+import { addProductCategory, fetchProductCategory } from "../../Actions/ProductCategoryActions";
 import { SuccessAlert } from "../../Components/Alert/Alert";
 
 export default function CategoryProductAdd () {
     const dispatch = useDispatch();
     const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
+    const productCategoryState = useSelector(state => state.product_category);
+
+    useEffect(() => {
+        dispatch(fetchProductCategory());
+    }, [dispatch]);
 
     const navigate = useNavigate();
 
@@ -42,7 +47,7 @@ export default function CategoryProductAdd () {
                                     <div className="col-md-6 col-lg-6">
                                         <div className="form-group">
                                             <label htmlFor="name">Tên danh mục</label>
-                                            <input type="text" className="form-control" id="name" placeholder="Nhập tên danh mục" {...register('name', { required: 'Vui lòng điền tên danh mục!' })}/>
+                                            <input type="text" className="form-control" id="name" placeholder="Nhập tên danh mục" {...register('name', { required: 'Vui lòng điền tên danh mục!' , validate: value => {const exists = productCategoryState.product_category.some (c => c.name == value) ; return !exists || 'Tên danh mục đã tồn tại!' }})}/>
                                             {errors.name && <div className="text-danger">{errors.name.message}</div>}
                                         </div>
                                     </div>

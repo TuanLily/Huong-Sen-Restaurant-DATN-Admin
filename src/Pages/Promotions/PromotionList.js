@@ -95,8 +95,9 @@ export default function PromotionList () {
                                         <thead className="thead-light">
                                             <tr>
                                                 <th scope="col">STT</th>
-                                                <th scope="col">Tên khuyến mãi</th>
+                                                <th scope="col">Mã khuyến mãi</th>
                                                 <th scope="col">Phần trăm giảm</th>
+                                                <th scope="col">Số lần</th>
                                                 <th scope="col">Ngày bắt đầu</th>
                                                 <th scope="col">Ngày kết thúc</th>
                                                 <th scope="col">Thao tác</th>
@@ -118,10 +119,11 @@ export default function PromotionList () {
                                                 return (
                                                     <tr key={item.id}>
                                                         <td>{stt}</td>
-                                                        <td>{item.name}</td>
+                                                        <td>{item.code_name}</td>
                                                         <td>
                                                             <span className="badge badge-success">{item.discount}%</span>
                                                         </td>
+                                                        <td>{item.quantity}</td>
                                                         <td>
                                                             {item.valid_from.substring(0, 10)}
                                                         </td>
