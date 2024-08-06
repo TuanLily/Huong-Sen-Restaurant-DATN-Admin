@@ -1,5 +1,8 @@
 import React from 'react'
 
+import logo from '../Assets/Images/huong-sen-logo.png'
+
+
 export default function Header() {
     return (
         <div className="main-header">
@@ -7,10 +10,11 @@ export default function Header() {
                 <div className="logo-header" data-background-color="dark">
                     <a href="index.html" className="logo">
                         <img
-                            src="../Assets/Images/kaiadmin/logo_light.svg"
+                            src={logo}
                             alt="navbar brand"
                             className="navbar-brand"
-                            height="20"
+                            width={60}
+                            height={60}
                         />
                     </a>
                     <div className="nav-toggle">

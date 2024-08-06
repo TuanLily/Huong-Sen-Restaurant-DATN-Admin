@@ -29,6 +29,7 @@ export default function EmployeeList() {
     useEffect(() => {
         if (employeeState.allEmployees.length > 0) {
             dispatch(setCurrentPage(employeeState.currentPage));
+            dispatch(fetchRole());
         }
     }, [dispatch, employeeState.allEmployees, employeeState.currentPage]);
 
@@ -132,7 +133,7 @@ export default function EmployeeList() {
                                         <tbody>
                                             {employeeState.loading && (
                                                 <tr>
-                                                    <td colSpan="9"><CustomSpinner/></td>
+                                                    <td colSpan="9"><CustomSpinner /></td>
                                                 </tr>
                                             )}
                                             {!employeeState.loading &&
@@ -159,7 +160,7 @@ export default function EmployeeList() {
                                                         <td>{item.email}</td>
                                                         <td>{item.tel}</td>
                                                         <td>
-                                                            <span className="badge" style={{backgroundColor: "green"}}>
+                                                            <span className="badge" style={{ backgroundColor: "green" }}>
                                                                 {getRoleName(item.role_id)}
                                                             </span>
                                                         </td>
@@ -170,7 +171,7 @@ export default function EmployeeList() {
                                                                     backgroundColor:
                                                                         item.status === 1 ? "green" : "red",
                                                                     color: "white",
-                                                                    
+
                                                                 }}
                                                             >
                                                                 {item.status === 1
@@ -202,7 +203,7 @@ export default function EmployeeList() {
                                     </table>
                                 </div>
                                 <div className="my-2">
-                                <CustomPagination
+                                    <CustomPagination
                                         count={Math.ceil((employeeState.allEmployees).length / employeeState.pageSize)} currentPageSelector={state => state.employee.currentPage}
                                         fetchAction={fetchEmployees}
                                         onPageChange={(page) => {

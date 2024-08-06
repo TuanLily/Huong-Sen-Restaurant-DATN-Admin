@@ -24,6 +24,7 @@ export default function ProductList () {
     useEffect(() => {
         if (productState.allProducts.length > 0) {
             dispatch(setCurrentPage(productState.currentPage));
+            dispatch(fetchProductCategory());
         }
     }, [dispatch, productState.allProducts, productState.currentPage]);
 
