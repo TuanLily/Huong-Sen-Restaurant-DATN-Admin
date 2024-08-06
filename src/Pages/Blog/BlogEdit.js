@@ -5,15 +5,17 @@ import { fetchBlog, updateBlog } from '../../Actions/BlogActions';
 import ImageUploadComponent from '../../Components/ImageUpload/ImageUpload';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
+import { fetchCategoryBlog } from "../../Actions/BlogsCategoriesActions";
+
 
 export default function BlogEdit() {
     const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
-
     const { id } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const blogState = useSelector((state) => state.blog);
+    const blogCategoryState = useSelector(state => state.categories);
 
     const [initialPoster, setInitialPoster] = useState(null);
     const [poster, setPoster] = useState('');
@@ -21,6 +23,7 @@ export default function BlogEdit() {
 
     useEffect(() => {
         dispatch(fetchBlog());
+        dispatch(fetchCategoryBlog());
     }, [dispatch]);
 
     useEffect(() => {
@@ -29,6 +32,7 @@ export default function BlogEdit() {
             setValue('title', blog.title);
             setValue('author', blog.author);
             setValue('content', blog.content);
+            setValue('blog_category_id', blog.blog_category_id);
             setInitialPoster(blog.poster);
             setPoster(blog.poster);
         }
@@ -109,6 +113,21 @@ export default function BlogEdit() {
                                         </div>
                                     </div>
                                     <div className="col-md-6">
+                                        <div className="form-group">
+                                            <label>Danh mục</label>
+                                            <select
+                                                className="form-select"
+                                                id="blog_category_id"
+                                                {...register('blog_category_id', { required: 'Vui lòng chọn danh mục!' })}
+                                            >
+                                                {blogCategoryState.categories && blogCategoryState.categories.map((item) => (
+                                                    <option key={item.id} value={item.id}>
+                                                        {item.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            {errors.blog_category_id && <p className="text-danger">{errors.blog_category_id.message}</p>}
+                                        </div>
                                         <div className="form-group">
                                             <label htmlFor="poster">Ảnh poster</label><br />
                                             <ImageUploadComponent id="poster" onImageUpload={handleImageUpload} />
