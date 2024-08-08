@@ -1,12 +1,22 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
+    const navigate = useNavigate();
+
     const getUser = () => {
         if (localStorage.getItem ('user_admin')) {
             return JSON.parse(localStorage.getItem ('user_admin'));
         } else {
             return null;
         }
+    }
+
+    const logOut = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('expiryTime');
+        localStorage.removeItem('user_admin');
+        navigate('/login');
     }
 
     const user_admin = getUser();
@@ -367,19 +377,17 @@ export default function Header() {
                                                 <a
                                                     href="profile.html"
                                                     className="btn btn-xs btn-secondary btn-sm"
-                                                >View Profile</a>
+                                                >Xem Hồ Sơ</a>
                                             </div>
                                         </div>
                                     </li>
                                     <li>
                                         <div className="dropdown-divider"></div>
-                                        <a className="dropdown-item" href="#">My Profile</a>
-                                        <a className="dropdown-item" href="#">My Balance</a>
-                                        <a className="dropdown-item" href="#">Inbox</a>
+                                        <a className="dropdown-item" href="#">Thông tin cá nhân</a>
                                         <div className="dropdown-divider"></div>
-                                        <a className="dropdown-item" href="#">Account Setting</a>
+                                        <a className="dropdown-item" href="#">Cài đặt tài khoản</a>
                                         <div className="dropdown-divider"></div>
-                                        <a className="dropdown-item" href="#">Logout</a>
+                                        <a className="dropdown-item" href='#' onClick={logOut}>Đăng xuất</a>
                                     </li>
                                 </div>
                             </ul>
