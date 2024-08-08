@@ -9,7 +9,7 @@ import blogReducer from "./BlogReducers";
 import promotionReducer from "./PromotionsReducers";
 import employeeReducer from "./EmployeeReducers";
 import tablesReducer from "./TablesReducers";
-
+import authReducer from "./AuthReducers";
 
 const rootReducer = combineReducers({
     customer: customerReducer,
@@ -26,6 +26,7 @@ const rootReducer = combineReducers({
     promotion: promotionReducer,
     employee: employeeReducer,
     tables: tablesReducer,
+    auth: authReducer,
 });
 
 export default rootReducer;

@@ -1,20 +1,26 @@
 import React from 'react'
 
-import logo from '../Assets/Images/huong-sen-logo.png'
-
-
 export default function Header() {
+    const getUser = () => {
+        if (localStorage.getItem ('user_admin')) {
+            return JSON.parse(localStorage.getItem ('user_admin'));
+        } else {
+            return null;
+        }
+    }
+
+    const user_admin = getUser();
+
     return (
         <div className="main-header">
             <div className="main-header-logo">
                 <div className="logo-header" data-background-color="dark">
                     <a href="index.html" className="logo">
                         <img
-                            src={logo}
+                            src="../Assets/Images/kaiadmin/logo_light.svg"
                             alt="navbar brand"
                             className="navbar-brand"
-                            width={60}
-                            height={60}
+                            height="20"
                         />
                     </a>
                     <div className="nav-toggle">
@@ -334,14 +340,14 @@ export default function Header() {
                             >
                                 <div className="avatar-sm">
                                     <img
-                                        src="../Assets/Images/profile.jpg"
+                                        src={user_admin ? user_admin.avatar : 'Guest'}
                                         alt="..."
                                         className="avatar-img rounded-circle"
                                     />
                                 </div>
                                 <span className="profile-username">
                                     <span className="op-7">Hi,</span>
-                                    <span className="fw-bold">Hizrian</span>
+                                    <span className="fw-bold">{user_admin ? user_admin.username : 'Guest'}</span>
                                 </span>
                             </a>
                             <ul className="dropdown-menu dropdown-user animated fadeIn">
@@ -350,14 +356,14 @@ export default function Header() {
                                         <div className="user-box">
                                             <div className="avatar-lg">
                                                 <img
-                                                    src="../Assets/Images/profile.jpg"
+                                                    src={user_admin ? user_admin.avatar : 'Guest'}
                                                     alt="image profile"
                                                     className="avatar-img rounded"
                                                 />
                                             </div>
                                             <div className="u-text">
-                                                <h4>Hizrian</h4>
-                                                <p className="text-muted">hello@example.com</p>
+                                                <h4>{user_admin ? user_admin.username : 'Guest'}</h4>
+                                                <p className="text-muted">{user_admin ? user_admin.email : 'Guest'}</p>
                                                 <a
                                                     href="profile.html"
                                                     className="btn btn-xs btn-secondary btn-sm"
