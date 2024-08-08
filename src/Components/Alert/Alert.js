@@ -62,3 +62,31 @@ export const DangerAlert = ({ open, onClose, message, vertical = 'top', horizont
         </Alert>
     </Snackbar>
 );
+
+// Success Alert Login Component
+export const SuccessLogin = ({ open, onClose, message, vertical = 'top', horizontal = 'right' }) => (
+    <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={onClose}
+        anchorOrigin={{ vertical, horizontal }}
+    >
+        <Alert onClose={onClose} severity="success" sx={{ width: '100%' }}>
+            {message}
+        </Alert>
+    </Snackbar>
+);
+
+// Danger Alert Login Component (Error)
+export const DangerLogin = ({ open, onClose, message, vertical = 'top', horizontal = 'right' }) => (
+    <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={onClose}
+        anchorOrigin={{ vertical, horizontal }}
+    >
+        <Alert onClose={onClose} severity="error" sx={{ width: '100%' }}>
+            {message}
+        </Alert>
+    </Snackbar>
+);
