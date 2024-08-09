@@ -175,8 +175,8 @@ export default function CustomerAdd() {
                             </div>
                             <div className="card-footer">
                                 <div className="btn-group mt-3" role="group">
-                                    <button type="submit" className="btn btn-success" disabled={loading}>Submit</button>
-                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Cancel</button>
+                                    <button type="submit" className="btn btn-success" disabled={loading}>Thêm mới</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Hủy</button>
                                 </div>
                             </div>
                         </div>

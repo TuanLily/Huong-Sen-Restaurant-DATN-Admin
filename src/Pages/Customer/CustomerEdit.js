@@ -165,8 +165,8 @@ export default function CustomerEdit() {
                             </div>
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button type="submit" className="btn btn-success">Submit</button>
-                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Cancel</button>
+                                    <button type="submit" className="btn btn-success">Cập nhật</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Hủy</button>
                                 </div>
                             </div>
                         </div>
