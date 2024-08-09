@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchCustomer, updateCustomer } from '../../Actions/CustomerActions';
+import { checkEmailExists, fetchCustomer, updateCustomer } from '../../Actions/CustomerActions';
 import ImageUploadComponent from '../../Components/ImageUpload/ImageUpload';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function CustomerEdit() {
-    const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
+    const { register, handleSubmit, setValue, formState: { errors }, reset, setError } = useForm();
 
     const { id } = useParams();
     const dispatch = useDispatch();
@@ -18,7 +18,6 @@ export default function CustomerEdit() {
 
     const [initialAvatar, setInitialAvatar] = useState(null);
     const [avatar, setAvatar] = useState('');
-    const [initialPassword, setInitialPassword] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -32,10 +31,8 @@ export default function CustomerEdit() {
                 setValue('email', customer.email);
                 setValue('address', customer.address);
                 setValue('tel', customer.tel);
-                setValue('password', ''); // Đặt giá trị mật khẩu mặc định rỗng
                 setInitialAvatar(customer.avatar);
                 setAvatar(customer.avatar); // Đặt avatar để hiển thị
-                setInitialPassword(customer.password);
             }
             setLoading(false); // Dừng spinner khi dữ liệu đã được tải
         };
@@ -47,10 +44,11 @@ export default function CustomerEdit() {
     };
 
     const onSubmit = async (data) => {
-        setLoading(true); // Bắt đầu spinner khi gửi form
+
+
+        setLoading(true);
         const updatedData = {
             ...data,
-            password: data.password || initialPassword, // Cập nhật mật khẩu nếu có
             avatar: avatar || initialAvatar // Cập nhật avatar nếu có ảnh mới
         };
 
@@ -117,16 +115,6 @@ export default function CustomerEdit() {
                                             />
                                             {errors.email && <p>{errors.email.message}</p>}
                                         </div>
-                                        <div className="form-group">
-                                            <label htmlFor="password">Mật khẩu</label>
-                                            <input
-                                                type="password"
-                                                className="form-control"
-                                                id="password"
-                                                {...register('password')}
-                                                placeholder="Nhập mật khẩu"
-                                            />
-                                        </div>
                                     </div>
                                     <div className="col-md-6 col-lg-6">
                                         <div className="form-group">
@@ -151,6 +139,8 @@ export default function CustomerEdit() {
                                             />
                                             {errors.tel && <p>{errors.tel.message}</p>}
                                         </div>
+                                    </div>
+                                    <div className='col-md-6'>
                                         <div className="form-group">
                                             <label htmlFor="avatar">Ảnh đại diện</label><br />
                                             <ImageUploadComponent id="avatar" onImageUpload={handleImageUpload} />
@@ -165,8 +155,8 @@ export default function CustomerEdit() {
                             </div>
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button type="submit" className="btn btn-success">Submit</button>
-                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Cancel</button>
+                                    <button type="submit" className="btn btn-success">Cập nhật</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Hủy</button>
                                 </div>
                             </div>
                         </div>

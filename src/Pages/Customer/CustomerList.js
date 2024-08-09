@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { deleteCustomer, fetchCustomer, setCurrentPage } from '../../Actions/CustomerActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+
+import { InputBase, Paper } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import { SuccessAlert } from '../../Components/Alert/Alert';
 
 export default function CustomerList() {
     const dispatch = useDispatch();
@@ -12,18 +16,24 @@ export default function CustomerList() {
 
     const navigate = useNavigate();
 
+    const location = useLocation();
+    const query = new URLSearchParams(location.search);
+    const urlPage = parseInt(query.get('page')) || 1;
+
     const [open, setOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [openSuccess, setOpenSuccess] = useState(false);
+    const [searchTerm, setSearchTerm] = useState(''); // State cho thanh tìm kiếm
 
+    // Fetch customers khi trang thay đổi hoặc khi tìm kiếm
     useEffect(() => {
-        dispatch(fetchCustomer());
-    }, [dispatch]);
+        dispatch(fetchCustomer(searchTerm, urlPage, customerState.pageSize));
+    }, [dispatch, urlPage, customerState.pageSize, searchTerm]);
 
+    // Cập nhật URL khi currentPage thay đổi
     useEffect(() => {
-        if (customerState.allCustomers.length > 0) {
-            dispatch(setCurrentPage(customerState.currentPage));
-        }
-    }, [dispatch, customerState.allCustomers, customerState.currentPage]);
+        navigate(`?page=${customerState.currentPage}`);
+    }, [customerState.currentPage, navigate]);
 
     const handleClickOpen = (customerId) => {
         setSelectedCustomer(customerId);
@@ -35,16 +45,40 @@ export default function CustomerList() {
         setSelectedCustomer(null);
     };
 
-    const handleConfirm = () => {
+    const handleSuccessClose = () => {
+        setOpenSuccess(false);
+    };
+
+
+    const handleConfirm = async () => {
         if (selectedCustomer) {
-            dispatch(deleteCustomer(selectedCustomer));
-            handleClose();
+            try {
+                await dispatch(deleteCustomer(selectedCustomer));
+                handleClose();
+                setOpenSuccess(true); // Hiển thị thông báo thành công
+            } catch (error) {
+                console.error("Error deleting customer:", error);
+            }
         }
+    };
+
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+        dispatch(setCurrentPage(1));
     };
 
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
     };
+
+    //* Hàm để chuyển trang và render dữ liệu đến trang hiện tại
+    const handlePageChange = (page) => {
+        navigate(`?page=${page}`); // Cập nhật URL với page
+        dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
+        dispatch(fetchCustomer(searchTerm, page, customerState.pageSize));
+    };
+
 
     return (
         <div className="container">
@@ -55,11 +89,12 @@ export default function CustomerList() {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
                         <Link to="/customer/add" className="btn btn-primary btn-round">Thêm khách hàng</Link>
-                        <DialogConfirm />
                     </div>
                 </div>
+
+
+
                 <div className="row">
                     <div className="col-md-12">
                         <div className="card card-round">
@@ -67,26 +102,24 @@ export default function CustomerList() {
                                 <div className="card-head-row card-tools-still-right">
                                     <div className="card-title">Danh sách</div>
                                     <div className="card-tools">
-                                        <div className="dropdown">
-                                            <button
-                                                className="btn btn-icon btn-clean me-0"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false"
-                                            >
-                                                <i className="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div
-                                                className="dropdown-menu"
-                                                aria-labelledby="dropdownMenuButton"
-                                            >
-                                                <a className="dropdown-item" href="#">Action</a>
-                                                <a className="dropdown-item" href="#">Another action</a>
-                                                <a className="dropdown-item" href="#">Something else here</a>
-                                            </div>
-                                        </div>
+                                        <Paper
+                                            component="form"
+                                            sx={{
+                                                p: '2px 4px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                width: 320,
+                                            }}
+                                        >
+                                            <SearchIcon />
+                                            <InputBase
+                                                sx={{ ml: 1, flex: 1 }}
+                                                placeholder="Tìm kiếm tài khoản ở đây!"
+                                                inputProps={{ 'aria-label': 'search' }}
+                                                value={searchTerm}
+                                                onChange={handleSearch} // Thêm xử lý thay đổi từ khóa tìm kiếm
+                                            />
+                                        </Paper>
                                     </div>
                                 </div>
                             </div>
@@ -111,12 +144,12 @@ export default function CustomerList() {
                                             )}
                                             {!customerState.loading && customerState.customer.length === 0 && (
                                                 <tr>
-                                                    <td colSpan="7">No customers found.</td>
+                                                    <td colSpan="7">Không tìm thấy tài khoản</td>
                                                 </tr>
                                             )}
                                             {customerState.customer && customerState.customer.map((item, index) => (
                                                 <tr key={item.id}>
-                                                    <td>{index + 1}</td>
+                                                    <td>{(customerState.currentPage - 1) * customerState.pageSize + index + 1}</td>
                                                     <td>
                                                         <img className="img-fluid rounded" src={item.avatar || '../Assets/Images/default.jpg'} alt="Avatar" width={70} />
                                                     </td>
@@ -138,16 +171,16 @@ export default function CustomerList() {
                                 </div>
                                 <div className='my-2'>
                                     <CustomPagination
-                                        count={Math.ceil((customerState.allCustomers).length / customerState.pageSize)} currentPageSelector={state => state.customer.currentPage}
-                                        fetchAction={fetchCustomer}
-                                        onPageChange={(page) => {
-                                            dispatch(setCurrentPage(page));
-                                        }}
+                                        count={customerState.totalPages} // Tổng số trang
+                                        currentPageSelector={state => state.customer.currentPage} // Selector để lấy trang hiện tại
+                                        fetchAction={(page, pageSize) => fetchCustomer(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
+                                        onPageChange={handlePageChange}
                                     />
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Xóa tài khoản thành công!" />
                 </div>
             </div>
             <DialogConfirm
@@ -156,5 +189,5 @@ export default function CustomerList() {
                 onConfirm={handleConfirm}
             />
         </div>
-    )
+    );
 }

@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
-import { addCustomer } from "../../Actions/CustomerActions";
+import { addCustomer, checkEmailExists } from "../../Actions/CustomerActions";
 import ImageUploadComponent from "../../Components/ImageUpload/ImageUpload";
 import { DangerAlert, SuccessAlert } from "../../Components/Alert/Alert";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 
 export default function CustomerAdd() {
     const dispatch = useDispatch();
-    const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
+    const { register, handleSubmit, formState: { errors }, setError, watch } = useForm();
 
     const navigate = useNavigate();
 
@@ -34,20 +34,41 @@ export default function CustomerAdd() {
         setOpenError(false);
     };
 
+    // Hàm kiểm tra email có tồn tại trên hệ thống chưa.
+    const validateEmailExists = async (email) => {
+        try {
+            const user = await checkEmailExists(email);
+            if (user) {
+                setError('email', {
+                    type: 'manual',
+                    message: 'Email đã tồn tại trên hệ thống',
+                });
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Error checking email:', error);
+            return false;
+        }
+    };
+
     const onSubmit = async (data) => {
-        setLoading(true); // Bắt đầu spinner
+        const emailIsValid = await validateEmailExists(data.email);
+        if (!emailIsValid) return;
+
+        setLoading(true); 
         data.avatar = avatar;
         try {
             await dispatch(addCustomer(data));
             setOpenSuccess(true);
             setTimeout(() => {
                 navigate('/customer');
-            }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+            }, 2000);
         } catch (error) {
             setOpenError(true); // Hiển thị thông báo lỗi
             console.error('Error adding customer:', error);
         } finally {
-            setLoading(false); // Dừng spinner
+            setLoading(false); 
         }
     };
 
@@ -175,8 +196,8 @@ export default function CustomerAdd() {
                             </div>
                             <div className="card-footer">
                                 <div className="btn-group mt-3" role="group">
-                                    <button type="submit" className="btn btn-success" disabled={loading}>Submit</button>
-                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Cancel</button>
+                                    <button type="submit" className="btn btn-success" disabled={loading}>Thêm mới</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Hủy</button>
                                 </div>
                             </div>
                         </div>

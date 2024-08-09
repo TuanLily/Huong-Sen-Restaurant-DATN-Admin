@@ -12,9 +12,14 @@ export const fetchCustomerRequest = () => ({
     type: FETCH_CUSTOMER_REQUEST
 });
 
-export const fetchCustomerSuccess = customer => ({
+export const fetchCustomerSuccess = (results, totalCount, totalPages, currentPage) => ({
     type: FETCH_CUSTOMER_SUCCESS,
-    payload: customer
+    payload: {
+        results,
+        totalCount,
+        totalPages,
+        currentPage
+    }
 });
 
 export const fetchCustomerFailure = error => ({
@@ -27,13 +32,26 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
-export const fetchCustomer = () => {
+export const fetchCustomer = (fullname = '', page = 1, pageSize = 5) => {
     return dispatch => {
         dispatch(fetchCustomerRequest());
-        axios.get(`${API_ENDPOINT}/${AdminConfig.routes.customer}`)
+
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.customer}`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (fullname) {
+            url.searchParams.append('search', fullname);
+        }
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        axios.get(url.toString())
             .then(response => {
-                const customer = response.data.results;
-                dispatch(fetchCustomerSuccess(customer));
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchCustomerSuccess(results, totalCount, totalPages, currentPage));
             })
             .catch(error => {
                 const errorMsg = error.message;
@@ -41,6 +59,9 @@ export const fetchCustomer = () => {
             });
     };
 };
+
+
+
 
 
 
@@ -76,16 +97,25 @@ export const updateCustomer = (id, data) => {
 };
 
 export const deleteCustomer = (id) => {
-    return dispatch => {
-        dispatch(fetchCustomerRequest());
-        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.customer}/${id}`)
-            .then(() => {
-                // Sau khi xóa khách hàng, gọi lại fetchCustomer để làm mới danh sách
-                dispatch(fetchCustomer());
-            })
-            .catch((error) => {
-                const errorMsg = error.message;
-                dispatch(fetchCustomerFailure(errorMsg));
-            });
+    return async dispatch => {
+        try {
+            dispatch(fetchCustomerRequest());
+            await axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.customer}/${id}`);
+            dispatch(fetchCustomer());
+        } catch (error) {
+            const errorMsg = error.message || 'Đã xảy ra lỗi trong quá trình xóa khách hàng';
+            dispatch(fetchCustomerFailure(errorMsg));
+        }
     };
+};
+
+
+export const checkEmailExists = async (email) => {
+    try {
+        const response = await axios.get(`${API_ENDPOINT}/auth/check-email`, { params: { email } });
+        return response.data.exists ? response.data.user : null;
+    } catch (error) {
+        console.error('Error checking user existence:', error);
+        throw error;
+    }
 };
