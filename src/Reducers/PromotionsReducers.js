@@ -11,7 +11,9 @@ const initialState = {
     allPromotions: [],
     loading: false,
     promotion: [],
-    error: ''
+    error: '',
+    totalCount: 0, 
+    totalPages: 0
 };
 
 const promotionReducer = (state = initialState, action) => {
@@ -25,9 +27,11 @@ const promotionReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                allPromotions: action.payload,
-                promotion: action.payload.slice(0, state.pageSize),
-                // promotion: Array.isArray(action.payload) ? action.payload : [],
+                allPromotions: action.payload.results,
+                totalCount: action.payload.totalCount,
+                totalPages: action.payload.totalPages,
+                currentPage: action.payload.currentPage,
+                promotion: action.payload.results.slice(0, state.pageSize),
             };
         case FETCH_PROMOTION_FAILURE:
             return {

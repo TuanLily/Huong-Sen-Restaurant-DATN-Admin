@@ -1,28 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { fetchPromotion, deletePromotion, setCurrentPage } from '../../Actions/PromotionActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+
+import { InputBase, Paper } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function PromotionList () {
     const dispatch = useDispatch();
     const promotionState = useSelector(state => state.promotion);
     const navigate = useNavigate();
 
+    const location = useLocation();
+    const query = new URLSearchParams(location.search);
+    const urlPage = parseInt(query.get('page')) || 1;
+
     const [open, setOpen] = useState(false);
     const [selectedPromotion, setSelectedPromotion] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        dispatch(fetchPromotion());
-    }, [dispatch]);
+        dispatch(fetchPromotion(searchTerm, urlPage, promotionState.pageSize));
+    }, [dispatch, urlPage, promotionState.pageSize, searchTerm]);
 
     useEffect(() => {
-        if (promotionState.allPromotions.length > 0) {
-            dispatch(setCurrentPage(promotionState.currentPage));
-        }
-    }, [dispatch, promotionState.allPromotions, promotionState.currentPage]);
+        navigate(`?page=${promotionState.currentPage}`);
+    }, [promotionState.currentPage, navigate]);
 
     const handleClickOpen = (promotion_id) => {
         setSelectedPromotion(promotion_id);
@@ -43,6 +49,17 @@ export default function PromotionList () {
 
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
+    };
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+        dispatch(setCurrentPage(1));
+    };
+
+    const handlePageChange = (page) => {
+        navigate(`?page=${page}`); // Cập nhật URL với page
+        dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
+        dispatch(fetchPromotion(searchTerm, page, promotionState.pageSize));
     };
 
     return (
@@ -66,26 +83,24 @@ export default function PromotionList () {
                                 <div className="card-head-row card-tools-still-right">
                                     <div className="card-title">Danh sách</div>
                                     <div className="card-tools">
-                                        <div className="dropdown">
-                                            <button
-                                                className="btn btn-icon btn-clean me-0"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false"
-                                            >
-                                                <i className="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div
-                                                className="dropdown-menu"
-                                                aria-labelledby="dropdownMenuButton"
-                                            >
-                                                <a className="dropdown-item" href="#">Action</a>
-                                                <a className="dropdown-item" href="#">Another action</a>
-                                                <a className="dropdown-item" href="#">Something else here</a>
-                                            </div>
-                                        </div>
+                                        <Paper
+                                            component="form"
+                                            sx={{
+                                                p: '2px 4px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                width: 320,
+                                            }}
+                                        >
+                                            <SearchIcon />
+                                            <InputBase
+                                                sx={{ ml: 1, flex: 1 }}
+                                                placeholder="Tìm kiếm mã ở đây!"
+                                                inputProps={{ 'aria-label': 'search' }}
+                                                value={searchTerm}
+                                                onChange={handleSearch} // Thêm xử lý thay đổi từ khóa tìm kiếm
+                                            />
+                                        </Paper>
                                     </div>
                                 </div>
                             </div>
@@ -111,7 +126,7 @@ export default function PromotionList () {
                                             )}
                                             {!promotionState.loading && promotionState.promotion.length === 0 && (
                                                 <tr>
-                                                    <td colSpan="7">No promotion found.</td>
+                                                    <td colSpan="7">Không tìm thấy mã nào!</td>
                                                 </tr>
                                             )}
                                             {promotionState.promotion && promotionState.promotion.map((item, index) => {
@@ -148,10 +163,10 @@ export default function PromotionList () {
                                 </div>
                                 <div className='my-2'>
                                     <CustomPagination
-                                        count={Math.ceil((promotionState.allPromotions).length / promotionState.pageSize)} 
-                                        currentPageSelector={state => state.promotion.currentPage}
-                                        fetchAction={fetchPromotion}
-                                        onPageChange={(page) => { dispatch(setCurrentPage(page)) }}
+                                        count={promotionState.totalPages} // Tổng số trang
+                                        currentPageSelector={state => state.promotion.currentPage} // Selector để lấy trang hiện tại
+                                        fetchAction={(page, pageSize) => fetchPromotion(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
+                                        onPageChange={handlePageChange} 
                                     />
                                 </div>
                             </div>
