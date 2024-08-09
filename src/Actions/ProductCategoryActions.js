@@ -12,9 +12,14 @@ export const fetchProductCategoryRequest = () => ({
     type: FETCH_PRODUCT_CATEGORY_REQUEST
 });
 
-export const fetchProductCategorySuccess = product => ({
+export const fetchProductCategorySuccess = (results, totalCount, totalPages, currentPage) => ({
     type: FETCH_PRODUCT_CATEGORY_SUCCESS,
-    payload: product
+    payload: {
+        results,
+        totalCount,
+        totalPages,
+        currentPage
+    }
 });
 
 export const fetchProductCategoryFailure = error => ({
@@ -27,13 +32,25 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
-export const fetchProductCategory = () => {
+export const fetchProductCategory = (name = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchProductCategoryRequest());
-        axios.get(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}`)
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (name) {
+            url.searchParams.append('search', name);
+        }
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        axios.get(url.toString())
             .then(response => {
-                const product_category = response.data.results;
-                dispatch(fetchProductCategorySuccess(product_category));
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchProductCategorySuccess(results, totalCount, totalPages, currentPage));
             })
             .catch(error => {
                 const errorMsg = error.message;

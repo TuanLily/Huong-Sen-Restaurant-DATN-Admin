@@ -94,8 +94,8 @@ export default function PromotionAdd () {
                             </div>
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button className="btn btn-success">Submit</button>
-                                    <button className="btn btn-danger" onClick={() => navigate('/promotions')}>Cancel</button>
+                                    <button className="btn btn-success">Thêm</button>
+                                    <button className="btn btn-danger" onClick={() => navigate('/promotions')}>Hủy</button>
                                 </div>   
                             </div>
                         </div>

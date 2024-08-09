@@ -1,28 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { fetchProductCategory, deleteProductCategory, setCurrentPage } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+
+import { InputBase, Paper } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function CategoryProductList () {
     const dispatch = useDispatch();
     const productCategoryState = useSelector(state => state.product_category);
     const navigate = useNavigate();
 
+    const location = useLocation();
+    const query = new URLSearchParams(location.search);
+    const urlPage = parseInt(query.get('page')) || 1;
+
     const [open, setOpen] = useState(false);
     const [selectedProductCategory, setSelectedProductCategory] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        dispatch(fetchProductCategory());
-    }, [dispatch]);
+        dispatch(fetchProductCategory(searchTerm, urlPage, productCategoryState.pageSize));
+    }, [dispatch, urlPage, productCategoryState.pageSize, searchTerm]);
 
     useEffect(() => {
-        if (productCategoryState.allProduct_categorys.length > 0) {
-            dispatch(setCurrentPage(productCategoryState.currentPage));
-        }
-    }, [dispatch, productCategoryState.allProduct_categorys, productCategoryState.currentPage]);
+        navigate(`?page=${productCategoryState.currentPage}`);
+    }, [productCategoryState.currentPage, navigate]);
 
     const handleClickOpen = (categories_id) => {
         setSelectedProductCategory(categories_id);
@@ -45,12 +51,23 @@ export default function CategoryProductList () {
         navigate(`edit/${id}`);
     };
 
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+        dispatch(setCurrentPage(1));
+    };
+
+    const handlePageChange = (page) => {
+        navigate(`?page=${page}`); // Cập nhật URL với page
+        dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
+        dispatch(fetchProductCategory(searchTerm, page, productCategoryState.pageSize));
+    };
+
     return (
         <div className="container">
             <div className="page-inner">
                 <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
                     <div>
-                        <h3 className="fw-bold mb-3">Quản lý danh mục sp</h3>
+                        <h3 className="fw-bold mb-3">Quản lý danh mục sản phẩm</h3>
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
@@ -66,26 +83,24 @@ export default function CategoryProductList () {
                                 <div className="card-head-row card-tools-still-right">
                                     <div className="card-title">Danh sách</div>
                                     <div className="card-tools">
-                                        <div className="dropdown">
-                                            <button
-                                                className="btn btn-icon btn-clean me-0"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false"
-                                            >
-                                                <i className="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div
-                                                className="dropdown-menu"
-                                                aria-labelledby="dropdownMenuButton"
-                                            >
-                                                <a className="dropdown-item" href="#">Action</a>
-                                                <a className="dropdown-item" href="#">Another action</a>
-                                                <a className="dropdown-item" href="#">Something else here</a>
-                                            </div>
-                                        </div>
+                                        <Paper
+                                            component="form"
+                                            sx={{
+                                                p: '2px 4px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                width: 320,
+                                            }}
+                                        >
+                                            <SearchIcon />
+                                            <InputBase
+                                                sx={{ ml: 1, flex: 1 }}
+                                                placeholder="Tìm kiếm danh mục ở đây!"
+                                                inputProps={{ 'aria-label': 'search' }}
+                                                value={searchTerm}
+                                                onChange={handleSearch} // Thêm xử lý thay đổi từ khóa tìm kiếm
+                                            />
+                                        </Paper>
                                     </div>
                                 </div>
                             </div>
@@ -110,7 +125,7 @@ export default function CategoryProductList () {
                                             )}
                                             {!productCategoryState.loading && productCategoryState.product_category.length === 0 && (
                                                 <tr>
-                                                    <td colSpan="7">No categories found.</td>
+                                                    <td colSpan="7">Không tìm thấy mã nào!</td>
                                                 </tr>
                                             )}
                                             {productCategoryState.product_category && productCategoryState.product_category.map((item, index) => {
@@ -146,10 +161,10 @@ export default function CategoryProductList () {
                                 </div>
                                 <div className='my-2'>
                                     <CustomPagination
-                                        count={Math.ceil((productCategoryState.allProduct_categorys).length / productCategoryState.pageSize)} 
-                                        currentPageSelector={state => state.product_category.currentPage}
-                                        fetchAction={fetchProductCategory}
-                                        onPageChange={(page) => { dispatch(setCurrentPage(page)) }}
+                                        count={productCategoryState.totalPages} // Tổng số trang
+                                        currentPageSelector={state => state.product_category.currentPage} // Selector để lấy trang hiện tại
+                                        fetchAction={(page, pageSize) => fetchProductCategory(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
+                                        onPageChange={handlePageChange} 
                                     />
                                 </div>
                             </div>

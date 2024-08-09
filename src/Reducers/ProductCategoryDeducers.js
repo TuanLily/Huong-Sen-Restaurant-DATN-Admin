@@ -12,7 +12,9 @@ const initialState = {
     allProduct_categorys: [],
     loading: false,
     product_category: [],
-    error: ''
+    error: '',
+    totalCount: 0, 
+    totalPages: 0
 };
 
 const productCategoryReducer = (state = initialState, action) => {
@@ -26,9 +28,11 @@ const productCategoryReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                allProduct_categorys: action.payload,
-                product_category: action.payload.slice(0, state.pageSize),
-                // product_category: Array.isArray(action.payload) ? action.payload : [],
+                allProduct_categorys: action.payload.results,
+                totalCount: action.payload.totalCount,
+                totalPages: action.payload.totalPages,
+                currentPage: action.payload.currentPage,
+                product_category: action.payload.results.slice(0, state.pageSize),
             };
         case FETCH_PRODUCT_CATEGORY_FAILURE:
             return {

@@ -11,7 +11,9 @@ const initialState = {
     allProducts: [],
     loading: false,
     product: [],
-    error: ''
+    error: '',
+    totalCount: 0, 
+    totalPages: 0
 };
 
 const productReducer = (state = initialState, action) => {
@@ -25,9 +27,11 @@ const productReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                allProducts: action.payload,
-                product: action.payload.slice(0, state.pageSize),
-                // product: Array.isArray(action.payload) ? action.payload : [],
+                allProducts: action.payload.results,
+                totalCount: action.payload.totalCount,
+                totalPages: action.payload.totalPages,
+                currentPage: action.payload.currentPage,
+                product: action.payload.results.slice(0, state.pageSize),
             };
         case FETCH_PRODUCT_FAILURE:
             return {

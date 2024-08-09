@@ -6,6 +6,7 @@ import { fetchProductCategory } from "../../Actions/ProductCategoryActions";
 import ImageUploadComponent from '../../Components/ImageUpload/ImageUpload';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function ProductEdit () {
     const { register, handleSubmit, setValue, formState: { errors }, reset, watch } = useForm();
@@ -20,43 +21,56 @@ export default function ProductEdit () {
     const [initialImage, setInitialImage] = useState(null);
     const [image, setImage] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        dispatch(fetchProduct());
         dispatch(fetchProductCategory());
     }, [dispatch]);
 
     useEffect(() => {
-        const product = productState.product.find((cust) => cust.id === parseInt(id));
-        if (product) {
-            setValue('name', product.name);
-            setValue('product_code', product.product_code);
-            setValue('price', product.price);
-            setValue('sale_price', product.sale_price);
-            setValue('description', product.description);
-            setValue('categories_id', product.categories_id);
-            setValue('status', product.status);
-            setInitialImage(product.image);
-            setImage(product.image);
+        const fetchProduct = async () => {
+            setLoading(true); // Bắt đầu spinner khi tải dữ liệu
+            const product = productState.product.find((cust) => cust.id === parseInt(id));
+            if (product) {
+                setValue('name', product.name);
+                setValue('product_code', product.product_code);
+                setValue('price', product.price);
+                setValue('sale_price', product.sale_price);
+                setValue('description', product.description);
+                setValue('categories_id', product.categories_id);
+                setValue('status', product.status);
+                setInitialImage(product.image);
+                setImage(product.image);
+            }
+            setLoading(false); // Dừng spinner khi dữ liệu đã được tải
         }
+        fetchProduct ();
     }, [productState.product, id, setValue]);
 
     const handleSuccessClose = () => {
         setOpenSuccess(false);
     };
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
+        setLoading(true);
         const updatedData = {
             ...data,
             image: image || initialImage // Cập nhật image nếu có ảnh mới
         };
 
-        dispatch(updateProduct(id, updatedData));
+        try {
+            await dispatch(updateProduct(id, updatedData));
+            setOpenSuccess(true);
+            reset();
 
-        setOpenSuccess(true);
-        setTimeout(() => {
-            navigate('/product');
-        }, 2000);
+            setTimeout(() => {
+                navigate('/product');
+            }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+        } catch (error) {
+            console.error('Error updating product:', error);
+        } finally {
+            setLoading(false); // Dừng spinner khi hoàn tất gửi form
+        }
     };
 
     const handleImageUpload = (fileNames) => {
@@ -65,6 +79,14 @@ export default function ProductEdit () {
             setValue('image', fileNames[0]); // Cập nhật giá trị của avatar trong form
         }
     };
+
+    if (productState.loading && loading) {
+        return (
+            <div className="container">
+                <CustomSpinner />
+            </div>
+        );
+    }
 
     return (
         <div className="container">
@@ -138,8 +160,8 @@ export default function ProductEdit () {
                             </div>
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button className="btn btn-success">Submit</button>
-                                    <button className="btn btn-danger" onClick={() => navigate('/product')}>Cancel</button>
+                                    <button className="btn btn-success">Cập nhật</button>
+                                    <button className="btn btn-danger" onClick={() => navigate('/product')}>Hủy</button>
                                 </div>   
                             </div>
                         </div>

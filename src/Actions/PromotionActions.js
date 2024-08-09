@@ -12,9 +12,14 @@ export const fetchPromotionRequest = () => ({
     type: FETCH_PROMOTION_REQUEST
 });
 
-export const fetchPromotionSuccess = product => ({
+export const fetchPromotionSuccess = (results, totalCount, totalPages, currentPage) => ({
     type: FETCH_PROMOTION_SUCCESS,
-    payload: product
+    payload: {
+        results,
+        totalCount,
+        totalPages,
+        currentPage
+    }
 });
 
 export const fetchPromotionsFailure = error => ({
@@ -27,13 +32,25 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
-export const fetchPromotion = () => {
+export const fetchPromotion = (code_name = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchPromotionRequest());
-        axios.get(`${API_ENDPOINT}/${AdminConfig.routes.promotion}`)
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.promotion}`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (code_name) {
+            url.searchParams.append('search', code_name);
+        }
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        axios.get(url.toString())
             .then(response => {
-                const product_category = response.data.results;
-                dispatch(fetchPromotionSuccess(product_category));
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchPromotionSuccess(results, totalCount, totalPages, currentPage));
             })
             .catch(error => {
                 const errorMsg = error.message;

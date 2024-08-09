@@ -6,6 +6,7 @@ import { addProduct , fetchProduct } from "../../Actions/ProductActions";
 import { fetchProductCategory } from "../../Actions/ProductCategoryActions";
 import ImageUploadComponent from "../../Components/ImageUpload/ImageUpload";
 import { SuccessAlert } from "../../Components/Alert/Alert";
+import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 
 export default function ProductAdd () {
     const dispatch = useDispatch();
@@ -24,6 +25,7 @@ export default function ProductAdd () {
     const [imageError, setImageError] = useState('');
     const [image, setImage] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleImageUpload = (fileNames) => {
         if (fileNames.length > 0) {
@@ -35,7 +37,7 @@ export default function ProductAdd () {
         setOpenSuccess(false);
     };
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         if (!image) {
             setImageError ('Vui lòng chọn ảnh sản phẩm!');
             return;
@@ -47,14 +49,30 @@ export default function ProductAdd () {
         if (!data.description) {
             data.description = 'Không có mô tả';
         }
-        dispatch(addProduct(data))
-        setOpenSuccess(true);
-        reset();
-        setTimeout(() => {
-            navigate('/product');
-        }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
 
+        setLoading(true); // Bắt đầu spinner
+        try {
+            await dispatch(addProduct(data));
+            setOpenSuccess(true);
+            reset();
+            setTimeout(() => {
+                navigate('/product');
+            }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+        } catch (error) {
+            setOpenError(true); // Hiển thị thông báo lỗi
+            console.error('Error adding product:', error);
+        } finally {
+            setLoading(false); // Dừng spinner
+        }
     };
+
+    if (loading) {
+        return (
+            <div className="container">
+                <CustomSpinner />
+            </div>
+        );
+    }
 
     return (
         <div className="container">
@@ -127,8 +145,8 @@ export default function ProductAdd () {
                             </div>
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button className="btn btn-success">Submit</button>
-                                    <button className="btn btn-danger" onClick={() => navigate('/product')}>Cancel</button>
+                                    <button className="btn btn-success">Thêm</button>
+                                    <button className="btn btn-danger" onClick={() => navigate('/product')}>Hủy</button>
                                 </div>   
                             </div>
                         </div>

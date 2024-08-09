@@ -12,9 +12,14 @@ export const fetchProductRequest = () => ({
     type: FETCH_PRODUCT_REQUEST
 });
 
-export const fetchProductSuccess = product => ({
+export const fetchProductSuccess = (results, totalCount, totalPages, currentPage) => ({
     type: FETCH_PRODUCT_SUCCESS,
-    payload: product
+    payload: {
+        results,
+        totalCount,
+        totalPages,
+        currentPage
+    }
 });
 
 export const fetchProductFailure = error => ({
@@ -27,13 +32,25 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
-export const fetchProduct = () => {
+export const fetchProduct = (name = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchProductRequest());
-        axios.get(`${API_ENDPOINT}/${AdminConfig.routes.product}`)
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.product}`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (name) {
+            url.searchParams.append('search', name);
+        }
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        axios.get(url.toString())
             .then(response => {
-                const product = response.data.results;
-                dispatch(fetchProductSuccess(product));
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchProductSuccess(results, totalCount, totalPages, currentPage));
             })
             .catch(error => {
                 const errorMsg = error.message;
