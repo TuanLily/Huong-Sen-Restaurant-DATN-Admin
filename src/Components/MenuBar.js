@@ -71,17 +71,12 @@ export default function MenuBar() {
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to='category-product-lock'>
-                                            <span className="sub-item">Danh mục sản phẩm tạm xóa</span>
-                                        </Link>
-                                    </li>
-                                    <li>
                                         <Link to='product'>
                                             <span className="sub-item">Sản phẩm</span>
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to='product-lock'>
+                                        <Link to='product/tam_xoa'>
                                             <span className="sub-item">Sản phẩm tạm xóa</span>
                                         </Link>
                                     </li>

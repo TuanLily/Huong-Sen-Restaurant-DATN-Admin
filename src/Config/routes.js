@@ -7,6 +7,7 @@ const AdminRoutes = {
     productAdd: 'product/add',
     productEdit: 'product/edit/:id',
     productDelete: 'product/delete',
+    productTamXoa: 'product/tam_xoa',
 
     categoryProduct: 'category-product',
     categoryProductAdd: 'category-product/add',

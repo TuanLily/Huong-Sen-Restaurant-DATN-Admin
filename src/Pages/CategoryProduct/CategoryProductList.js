@@ -71,7 +71,6 @@ export default function CategoryProductList () {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
                         <Link to="/category-product/add" className="btn btn-primary btn-round">Thêm danh mục</Link>
                         <DialogConfirm />
                     </div>
@@ -144,14 +143,22 @@ export default function CategoryProductList () {
                                                             {item.updated_at.substring(0, 10)}
                                                         </td>
                                                         <td>
-                                                            <div className="btn-group mt-3" role="group">
-                                                                <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
-                                                                    Sửa
-                                                                </button>
-                                                                <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
-                                                                    Xóa
-                                                                </button>
-                                                            </div>
+                                                            {item.name === 'Chưa phân loại' ? (
+                                                                <div className="btn-group mt-3" role="group">
+                                                                    <button type="button" className="btn btn-outline-warning">
+                                                                        Không thể thao tác
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="btn-group mt-3" role="group">
+                                                                    <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
+                                                                        Sửa
+                                                                    </button>
+                                                                    <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                        Xóa
+                                                                    </button>
+                                                                </div>
+                                                            )}
                                                         </td>
                                                     </tr>
                                                 )

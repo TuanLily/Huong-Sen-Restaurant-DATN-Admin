@@ -7,6 +7,7 @@ import ProductList from '../Pages/Product/ProductList';
 import ProductAdd from '../Pages/Product/ProductAdd';
 import ProductEdit from '../Pages/Product/ProductEdit';
 import ProductDelete from '../Pages/Product/ProductDelete';
+import ProductTamXoa from '../Pages/Product/ProductTamXoa';
 
 import CategoryProduct from '../Pages/CategoryProduct/CategoryProductList';
 import categoryProductAdd from '../Pages/CategoryProduct/CategoryProductAdd';
@@ -110,6 +111,7 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.productAdd, component: ProductAdd },
     { path: AdminConfig.routes.productEdit, component: ProductEdit },
     { path: AdminConfig.routes.productDelete, component: ProductDelete },
+    { path: AdminConfig.routes.productTamXoa, component: ProductTamXoa },
 
     { path: AdminConfig.routes.categoryProduct, component: CategoryProduct },
     { path: AdminConfig.routes.categoryProductAdd, component: categoryProductAdd },

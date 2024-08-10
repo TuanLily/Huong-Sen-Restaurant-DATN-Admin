@@ -59,6 +59,59 @@ export const fetchProduct = (name = '', page = 1, pageSize = 10) => {
     };
 };
 
+export const fetchProductHoatDong = (name = '', page = 1, pageSize = 10) => {
+    return dispatch => {
+        dispatch(fetchProductRequest());
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.product}/hoat_dong`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (name) {
+            url.searchParams.append('search', name);
+        }
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        axios.get(url.toString())
+            .then(response => {
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchProductSuccess(results, totalCount, totalPages, currentPage));
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchProductFailure(errorMsg));
+            });
+    };
+};
+
+export const fetchProductNgungHoatDong = (name = '', page = 1, pageSize = 10) => {
+    return dispatch => {
+        dispatch(fetchProductRequest());
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.product}/ngung_hoat_dong`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (name) {
+            url.searchParams.append('search', name);
+        }
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        axios.get(url.toString())
+            .then(response => {
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchProductSuccess(results, totalCount, totalPages, currentPage));
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchProductFailure(errorMsg));
+            });
+    };
+};
 
 export const addProduct = (product) => {
     return dispatch => {
@@ -67,7 +120,7 @@ export const addProduct = (product) => {
             .then((response) => {
                 // Sau khi thêm san pham mới, gọi lại fetchProduct để làm mới danh sách
                 dispatch(fetchProductSuccess(response.data.data));
-                dispatch(fetchProduct());
+                dispatch(fetchProductHoatDong());
             })
             .catch(error => {
                 const errorMsg = error.message;
@@ -83,7 +136,24 @@ export const updateProduct = (id, data) => {
         axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`, data)
             .then((response) => {
                 dispatch(fetchProductSuccess(response.data.data));
-                dispatch(fetchProduct()); // Reload danh sách sau khi cập nhật
+                dispatch(fetchProductNHoatDong()); // Reload danh sách sau khi cập nhật
+            })
+            .catch((error) => {
+                dispatch(fetchProductFailure(error.message));
+            });
+    };
+};
+
+export const updateStatus = (id, data, start) => {
+    return dispatch => {
+        dispatch(fetchProductRequest());
+        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`, data)
+            .then(() => {
+                if (start == 'list') {
+                    dispatch(fetchProductHoatDong());
+                } else {
+                    dispatch(fetchProductNgungHoatDong());
+                }
             })
             .catch((error) => {
                 dispatch(fetchProductFailure(error.message));

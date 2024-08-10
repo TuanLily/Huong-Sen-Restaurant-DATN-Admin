@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { fetchProduct, deleteProduct, setCurrentPage } from '../../Actions/ProductActions';
+import { fetchProductHoatDong, deleteProduct, updateStatus, setCurrentPage } from '../../Actions/ProductActions';
 import { fetchProductCategory } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
@@ -25,7 +25,7 @@ export default function ProductList () {
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        dispatch(fetchProduct(searchTerm, urlPage, productState.pageSize));
+        dispatch(fetchProductHoatDong(searchTerm, urlPage, productState.pageSize));
         dispatch(fetchProductCategory());
     }, [dispatch, urlPage, productState.pageSize, searchTerm]);
 
@@ -51,7 +51,7 @@ export default function ProductList () {
 
     const handleConfirm = () => {
         if (setSelectedProduct) {
-            dispatch(deleteProduct(selectedProduct));
+            dispatch(updateStatus(selectedProduct, {status: 0}, 'list'));
             handleClose();
         }
     };
@@ -72,7 +72,7 @@ export default function ProductList () {
     const handlePageChange = (page) => {
         navigate(`?page=${page}`); // Cập nhật URL với page
         dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-        dispatch(fetchProduct(searchTerm, page, productState.pageSize));
+        dispatch(fetchProductHoatDong(searchTerm, page, productState.pageSize));
     };
 
     return (
@@ -84,7 +84,7 @@ export default function ProductList () {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
+                        <Link to="/product/tam_xoa" className="btn btn-label-info btn-round me-2">Sản phẩm tạm xóa</Link>
                         <Link to="/product/add" className="btn btn-primary btn-round">Thêm sản phẩm</Link>
                         <DialogConfirm />
                     </div>
@@ -170,7 +170,7 @@ export default function ProductList () {
                                                             )}
                                                         </td>
                                                         <td>
-                                                            <div className="btn-group mt-3" role="group">
+                                                            <div className="btn-group" role="group">
                                                                 <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
                                                                     Sửa
                                                                 </button>
@@ -189,7 +189,7 @@ export default function ProductList () {
                                     <CustomPagination
                                         count={productState.totalPages} // Tổng số trang
                                         currentPageSelector={state => state.product.currentPage} // Selector để lấy trang hiện tại
-                                        fetchAction={(page, pageSize) => fetchProduct(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
+                                        fetchAction={(page, pageSize) => fetchProductHoatDong(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
                                         onPageChange={handlePageChange} 
                                     />
                                 </div>
