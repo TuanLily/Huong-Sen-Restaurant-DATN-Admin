@@ -13,6 +13,8 @@ import { SuccessAlert } from '../../Components/Alert/Alert';
 export default function CustomerList() {
     const dispatch = useDispatch();
     const customerState = useSelector(state => state.customer);
+    
+    
 
     const navigate = useNavigate();
 

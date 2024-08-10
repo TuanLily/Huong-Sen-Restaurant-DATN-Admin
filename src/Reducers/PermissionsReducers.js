@@ -9,10 +9,14 @@ const initialState = {
     allPermissions: [],
     permissions: [],
     currentPage: 1,
-    pageSize: 5, // Số lượng khách hàng trên mỗi trang
+    pageSize: 5,
     loading: false,
-    error: ''
+    error: '',
+    totalCount: 0, 
+    totalPages: 0 
 };
+
+
 
 const permissionsReducer = (state = initialState, action) => {
     switch (action.type) {
@@ -25,8 +29,11 @@ const permissionsReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                allPermissions: action.payload,
-                permissions: action.payload.slice(0, state.pageSize) // Chia dữ liệu cho trang đầu tiên
+                allPermissions: action.payload.results,
+                totalCount: action.payload.totalCount,
+                totalPages: action.payload.totalPages,
+                currentPage: action.payload.currentPage,
+                permissions: action.payload.results.slice(0, state.pageSize) // Chia dữ liệu cho trang đầu tiên
             };
         case FETCH_PERMISSIONS_FAILURE:
             return {

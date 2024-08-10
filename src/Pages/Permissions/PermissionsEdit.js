@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchPermissions, updatePermissions } from "../../Actions/PermissionsActions";
 import { SuccessAlert } from "../../Components/Alert/Alert";
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function PermissionsEdit() {
     const { register, handleSubmit, setValue, formState: { errors } } = useForm();
@@ -12,6 +13,7 @@ export default function PermissionsEdit() {
     const navigate = useNavigate();
     const permissionsState = useSelector((state) => state.permissions);
     const [openSuccess, setOpenSuccess] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         dispatch(fetchPermissions());
@@ -39,14 +41,18 @@ export default function PermissionsEdit() {
         setOpenSuccess(true);
         setTimeout(() => {
             navigate('/permissions');
-        },);
+        },2000);
     };
 
-
-
-    if (permissionsState.error) {
-        return <p>Error: {permissionsState.error}</p>;
+    if (permissionsState.loading && loading) {
+        return (
+            <div className="container">
+                <CustomSpinner />
+            </div>
+        );
     }
+
+    
 
     return (
         <div className="container">

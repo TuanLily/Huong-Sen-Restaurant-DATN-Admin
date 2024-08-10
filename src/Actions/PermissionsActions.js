@@ -12,9 +12,14 @@ export const fetchPermissionsRequest = () => ({
     type: FETCH_PERMISSIONS_REQUEST
 });
 
-export const fetchPermissionsSuccess = permissions => ({
+export const fetchPermissionsSuccess = (results, totalCount, totalPages, currentPage) => ({
     type: FETCH_PERMISSIONS_SUCCESS,
-    payload: permissions
+    payload: {
+        results,
+        totalCount,
+        totalPages,
+        currentPage
+    }
 });
 
 export const fetchPermissionsFailure = error => ({
@@ -27,19 +32,33 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
-export const fetchPermissions = (page = 1) => (dispatch) => {
-    dispatch(fetchPermissionsRequest());
+export const fetchPermissions = (name = '', page = 1, pageSize = 10) => {
 
-    axios.get(`${API_ENDPOINT}/${AdminConfig.routes.Permissions}?page=${page}`)
-        .then(response => {
-            const permissions = response.data;
-            console.log(permissions);
-            dispatch(fetchPermissionsSuccess(permissions));
-        })
-        .catch(error => {
-            const errorMsg = error.message;
-            dispatch(fetchPermissionsFailure(errorMsg));
-        });
+    return dispatch => {
+        dispatch(fetchPermissionsRequest());
+
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.Permissions}`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (name) {
+            url.searchParams.append('search', name);
+        }
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        axios.get(url.toString())
+            .then(response => {
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchPermissionsSuccess(results, totalCount, totalPages, currentPage));
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchPermissionsFailure(errorMsg));
+            });
+    };
 };
 
 

@@ -1,29 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation ,useNavigate } from 'react-router-dom';
 import { deletePermissions, fetchPermissions, setCurrentPage } from '../../Actions/PermissionsActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+
+import { InputBase, Paper } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function PermissionsList() {
     
     const dispatch = useDispatch();
     const permissionsState = useSelector(state => state.permissions);
+    console.log(permissionsState);
+    
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const query = new URLSearchParams(location.search);
+    const urlPage = parseInt(query.get('page')) || 1;
 
     const [open, setOpen] = useState(false);
     const [selectedPermissions, setSelectedPermissions] = useState(null);
-
+    const [searchTerm, setSearchTerm] = useState('');
     useEffect(() => {
-        dispatch(fetchPermissions());
-    }, [dispatch]);
+        dispatch(fetchPermissions(searchTerm, urlPage, permissionsState.pageSize)); 
+    }, [dispatch, urlPage, permissionsState.pageSize, searchTerm]);
 
+    // Cập nhật URL khi currentPage thay đổi
     useEffect(() => {
-        if (permissionsState.allPermissions.length > 0) {
-            dispatch(setCurrentPage(permissionsState.currentPage));
-        }
-    }, [dispatch, permissionsState.allPermissions, permissionsState.currentPage]);
+        navigate(`?page=${permissionsState.currentPage}`);
+    }, [permissionsState.currentPage, navigate]);
 
     const handleClickOpen = (permissionsId) => {
         setSelectedPermissions(permissionsId);
@@ -41,11 +49,19 @@ export default function PermissionsList() {
             handleClose();
         }
     };
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+        dispatch(setCurrentPage(1));
+    };
 
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
     };
-
+    const handlePageChange = (page) => {
+        navigate(`?page=${page}`); // Cập nhật URL với page
+        dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
+        dispatch(fetchPermissions(searchTerm, page, permissionsState.pageSize));
+    };
 
     return (
         <div className="container">
@@ -56,8 +72,7 @@ export default function PermissionsList() {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="/permissions/manage" className="btn btn-label-info btn-round me-2">Manage</Link>
-                        <Link to="/permissions/add" className="btn btn-primary btn-round">Thêm quyền hạn</Link>
+                        <Link to="/permissions/add" className="btn btn-primary btn-round">Thêm khách hàng</Link>
                         <DialogConfirm />
                     </div>
                 </div>
@@ -66,28 +81,26 @@ export default function PermissionsList() {
                         <div className="card card-round">
                             <div className="card-header">
                                 <div className="card-head-row card-tools-still-right">
-                                    <div className="card-title">Danh sách quyền hạn</div>
+                                    <div className="card-title">Danh sách</div>
                                     <div className="card-tools">
-                                        <div className="dropdown">
-                                            <button
-                                                className="btn btn-icon btn-clean me-0"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false"
-                                            >
-                                                <i className="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div
-                                                className="dropdown-menu"
-                                                aria-labelledby="dropdownMenuButton"
-                                            >
-                                                <a className="dropdown-item" href="#">Action</a>
-                                                <a className="dropdown-item" href="#">Another action</a>
-                                                <a className="dropdown-item" href="#">Something else here</a>
-                                            </div>
-                                        </div>
+                                        <Paper
+                                            component="form"
+                                            sx={{
+                                                p: '2px 4px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                width: 320,
+                                            }}
+                                        >
+                                            <SearchIcon />
+                                            <InputBase
+                                                sx={{ ml: 1, flex: 1 }}
+                                                placeholder="Tìm kiếm quyền hạn ở đây!"
+                                                inputProps={{ 'aria-label': 'search' }}
+                                                value={searchTerm}
+                                                onChange={handleSearch} // Thêm xử lý thay đổi từ khóa tìm kiếm
+                                            />
+                                        </Paper>
                                     </div>
                                 </div>
                             </div>
@@ -97,30 +110,30 @@ export default function PermissionsList() {
                                         <thead className="thead-light">
                                             <tr>
                                                 <th scope="col">STT</th>
-                                                <th scope="col">Tên quyền hạn</th>
+                                                <th scope="col">Tên</th>
+                                                <th scope="col">Ngày tạo</th>
+                                                <th scope="col">Ngày cập nhật</th>
                                                 <th scope="col">Thao tác</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {permissionsState.loading && (
                                                 <tr>
-                                                    <td colSpan="7">Loading...</td>
+                                                    <td colSpan="7"><CustomSpinner /></td>
                                                 </tr>
                                             )}
                                             {!permissionsState.loading && permissionsState.permissions.length === 0 && (
                                                 <tr>
-                                                    <td colSpan="7">No permissions found.</td>
-                                                </tr>
-                                            )}
-                                            {permissionsState.error && (
-                                                <tr>
-                                                    <td colSpan="7">Error: {permissionsState.error}</td>
+                                                    <td colSpan="7">Không tìm thấy quyền hạng</td>
                                                 </tr>
                                             )}
                                             {permissionsState.permissions && permissionsState.permissions.map((item, index) => (
                                                 <tr key={item.id}>
-                                                    <td>{index + 1 }</td>
+                                                    <td>{(permissionsState.currentPage - 1) * permissionsState.pageSize + index + 1}</td>
+                                                    
                                                     <td>{item.name}</td>
+                                                    <td>{item.created_at}</td>
+                                                    <td>{item.updated_at}</td>
                                                     <td>
                                                         <div className="btn-group mt-3" role="group">
                                                             <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
@@ -135,12 +148,12 @@ export default function PermissionsList() {
                                     </table>
                                 </div>
                                 <div className='my-2'>
-                                <CustomPagination
-                                        count={Math.ceil((permissionsState.allPermissions).length / permissionsState.pageSize)} currentPageSelector={state => state.permissions.currentPage}
-                                        fetchAction={fetchPermissions}
-                                        onPageChange={(page) => {
-                                            dispatch(setCurrentPage(page));
-                                        }}/>
+                                    <CustomPagination
+                                        count={permissionsState.totalPages}
+                                        currentPageSelector={state => state.permissions.currentPage} 
+                                        fetchAction={(page, pageSize) => fetchPermissions(searchTerm, page, pageSize)} 
+                                        onPageChange={handlePageChange} 
+                                    />
                                 </div>
                             </div>
                         </div>
