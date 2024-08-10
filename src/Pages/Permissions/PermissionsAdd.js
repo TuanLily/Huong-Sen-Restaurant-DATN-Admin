@@ -3,27 +3,50 @@ import { useDispatch } from "react-redux";
 import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
 import { addPermissions } from "../../Actions/PermissionsActions";
-import { SuccessAlert } from "../../Components/Alert/Alert";
+import { SuccessAlert, DangerAlert } from "../../Components/Alert/Alert";
 
 export default function PermissionsAdd() {
     const dispatch = useDispatch();
-    const { register, handleSubmit, formState: { errors }, reset } = useForm();
-
+    const { register, handleSubmit, formState: { errors }, reset, setError } = useForm();
     const navigate = useNavigate();
-
     const [openSuccess, setOpenSuccess] = useState(false);
+    const [openError, setOpenError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleSuccessClose = () => {
         setOpenSuccess(false);
     };
 
-    const onSubmit = (data) => {
-        dispatch(addPermissions(data));
-        setOpenSuccess(true);
-        reset();
-        setTimeout(() => {
-            navigate('/permissions');
-        }, 2000); // Navigate after 2 seconds to allow the user to see the alert
+    const handleErrorClose = () => {
+        setOpenError(false);
+    };
+
+    const onSubmit = async (data) => {
+        try {
+            // Dispatch addPermissions và chờ cho đến khi hoàn thành
+            await dispatch(addPermissions(data));
+            setOpenSuccess(true);
+            setOpenError(false); // Đảm bảo rằng thông báo lỗi bị đóng
+            reset();
+            setTimeout(() => {
+                navigate('/permissions');
+            }, 2000); // Chuyển hướng sau 2 giây để người dùng thấy thông báo
+        } catch (error) {
+            if (error.message === 'Duplicate entry') {
+                // Xử lý lỗi trùng lặp
+                setError('name', {
+                    type: 'manual',
+                    message: 'Tên quyền hạn đã tồn tại'
+                });
+                setOpenSuccess(false); // Đảm bảo rằng thông báo thành công bị đóng
+                setOpenError(true);
+            } else {
+                // Xử lý các lỗi khác
+                setErrorMessage(error.message || 'Đã xảy ra lỗi không xác định.');
+                setOpenSuccess(false); // Đảm bảo rằng thông báo thành công bị đóng
+                setOpenError(true);
+            }
+        }
     };
 
     return (
@@ -60,7 +83,24 @@ export default function PermissionsAdd() {
                             </div>
                         </div>
                     </form>
-                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Thêm quyền hạn thành công!" vertical="top" horizontal="right" />
+                    {openSuccess && 
+                        <SuccessAlert 
+                            open={openSuccess} 
+                            onClose={handleSuccessClose} 
+                            message="Thêm quyền hạn thành công!" 
+                            vertical="top" 
+                            horizontal="right" 
+                        />
+                    }
+                    {openError && 
+                        <DangerAlert 
+                            open={openError} 
+                            onClose={handleErrorClose} 
+                            message={"Tên quyền hạn đã tồn tại"} 
+                            vertical="top" 
+                            horizontal="right" 
+                        />
+                    }
                 </div>
             </div>
         </div>
