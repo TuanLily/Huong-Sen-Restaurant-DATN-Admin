@@ -162,22 +162,24 @@ export default function CategoryBlogList() {
                               )}
                             </td>
                             <td>
-                              <div className="btn-group mt-3" role="group">
-                                <button
-                                  type="button"
-                                  className="btn btn-outline-success"
-                                  onClick={() => handleEdit(item.id)}
-                                >
-                                  <span className="text-success">Sửa</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn btn-outline-danger"
-                                  onClick={() => handleClickOpen(item.id)}
-                                >
-                                  <span className="text-danger">Xóa</span>
-                                </button>
-                              </div>
+                              {item.name !== "Undefined" && (
+                                <div className="btn-group mt-3" role="group">
+                                  <button
+                                    type="button"
+                                    className="btn btn-outline-success"
+                                    onClick={() => handleEdit(item.id)}
+                                  >
+                                    <span className="text-success">Sửa</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn btn-outline-danger"
+                                    onClick={() => handleClickOpen(item.id)}
+                                  >
+                                    <span className="text-danger">Xóa</span>
+                                  </button>
+                                </div>
+                              )}
                             </td>
                           </tr>
                         ))}

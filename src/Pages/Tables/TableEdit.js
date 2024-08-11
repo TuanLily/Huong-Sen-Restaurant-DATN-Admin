@@ -1,41 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useForm } from 'react-hook-form';
-import { useParams, useNavigate } from 'react-router-dom';
-import { updateTable } from '../../Actions/TablesActions';
-import { SuccessAlert, DangerAlert } from '../../Components/Alert/Alert';
-import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
+import { useParams, useNavigate } from "react-router-dom";
+import { updateTable } from "../../Actions/TablesActions";
+import { SuccessAlert, DangerAlert } from "../../Components/Alert/Alert";
 
 export default function TableEdit() {
-  const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const tables = useSelector(state => state.tables.tables || []);
-  const tableState = tables.find((table) => table.id === parseInt(id));
-
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  
+  const { table } = useSelector((state) => state.tables); // Giả sử bạn có `table` trong state
+
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+    defaultValues: table
+  });
 
   useEffect(() => {
-    const fetchTable = async () => {
-      setLoading(true); // Start spinner when loading data
-      if (tableState) {
-        setValue('number', tableState.number);
-        setValue('capacity', tableState.capacity);
-        setValue('status', tableState.status);
-      }
-      setLoading(false); // Stop spinner when data is loaded
-    };
-
-    fetchTable();
-  }, [tableState, setValue]);
+    // Load table data if necessary
+  }, [id]);
 
   const handleSuccessClose = () => {
     setOpenSuccess(false);
+    navigate("/tables"); // Điều hướng sau khi đóng thông báo thành công
   };
 
   const handleErrorClose = () => {
@@ -43,41 +33,15 @@ export default function TableEdit() {
   };
 
   const onSubmit = async (data) => {
-    if (data.capacity > 8) {
-      setErrorMessage("Số lượng người không được quá 8 người");
-      setOpenError(true);
-      return;
-    }
-
-    setLoading(true);
-    const updatedData = {
-      ...data,
-      updated_at: new Date().toISOString(),
-    };
-
     try {
-      await dispatch(updateTable(id, updatedData));
+      await dispatch(updateTable(id, data));
       setOpenSuccess(true);
       reset();
-      setTimeout(() => {
-        navigate('/tables');
-      }, 2000); // Navigate after 2 seconds to let user see the success message
     } catch (error) {
-      console.error('Error updating table:', error);
       setErrorMessage(error.message);
       setOpenError(true);
-    } finally {
-      setLoading(false); // Stop spinner when done
     }
   };
-
-  if (loading) {
-    return (
-      <div className="container">
-        <CustomSpinner />
-      </div>
-    );
-  }
 
   return (
     <div className="container">
@@ -86,7 +50,7 @@ export default function TableEdit() {
           <form className="col-md-12" onSubmit={handleSubmit(onSubmit)}>
             <div className="card">
               <div className="card-header">
-                <div className="card-title">Chỉnh Sửa Bàn Ăn</div>
+                <div className="card-title">Cập Nhật Bàn Ăn</div>
               </div>
               <div className="card-body">
                 <div className="row">
@@ -101,7 +65,7 @@ export default function TableEdit() {
                         {...register("number", {
                           required: "Số bàn là bắt buộc",
                           valueAsNumber: true,
-                          validate: value => !isNaN(value) || "Số bàn phải là số"
+                          min: { value: 0, message: "Số bàn không được âm" },
                         })}
                       />
                       {errors.number && <p className="text-danger">{errors.number.message}</p>}
@@ -115,13 +79,11 @@ export default function TableEdit() {
                         className="form-control"
                         id="capacity"
                         placeholder="Nhập số lượng người tối đa"
-                        {...register('capacity', {
-                          required: 'Số lượng người tối đa là bắt buộc',
+                        {...register("capacity", {
+                          required: "Số lượng người tối đa là bắt buộc",
                           valueAsNumber: true,
-                          validate: {
-                            numberCheck: value => !isNaN(value) || "Số lượng người tối đa phải là số",
-                            maxCapacity: value => value <= 8 || "Số lượng người không được quá 8 người"
-                          }
+                          min: { value: 0, message: "Số lượng người không được âm" },
+                          max: { value: 8, message: "Số lượng người không được quá 8 người" },
                         })}
                       />
                       {errors.capacity && <p className="text-danger">{errors.capacity.message}</p>}
@@ -133,7 +95,7 @@ export default function TableEdit() {
                       <select
                         id="status"
                         className="form-control"
-                        {...register('status', { required: 'Trạng thái là bắt buộc' })}
+                        {...register("status", { required: "Trạng thái là bắt buộc" })}
                       >
                         <option value="1">Bàn trống</option>
                         <option value="0">Có khách</option>
@@ -145,11 +107,11 @@ export default function TableEdit() {
               </div>
               <div className="card-footer">
                 <div className="btn-group mt-3" role="group">
-                  <button type="submit" className="btn btn-success">Cập nhật</button>
+                  <button type="submit" className="btn btn-success">Cập Nhật</button>
                   <button
                     type="button"
                     className="btn btn-danger"
-                    onClick={() => navigate('/tables')}
+                    onClick={() => navigate("/tables")}
                   >
                     Hủy
                   </button>

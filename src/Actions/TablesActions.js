@@ -62,7 +62,7 @@ export const fetchTables = (number = "", page = 1, pageSize = 5) => {
         console.log(response.data);
       })
       .catch((error) => {
-        const errorMsg = error.message;
+        const errorMsg = error.response?.data?.error || error.message || "Lỗi không xác định";
         dispatch(fetchTableFailure(errorMsg));
       });
   };
@@ -76,12 +76,11 @@ export const addTable = (table) => {
         `${API_ENDPOINT}/${AdminConfig.routes.table}`,
         table
       );
-      dispatch(fetchTables()); // Reload danh sách bàn sau khi thêm mới
+      dispatch(fetchTables()); // Tải lại danh sách bàn sau khi thêm mới
     } catch (error) {
-      const errorMsg =
-        error.response?.data?.error || error.message || "Lỗi không xác định";
+      const errorMsg = error.response?.data?.error || error.message || "Lỗi không xác định";
       dispatch(fetchTableFailure(errorMsg));
-      console.error("Error adding table:", errorMsg);
+      console.error("Lỗi khi thêm bàn:", errorMsg);
       throw new Error(errorMsg);
     }
   };
@@ -91,27 +90,29 @@ export const updateTable = (id, data) => {
   return async (dispatch) => {
     dispatch(fetchTableRequest());
     try {
-      await axios.patch(
+      const response = await axios.patch(
         `${API_ENDPOINT}/${AdminConfig.routes.table}/${id}`,
         data
       );
-      dispatch(fetchTables()); // Reload danh sách bàn sau khi cập nhật
+      dispatch(fetchTables()); // Tải lại danh sách bàn sau khi cập nhật
     } catch (error) {
-      const errorMsg = error.response?.data?.error || "Lỗi không xác định";
+      const errorMsg = error.response?.data?.error || error.message || "Lỗi không xác định";
       dispatch(fetchTableFailure(errorMsg));
+      console.error("Lỗi khi cập nhật bàn:", errorMsg);
       throw new Error(errorMsg);
     }
   };
 };
+
 
 export const deleteTable = (id) => {
   return async (dispatch) => {
     dispatch(fetchTableRequest());
     try {
       await axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.table}/${id}`);
-      dispatch(fetchTables()); // Reload danh sách bàn sau khi xóa
+      dispatch(fetchTables()); // Tải lại danh sách bàn sau khi xóa
     } catch (error) {
-      const errorMsg = error.message || "Đã xảy ra lỗi trong quá trình xóa bàn";
+      const errorMsg = error.response?.data?.error || error.message || "Đã xảy ra lỗi trong quá trình xóa bàn";
       dispatch(fetchTableFailure(errorMsg));
       throw error;
     }

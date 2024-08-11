@@ -23,12 +23,6 @@ export default function TableAdd() {
   };
 
   const onSubmit = async (data) => {
-    if (data.capacity > 8) {
-      setErrorMessage("Số lượng người không được quá 8 người");
-      setOpenError(true);
-      return;
-    }
-
     const currentDate = new Date().toISOString();
     const tableData = {
       ...data,
@@ -40,9 +34,7 @@ export default function TableAdd() {
       await dispatch(addTable(tableData));
       setOpenSuccess(true);
       reset();
-      setTimeout(() => {
-        navigate("/tables");
-      }, 2000);
+      navigate("/tables"); // Điều hướng ngay lập tức sau khi thêm thành công
     } catch (error) {
       setErrorMessage(error.message);
       setOpenError(true);
@@ -71,7 +63,7 @@ export default function TableAdd() {
                         {...register("number", {
                           required: "Số bàn là bắt buộc",
                           valueAsNumber: true,
-                          validate: value => !isNaN(value) || "Số bàn phải là số"
+                          min: { value: 0, message: "Số bàn không được âm" },
                         })}
                       />
                       {errors.number && <p className="text-danger">{errors.number.message}</p>}
@@ -88,10 +80,8 @@ export default function TableAdd() {
                         {...register("capacity", {
                           required: "Số lượng người tối đa là bắt buộc",
                           valueAsNumber: true,
-                          validate: {
-                            numberCheck: value => !isNaN(value) || "Số lượng người tối đa phải là số",
-                            maxCapacity: value => value <= 8 || "Số lượng người không được quá 8 người"
-                          }
+                          min: { value: 0, message: "Số lượng người không được âm" },
+                          max: { value: 8, message: "Số lượng người không được quá 8 người" },
                         })}
                       />
                       {errors.capacity && <p className="text-danger">{errors.capacity.message}</p>}
@@ -115,13 +105,13 @@ export default function TableAdd() {
               </div>
               <div className="card-footer">
                 <div className="btn-group mt-3" role="group">
-                  <button type="submit" className="btn btn-success">Submit</button>
+                  <button type="submit" className="btn btn-success">Gửi</button>
                   <button
                     type="button"
                     className="btn btn-danger"
                     onClick={() => navigate("/tables")}
                   >
-                    Cancel
+                    Hủy
                   </button>
                 </div>
               </div>
