@@ -8,7 +8,6 @@ import { useForm } from 'react-hook-form';
 import { fetchCategoryBlog } from "../../Actions/BlogsCategoriesActions";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 
-
 export default function BlogEdit() {
     const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
     const { id } = useParams();
@@ -21,10 +20,17 @@ export default function BlogEdit() {
     const [initialPoster, setInitialPoster] = useState(null);
     const [poster, setPoster] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        dispatch(fetchBlog());
-        dispatch(fetchCategoryBlog());
+        const fetchBlogData = async () => {
+            setLoading(true);
+            await dispatch(fetchBlog());
+            await dispatch(fetchCategoryBlog());
+            setLoading(false);
+        };
+
+        fetchBlogData();
     }, [dispatch]);
 
     useEffect(() => {
@@ -43,18 +49,25 @@ export default function BlogEdit() {
         setOpenSuccess(false);
     };
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
+        setLoading(true);
         const updatedData = {
             ...data,
-            poster: poster || initialPoster,
+            poster: poster || initialPoster, // Cập nhật poster nếu có ảnh mới
         };
-
-        dispatch(updateBlog(id, updatedData));
-
-        setOpenSuccess(true);
-        setTimeout(() => {
-            navigate('/blogs');
-        }, 2000);
+    
+        try {
+            await dispatch(updateBlog(id, updatedData));
+            setOpenSuccess(true);
+            reset();
+            setTimeout(() => {
+                navigate('/blogs');
+            }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+        } catch (error) {
+            console.error('Error updating blog:', error);
+        } finally {
+            setLoading(false); // Dừng spinner khi hoàn tất gửi form
+        }
     };
 
     const handleImageUpload = (fileNames) => {
@@ -64,8 +77,12 @@ export default function BlogEdit() {
         }
     };
 
-    if (blogState.error) {
-        return <p>Error: {blogState.error}</p>;
+    if (loading) {
+        return (
+            <div className="container">
+                <CustomSpinner />
+            </div>
+        );
     }
 
     return (
@@ -149,7 +166,7 @@ export default function BlogEdit() {
                             </div>
                         </div>
                     </form>
-                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Cập nhật bài viết thành công!" vertical="top" horizontal="right" />
+                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Cập nhật thông tin bài viết thành công!" vertical="top" horizontal="right" />
                 </div>
             </div>
         </div>
