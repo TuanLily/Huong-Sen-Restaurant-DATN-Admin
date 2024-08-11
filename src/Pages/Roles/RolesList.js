@@ -1,29 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { deleteRole, fetchRole, setCurrentPage } from '../../Actions/RoleActions'; // Ensure setCurrentPage is imported
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { deleteRole, fetchRole, setCurrentPage } from '../../Actions/RoleActions'; 
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import { format } from 'date-fns';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import { DangerAlert } from '../../Components/Alert/Alert'; // Import DangerAlert component
+import { InputBase, Paper } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function RolesList() {
     const dispatch = useDispatch();
     const roleState = useSelector(state => state.role);
     const navigate = useNavigate();
+    const location = useLocation();
+    const query = new URLSearchParams(location.search);
+    const urlPage = parseInt(query.get('page')) || 1;
 
     const [open, setOpen] = useState(false);
     const [selectedRole, setSelectedRole] = useState(null);
+    const [searchTerm, setSearchTerm] = useState(''); // State cho thanh tìm kiếm
+    const [openError, setOpenError] = useState(false); // State cho DangerAlert
+    const [errorMessage, setErrorMessage] = useState(""); // State cho thông báo lỗi
 
     useEffect(() => {
-        dispatch(fetchRole());
-    }, [dispatch]);
+        dispatch(fetchRole(searchTerm, urlPage, roleState.pageSize));
+    }, [dispatch, searchTerm, urlPage, roleState.pageSize]);
 
+    // Cập nhật URL khi currentPage thay đổi
     useEffect(() => {
-        if (roleState.allRoles.length > 0) {
-            dispatch(setCurrentPage(roleState.currentPage));
-        }
-    }, [dispatch, roleState.allRoles, roleState.currentPage]);
+        navigate(`?page=${roleState.currentPage}`);
+    }, [roleState.currentPage, navigate]);
 
     const handleClickOpen = (roleID) => {
         setSelectedRole(roleID);
@@ -35,15 +43,35 @@ export default function RolesList() {
         setSelectedRole(null);
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         if (selectedRole) {
-            dispatch(deleteRole(selectedRole));
-            handleClose();
+            try {
+                await dispatch(deleteRole(selectedRole));
+                handleClose();
+            } catch (error) {
+                setErrorMessage(error.message);
+                setOpenError(true);
+            }
         }
+    };
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+        dispatch(setCurrentPage(1));
     };
 
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
+    };
+
+    const handlePageChange = (page) => {
+        navigate(`?page=${page}`); // Cập nhật URL với page
+        dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
+        dispatch(fetchRole(searchTerm, page, roleState.pageSize));
+    };
+
+    const handleErrorClose = () => {
+        setOpenError(false);
     };
 
     return (
@@ -55,7 +83,6 @@ export default function RolesList() {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="#" className="btn btn-label-info btn-round me-2">Manage</Link>
                         <Link to="/role/add" className="btn btn-primary btn-round">Thêm vai trò</Link>
                         <DialogConfirm />
                     </div>
@@ -67,26 +94,24 @@ export default function RolesList() {
                                 <div className="card-head-row card-tools-still-right">
                                     <div className="card-title">Danh sách</div>
                                     <div className="card-tools">
-                                        <div className="dropdown">
-                                            <button
-                                                className="btn btn-icon btn-clean me-0"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false"
-                                            >
-                                                <i className="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div
-                                                className="dropdown-menu"
-                                                aria-labelledby="dropdownMenuButton"
-                                            >
-                                                <a className="dropdown-item" href="#">Action</a>
-                                                <a className="dropdown-item" href="#">Another action</a>
-                                                <a className="dropdown-item" href="#">Something else here</a>
-                                            </div>
-                                        </div>
+                                        <Paper
+                                            component="form"
+                                            sx={{
+                                                p: '2px 4px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                width: 320,
+                                            }}
+                                        >
+                                            <SearchIcon />
+                                            <InputBase
+                                                sx={{ ml: 1, flex: 1 }}
+                                                placeholder="Tìm kiếm vai trò ở đây!"
+                                                inputProps={{ 'aria-label': 'search' }}
+                                                value={searchTerm}
+                                                onChange={handleSearch} // Thêm xử lý thay đổi từ khóa tìm kiếm
+                                            />
+                                        </Paper>
                                     </div>
                                 </div>
                             </div>
@@ -103,22 +128,22 @@ export default function RolesList() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {roleState?.loading && (
+                                            {roleState.loading && (
                                                 <tr>
                                                     <td colSpan="7"><CustomSpinner/></td>
                                                 </tr>
                                             )}
-                                            {!roleState?.loading && roleState?.role?.length === 0 && (
+                                            {!roleState.loading && roleState.role.length === 0 && (
                                                 <tr>
                                                     <td colSpan="7">No role found.</td>
                                                 </tr>
                                             )}
-                                            {roleState?.error && (
+                                            {roleState.error && (
                                                 <tr>
-                                                    <td colSpan="7">Error: {roleState?.error}</td>
+                                                    <td colSpan="7">Error: {roleState.error}</td>
                                                 </tr>
                                             )}
-                                            {roleState?.role && roleState.role.map((item, index) => (
+                                            {roleState.role && roleState.role.map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>{index + 1}</td>
                                                     <td>{item.name}</td>
@@ -142,17 +167,14 @@ export default function RolesList() {
                                         </tbody>
                                     </table>
                                 </div>
-                                {roleState.allRoles && (
-                                    <div className='my-2'>
+                                <div className="my-2">
                                     <CustomPagination
-                                        count={Math.ceil((roleState.allRoles).length / roleState.pageSize)} currentPageSelector={state => state.role.currentPage}
-                                        fetchAction={fetchRole}
-                                        onPageChange={(page) => {
-                                            dispatch(setCurrentPage(page));
-                                        }}
+                                        count={roleState.totalPages} // Tổng số trang
+                                        currentPageSelector={state => state.role.currentPage} // Selector để lấy trang hiện tại
+                                        fetchAction={(page, pageSize) => fetchRole(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
+                                        onPageChange={handlePageChange} 
                                     />
-                                    </div>
-                                )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -163,6 +185,13 @@ export default function RolesList() {
                 onClose={handleClose}
                 onConfirm={handleConfirm}
             />
+            <DangerAlert
+                open={openError}
+                onClose={handleErrorClose}
+                message={errorMessage}
+                vertical="top"
+                horizontal="right"
+            />
         </div>
-    )
+    );
 }

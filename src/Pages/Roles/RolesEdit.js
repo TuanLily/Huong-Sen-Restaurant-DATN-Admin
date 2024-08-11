@@ -18,15 +18,12 @@ export default function RolesEdit() {
     const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
-        dispatch(fetchRole()); 
-    }, [dispatch]);
-
-    useEffect(() => {
         const role = roleState.role.find((r) => r.id === parseInt(id));
         if (role) {
             setValue('name', role.name);
             setValue('description', role.description);
         }
+        fetchRole();
     }, [roleState.role, id, setValue]);
 
     const handleSuccessClose = () => {
@@ -46,16 +43,12 @@ export default function RolesEdit() {
             setOpenSuccess(true);
             setTimeout(() => {
                 navigate('/role');
-            }, 2000);
-        } catch (error){
-            setErrorMessage(error.message);
+            });
+        } catch (error) {
+            setErrorMessage(error.response?.data?.error || error.message);
             setOpenError(true);
         }
     };
-
-    if (roleState.error) {
-        return <p>Error: {roleState.error}</p>;
-    }
 
     return (
         <div className="container">
@@ -88,18 +81,17 @@ export default function RolesEdit() {
                                                 type="text"
                                                 className="form-control"
                                                 id="description"
-                                                {...register('description', { required: 'Mô tả là bắt buộc' })}
                                                 placeholder="Nhập mô tả"
+                                                {...register('description')}
                                             />
-                                            {errors.description && <p>{errors.description.message}</p>}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button type="submit" className="btn btn-success">Submit</button>
-                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/role')}>Cancel</button>
+                                    <button type="submit" className="btn btn-success">Xác nhận</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/role')}>Hủy</button>
                                 </div>
                             </div>
                         </div>

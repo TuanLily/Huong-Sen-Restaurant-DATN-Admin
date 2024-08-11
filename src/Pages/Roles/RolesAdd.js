@@ -22,7 +22,7 @@ export default function RolesAdd() {
             reset();
             setTimeout(() => {
                 navigate('/role');
-            }, 2000);
+            });
         } catch (error) {
             setErrorMessage(error.message);
             setOpenError(true);
@@ -69,17 +69,15 @@ export default function RolesAdd() {
                                                 className="form-control"
                                                 id="description"
                                                 placeholder="Nhập mô tả"
-                                                {...register('description', { required: 'Mô tả là bắt buộc' })}
                                             />
-                                            {errors.description && <p className="text-danger">{errors.description.message}</p>}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div className="card-footer">
                                 <div className="btn-group mt-3" role="group">
-                                    <button type="submit" className="btn btn-success">Submit</button>
-                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/role')}>Cancel</button>
+                                    <button type="submit" className="btn btn-success">Xác nhận</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/role')}>Hủy</button>
                                 </div>
                             </div>
                         </div>

@@ -12,9 +12,14 @@ export const fetchRoleRequest = () => ({
     type: FETCH_ROLE_REQUEST
 });
 
-export const fetchRoleSuccess = roles => ({
+export const fetchRoleSuccess = (results, totalCount, totalPages, currentPage) => ({
     type: FETCH_ROLE_SUCCESS,
-    payload: roles
+    payload: {
+        results,
+        totalCount,
+        totalPages,
+        currentPage
+    }
 });
 
 export const fetchRoleFailure = error => ({
@@ -27,13 +32,26 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
-export const fetchRole = () => {
+export const fetchRole = (name = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchRoleRequest());
-        axios.get(`${API_ENDPOINT}/${AdminConfig.routes.role}`)
+
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.role}`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (name) {
+            url.searchParams.append('search', name);
+        }
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        axios.get(url.toString())
             .then(response => {
-                const roles = response.data;
-                dispatch(fetchRoleSuccess(roles));
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchRoleSuccess(results, totalCount, totalPages, currentPage));
             })
             .catch(error => {
                 const errorMsg = error.message;
@@ -51,8 +69,6 @@ export const addRole = (role) => {
             dispatch(fetchRole());
         } catch (error) {
             const errorMsg = error.response?.data?.error || error.message || 'Lỗi không xác định';
-            dispatch(fetchRoleFailure(errorMsg));
-            console.error("Error adding role:", errorMsg);
             throw new Error(errorMsg); 
         }
     };
@@ -67,24 +83,21 @@ export const updateRole = (id, data) => {
             dispatch(fetchRole());
         } catch (error) {
             const errorMsg = error.response?.data?.error || error.message || 'Lỗi không xác định';
-            dispatch(fetchRoleFailure(errorMsg));
-            console.error("Error updating role:", errorMsg);
             throw new Error(errorMsg); 
         }
     };
 };
 
 export const deleteRole = (id) => {
-    return dispatch => {
+    return async (dispatch) => {
         dispatch(fetchRoleRequest());
-        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.role}/${id}`)
-            .then(() => {
-                // Sau khi xóa vai trò, gọi lại fetchRole để làm mới danh sách
-                dispatch(fetchRole());
-            })
-            .catch((error) => {
-                const errorMsg = error.message;
-                dispatch(fetchRoleFailure(errorMsg));
-            });
+        try {
+            await axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.role}/${id}`);
+            // Sau khi xóa vai trò, gọi lại fetchRole để làm mới danh sách
+            dispatch(fetchRole());
+        } catch (error) {
+            const errorMsg = error.response?.data?.error || error.message  || "Lỗi không xác định";
+            throw new Error(errorMsg);
+        }
     };
 };
