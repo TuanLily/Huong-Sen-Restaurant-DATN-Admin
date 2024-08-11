@@ -98,6 +98,8 @@ import CommentProductsList from '../Pages/CommentProducts/CommentProductsList';
 import CommentProductsDelete from '../Pages/CommentProducts/CommentProductsDelete';
 
 import CommentBlogList from '../Pages/CommentBlog/CommentBlogList';
+import CommentBlogAdd from '../Pages/CommentBlog/CommentBlogAdd';
+import CommentBlogEdit from '../Pages/CommentBlog/CommentBlogEdit';
 import CommentBlogDelete from '../Pages/CommentBlog/CommentBlogDelete';
 
 // Public routes
@@ -201,6 +203,8 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.CommentProductsDelete, component: CommentProductsDelete },
 
     { path: AdminConfig.routes.CommentBlog, component: CommentBlogList },
+    { path: AdminConfig.routes.CommentBlogAdd, component: CommentBlogAdd },
+    { path: AdminConfig.routes.CommentBlogEdit, component: CommentBlogEdit },
     { path: AdminConfig.routes.CommentBlogDelete, component: CommentBlogDelete },
    
 ];

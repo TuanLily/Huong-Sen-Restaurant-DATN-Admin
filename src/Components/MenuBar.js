@@ -239,7 +239,7 @@ export default function MenuBar() {
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to='commentblog'>
+                                        <Link to='comment-blog'>
                                             <span className="sub-item">Quản lý bình luận blog</span>
                                         </Link>
                                     </li>

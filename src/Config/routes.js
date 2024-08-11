@@ -96,8 +96,10 @@ const AdminRoutes = {
     CommentProducts: 'commentproducts',
     CommentProductsDelete: 'commentproducts/delete',
 
-    CommentBlog: 'commentblog',
-    CommentBlogDelete: 'commentblog/delete',
+    CommentBlog: 'comment-blog',
+    CommentBlogAdd: 'comment-blog/add',
+    CommentBlogEdit: 'comment-blog/edit/:id',
+    CommentBlogDelete: 'comment-blog/delete',
 
 };
 
