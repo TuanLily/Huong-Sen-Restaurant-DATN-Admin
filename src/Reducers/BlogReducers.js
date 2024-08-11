@@ -11,7 +11,9 @@ const initialState = {
     currentPage: 1,
     pageSize: 5,
     loading: false,
-    error: ''
+    error: '',
+    totalCount: 0, // Tổng số khách hàng
+    totalPages: 0 // Tổng số trang
 };
 
 const blogReducer = (state = initialState, action) => {
@@ -26,8 +28,12 @@ const blogReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                allBlogs: action.payload,
-                blog: action.payload.slice(0, state.pageSize),
+                allBlogs: action.payload.results,
+                totalCount: action.payload.totalCount,
+                totalPages: action.payload.totalPages,
+                currentPage: action.payload.currentPage,
+                // Correctly apply slice to the results array
+                blog: action.payload.results.slice(0, state.pageSize),
                 error: ''
             };
         case FETCH_BLOG_FAILURE:

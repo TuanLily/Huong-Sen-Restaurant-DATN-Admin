@@ -14,9 +14,14 @@ export const fetchBlogRequest = () => ({
   type: FETCH_BLOG_REQUEST,
 });
 
-export const fetchBlogSuccess = (blog) => ({
+export const fetchBlogSuccess = (results, totalCount, totalPages, currentPage) => ({
   type: FETCH_BLOG_SUCCESS,
-  payload: blog,
+  payload: {
+    results,
+    totalCount,
+    totalPages,
+    currentPage
+}
 });
 
 export const fetchBlogFailure = (error) => ({
@@ -29,14 +34,26 @@ export const setCurrentPage = (page) => ({
   payload: page
 });
 
-export const fetchBlog = () => {
+
+export const fetchBlog = (name = '', page = 1, pageSize = 10) => {
   return (dispatch) => {
     dispatch(fetchBlogRequest());
-    axios
-      .get(`${API_ENDPOINT}/${AdminConfig.routes.blog}`)
+    const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.blog}`);
+
+    // Add search parameter if name is provided
+    if (name) {
+      url.searchParams.append('search', name);
+    }
+    // Add pagination parameters
+    url.searchParams.append('page', page);
+    url.searchParams.append('pageSize', pageSize);
+
+    axios.get(url.toString())
       .then((response) => {
-        const blog = response.data;
-        dispatch(fetchBlogSuccess(blog));
+        const { results, totalCount, totalPages, currentPage } = response.data;
+
+        // Dispatch action to update data
+        dispatch(fetchBlogSuccess(results, totalCount, totalPages, currentPage));
       })
       .catch((error) => {
         const errorMsg = error.message;
@@ -44,6 +61,7 @@ export const fetchBlog = () => {
       });
   };
 };
+
 
 export const addBlog = (blog) => {
   return (dispatch) => {

@@ -6,6 +6,7 @@ import ImageUploadComponent from '../../Components/ImageUpload/ImageUpload';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
 import { fetchCategoryBlog } from "../../Actions/BlogsCategoriesActions";
+import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 
 
 export default function BlogEdit() {
@@ -142,8 +143,8 @@ export default function BlogEdit() {
                             </div>
                             <div className="card-footer">
                                 <div className="btn-group mt-3" role="group">
-                                    <button type="submit" className="btn btn-success">Submit</button>
-                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/blogs')}>Cancel</button>
+                                    <button type="submit" className="btn btn-success">Cập Nhật</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/blogs')}>Hủy</button>
                                 </div>
                             </div>
                         </div>

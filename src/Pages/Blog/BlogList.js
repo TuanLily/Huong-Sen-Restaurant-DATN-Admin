@@ -1,21 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { fetchBlog, deleteBlog,setCurrentPage } from '../../Actions/BlogActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
-
+import { InputBase, Paper } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 export default function BlogList() {
     const dispatch = useDispatch();
     const blogState = useSelector(state => state.blog);
     const navigate = useNavigate();
 
+    const location = useLocation();
+    const query = new URLSearchParams(location.search);
+    const urlPage = parseInt(query.get('page')) || 1;
+
     const [open, setOpen] = useState(false);
     const [selectedBlog, setSelectedBlog] = useState(null);
+    const [searchTerm, setSearchTerm] = useState(''); 
+    useEffect(() => {
+        dispatch(fetchBlog(searchTerm, urlPage, blogState.pageSize)); 
+    }, [dispatch, urlPage, blogState.pageSize, searchTerm]);
 
     useEffect(() => {
-        dispatch(fetchBlog(blogState.currentPage));
-    }, [dispatch, blogState.currentPage]);
+        navigate(`?page=${blogState.currentPage}`);
+    }, [blogState.currentPage, navigate]);
 
     const handleClickOpen = (blogId) => {
         setSelectedBlog(blogId);
@@ -34,8 +43,20 @@ export default function BlogList() {
         }
     };
 
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+        dispatch(setCurrentPage(1));
+    };
+
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
+    };
+
+    const handlePageChange = (page) => {
+        navigate(`?page=${page}`); // Cập nhật URL với page
+        dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
+        dispatch(fetchBlog(searchTerm, page, blogState.pageSize));
     };
 
     return (
@@ -47,7 +68,7 @@ export default function BlogList() {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
+                        <Link to="" className="btn btn-label-info btn-round me-2">Danh sách bài viết bị xóa</Link>
                         <Link to="/blogs/add" className="btn btn-primary btn-round">Thêm bài viết</Link>
                     </div>
                 </div>
@@ -58,26 +79,24 @@ export default function BlogList() {
                                 <div className="card-head-row card-tools-still-right">
                                     <div className="card-title">Danh sách</div>
                                     <div className="card-tools">
-                                        <div className="dropdown">
-                                            <button
-                                                className="btn btn-icon btn-clean me-0"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false"
-                                            >
-                                                <i className="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div
-                                                className="dropdown-menu"
-                                                aria-labelledby="dropdownMenuButton"
-                                            >
-                                                <a className="dropdown-item" href="#">Action</a>
-                                                <a className="dropdown-item" href="#">Another action</a>
-                                                <a className="dropdown-item" href="#">Something else here</a>
-                                            </div>
-                                        </div>
+                                    <Paper
+                                            component="form"
+                                            sx={{
+                                                p: '2px 4px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                width: 320,
+                                            }}
+                                        >
+                                            <SearchIcon />
+                                            <InputBase
+                                                sx={{ ml: 1, flex: 1 }}
+                                                placeholder="Tìm kiếm bài viết hoặc tác giả ở đây!"
+                                                inputProps={{ 'aria-label': 'search' }}
+                                                value={searchTerm}
+                                                onChange={handleSearch} // Thêm xử lý thay đổi từ khóa tìm kiếm
+                                            />
+                                        </Paper>
                                     </div>
                                 </div>
                             </div>
@@ -102,7 +121,7 @@ export default function BlogList() {
                                             )}
                                             {!blogState.loading && blogState.blog.length === 0 && (
                                                 <tr>
-                                                    <td colSpan="6">No blogs found.</td>
+                                                    <td colSpan="7">Không tìm thấy bài viết.</td>
                                                 </tr>
                                             )}
                                             {blogState.error && (
@@ -112,7 +131,7 @@ export default function BlogList() {
                                             )}
                                             {blogState.blog && blogState.blog.map((item, index) => (
                                                 <tr key={item.id}>
-                                                    <td>{index + 1}</td>
+                                                <td>{(blogState.currentPage - 1) * blogState.pageSize + index + 1}</td>
                                                     <td>{item.title}</td>
                                                     <td>{item.content}</td>
                                                     <td>{item.author}</td>
@@ -132,12 +151,10 @@ export default function BlogList() {
                                 </div>
                                 <div className='my-2'>
                                     <CustomPagination
-                                        count={Math.ceil((blogState.allBlogs || []).length / blogState.pageSize)}
-                                        currentPageSelector={state => state.blog.currentPage}
-                                        fetchAction={fetchBlog}
-                                        onPageChange={(page) => {
-                                            dispatch(setCurrentPage(page));
-                                        }}
+                                       count={blogState.totalPages} // Tổng số trang
+                                        currentPageSelector={state => state.blog.currentPage} // Selector để lấy trang hiện tại
+                                        fetchAction={(page, pageSize) => fetchBlog(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
+                                        onPageChange={handlePageChange} 
                                     />
                                 </div>
                             </div>

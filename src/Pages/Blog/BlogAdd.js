@@ -6,9 +6,11 @@ import ImageUploadComponent from "../../Components/ImageUpload/ImageUpload";
 import { fetchCategoryBlog } from "../../Actions/BlogsCategoriesActions";
 import { addBlog } from "../../Actions/BlogActions";
 import { SuccessAlert } from "../../Components/Alert/Alert";
+import CustomSpinner from "../../Components/Spinner/CustomSpinner";
+
 export default function BlogAdd() {
     const dispatch = useDispatch();
-    const { register, handleSubmit, formState: { errors }, reset } = useForm();
+    const { register, handleSubmit, formState: { errors }, setError } = useForm();
     const blogCategoryState = useSelector(state => state.categories)
     
     useEffect(() => {
@@ -19,6 +21,7 @@ export default function BlogAdd() {
 
     const [poster, setPoster] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleImageUpload = (fileNames) => {
         if (fileNames.length > 0) {
@@ -30,15 +33,30 @@ export default function BlogAdd() {
         setOpenSuccess(false);
     };
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
+        setLoading(true); 
         data.poster = poster;
-        dispatch(addBlog(data));
-        setOpenSuccess(true);
-        reset();
-        setTimeout(() => {
-            navigate('/blogs');
-        }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+        try {
+            await dispatch(addBlog(data));
+            setOpenSuccess(true);
+            setTimeout(() => {
+                navigate('/blogs');
+            }, 2000); 
+        } catch (error) {
+            setOpenError(true); 
+            console.error('Error adding blog:', error);
+        } finally {
+            setLoading(false); 
+        }
     };
+
+    if (loading) {
+        return (
+            <div className="container">
+                <CustomSpinner />
+            </div>
+        );
+    }
 
     return (
         <div className="container">
@@ -104,8 +122,8 @@ export default function BlogAdd() {
                             </div>
                             <div className="card-footer">
                                 <div className="btn-group mt-3" role="group">
-                                    <button type="submit" className="btn btn-success">Submit</button>
-                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/blogs')}>Cancel</button>
+                                <button type="submit" className="btn btn-success" disabled={loading}>Thêm mới</button>
+                                <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Hủy</button>
                                 </div>
                             </div>
                         </div>
