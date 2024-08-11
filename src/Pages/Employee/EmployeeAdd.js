@@ -41,7 +41,7 @@ export default function EmployeeAdd () {
         reset();
         setTimeout(() => {
             navigate('/employee');
-        }, 2000);
+        }, 1000);
     };
 
     return (
@@ -86,6 +86,7 @@ export default function EmployeeAdd () {
                                         <div className="form-group">
                                             <label>Vai trò</label>
                                             <select className="form-select" id="role_id" {...register('role_id', { required: 'Vui lòng chọn vai trò!' })}>
+                                                <option value="">---</option>
                                                 {roleState.role && roleState.role.map((item, index) => (
                                                     <option key={item.id} value={item.id}>{item.name}</option>
                                                 ))}
@@ -116,6 +117,7 @@ export default function EmployeeAdd () {
                                         <div className="form-group">
                                             <label>Trạng thái</label>
                                             <select className="form-select" id="status" {...register('status', { required: 'Vui lòng chọn trạng thái!' })}>
+                                                <option value="">---</option>
                                                 <option value='1'>Đang làm việc</option>
                                                 <option value='0'>Nghỉ việc</option>
                                             </select>
@@ -129,8 +131,8 @@ export default function EmployeeAdd () {
                             </div>
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button className="btn btn-success">Submit</button>
-                                    <button className="btn btn-danger" onClick={() => navigate('/employee')}>Cancel</button>
+                                    <button className="btn btn-success">Xác nhận</button>
+                                    <button className="btn btn-danger" onClick={() => navigate('/employee')}>Hủy</button>
                                 </div>   
                             </div>
                         </div>

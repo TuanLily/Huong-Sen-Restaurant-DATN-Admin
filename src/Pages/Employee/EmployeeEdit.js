@@ -8,7 +8,7 @@ import { SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
 
 export default function EmployeeEdit() {
-    const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm();
 
     const { id } = useParams();
     const dispatch = useDispatch();
@@ -60,7 +60,7 @@ export default function EmployeeEdit() {
         setOpenSuccess(true);
         setTimeout(() => {
             navigate('/employee');
-        }, 2000);
+        }, 1000);
     };
 
     const handleImageUpload = (fileNames) => {
@@ -70,9 +70,6 @@ export default function EmployeeEdit() {
         }
     };
 
-    if (employeeState.error) {
-        return <p>Error: {employeeState.error}</p>;
-    }
 
     return (
         <div className="container">
@@ -129,10 +126,6 @@ export default function EmployeeEdit() {
                                             {errors.address && <div className="text-danger">{errors.address.message}</div>}
                                         </div>
                                         <div className="form-group">
-                                            <label htmlFor="password">Mật khẩu</label>
-                                            <input type="password" className="form-control" id="password" placeholder="Nhập mật khẩu" {...register('password')}/>
-                                        </div>
-                                        <div className="form-group">
                                             <label>Trạng thái</label>
                                             <select className="form-select" id="status" {...register('status', { required: 'Vui lòng chọn trạng thái!' })}>
                                                 <option value='1'>Đang làm việc</option>
@@ -153,8 +146,8 @@ export default function EmployeeEdit() {
                             </div>
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button className="btn btn-success">Submit</button>
-                                    <button className="btn btn-danger" onClick={() => navigate('/employee')}>Cancel</button>
+                                    <button className="btn btn-success">Xác nhận</button>
+                                    <button className="btn btn-danger" onClick={() => navigate('/employee')}>Hủy</button>
                                 </div>   
                             </div>
                         </div>

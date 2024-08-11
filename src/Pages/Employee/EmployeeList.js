@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
     deleteEmployee,
     fetchEmployees,
@@ -11,6 +11,9 @@ import { fetchRole } from "../../Actions/RoleActions";
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 
+import { InputBase, Paper } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+
 export default function EmployeeList() {
     const dispatch = useDispatch();
     const employeeState = useSelector((state) => state.employee);
@@ -18,20 +21,23 @@ export default function EmployeeList() {
 
     const navigate = useNavigate();
 
+    const location = useLocation();
+    const query = new URLSearchParams(location.search);
+    const urlPage = parseInt(query.get('page')) || 1;
+
     const [open, setOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const [searchTerm, setSearchTerm] = useState(''); // State cho thanh tìm kiếm
 
     useEffect(() => {
-        dispatch(fetchEmployees());
+        dispatch(fetchEmployees(searchTerm, urlPage, employeeState.pageSize));
         dispatch(fetchRole());
-    }, [dispatch]);
+    }, [dispatch, urlPage, employeeState.pageSize, searchTerm]);
 
-    useEffect(() => {
-        if (employeeState.allEmployees.length > 0) {
-            dispatch(setCurrentPage(employeeState.currentPage));
-            dispatch(fetchRole());
-        }
-    }, [dispatch, employeeState.allEmployees, employeeState.currentPage]);
+   // Cập nhật URL khi currentPage thay đổi
+   useEffect(() => {
+    navigate(`?page=${employeeState.currentPage}`);
+    }, [employeeState.currentPage, navigate]);
 
     const getRoleName = (id) => {
         const role = roleState.role.find((rol) => rol.id === id);
@@ -55,8 +61,21 @@ export default function EmployeeList() {
         }
     };
 
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+        dispatch(setCurrentPage(1));
+    };
+
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
+    };
+
+     //* Hàm để chuyển trang và render dữ liệu đến trang hiện tại
+     const handlePageChange = (page) => {
+        navigate(`?page=${page}`); // Cập nhật URL với page
+        dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
+        dispatch(fetchEmployees(searchTerm, page, employeeState.pageSize));
+        dispatch(fetchRole());
     };
 
     return (
@@ -68,9 +87,6 @@ export default function EmployeeList() {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="" className="btn btn-label-info btn-round me-2">
-                            Manage
-                        </Link>
                         <Link to="/employee/add" className="btn btn-primary btn-round">
                             Thêm nhân viên
                         </Link>
@@ -84,32 +100,24 @@ export default function EmployeeList() {
                                 <div className="card-head-row card-tools-still-right">
                                     <div className="card-title">Danh sách</div>
                                     <div className="card-tools">
-                                        <div className="dropdown">
-                                            <button
-                                                className="btn btn-icon btn-clean me-0"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false"
-                                            >
-                                                <i className="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div
-                                                className="dropdown-menu"
-                                                aria-labelledby="dropdownMenuButton"
-                                            >
-                                                <a className="dropdown-item" href="#">
-                                                    Action
-                                                </a>
-                                                <a className="dropdown-item" href="#">
-                                                    Another action
-                                                </a>
-                                                <a className="dropdown-item" href="#">
-                                                    Something else here
-                                                </a>
-                                            </div>
-                                        </div>
+                                    <Paper
+                                            component="form"
+                                            sx={{
+                                                p: '2px 4px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                width: 320,
+                                            }}
+                                        >
+                                            <SearchIcon />
+                                            <InputBase
+                                                sx={{ ml: 1, flex: 1 }}
+                                                placeholder="Tìm kiếm tài khoản ở đây!"
+                                                inputProps={{ 'aria-label': 'search' }}
+                                                value={searchTerm}
+                                                onChange={handleSearch} // Thêm xử lý thay đổi từ khóa tìm kiếm
+                                            />
+                                        </Paper>
                                     </div>
                                 </div>
                             </div>
@@ -159,11 +167,7 @@ export default function EmployeeList() {
                                                         <td>{item.fullname}</td>
                                                         <td>{item.email}</td>
                                                         <td>{item.tel}</td>
-                                                        <td>
-                                                            <span className="badge" style={{ backgroundColor: "green" }}>
-                                                                {getRoleName(item.role_id)}
-                                                            </span>
-                                                        </td>
+                                                        <td>{getRoleName(item.role_id)}</td>
                                                         <td>
                                                             <span
                                                                 className="badge"
@@ -204,11 +208,10 @@ export default function EmployeeList() {
                                 </div>
                                 <div className="my-2">
                                     <CustomPagination
-                                        count={Math.ceil((employeeState.allEmployees).length / employeeState.pageSize)} currentPageSelector={state => state.employee.currentPage}
-                                        fetchAction={fetchEmployees}
-                                        onPageChange={(page) => {
-                                            dispatch(setCurrentPage(page));
-                                        }}
+                                        count={employeeState.totalPages} // Tổng số trang
+                                        currentPageSelector={state => state.employee.currentPage} // Selector để lấy trang hiện tại
+                                        fetchAction={(page, pageSize) => fetchEmployees(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
+                                        onPageChange={handlePageChange} 
                                     />
                                 </div>
                             </div>

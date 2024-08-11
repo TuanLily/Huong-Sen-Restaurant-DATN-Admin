@@ -13,9 +13,14 @@ export const fetchEmployeeRequest = () => ({
     type: FETCH_EMPLOYEE_REQUEST
 });
 
-export const fetchEmployeeSuccess = employees => ({
+export const fetchEmployeeSuccess = (results, totalCount, totalPages, currentPage) => ({
     type: FETCH_EMPLOYEE_SUCCESS,
-    payload: employees
+    payload: {
+        results,
+        totalCount,
+        totalPages,
+        currentPage
+    }
 });
 
 export const fetchEmployeeFailure = error => ({
@@ -28,13 +33,26 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
-export const fetchEmployees = () => {
+export const fetchEmployees = (fullname = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchEmployeeRequest());
-        axios.get(`${API_ENDPOINT}/${AdminConfig.routes.employee}`)
+
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.employee}`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (fullname) {
+            url.searchParams.append('search', fullname);
+        }
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        axios.get(url.toString())
             .then(response => {
-                const employees = response.data;
-                dispatch(fetchEmployeeSuccess(employees));
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchEmployeeSuccess(results, totalCount, totalPages, currentPage));
             })
             .catch(error => {
                 const errorMsg = error.message;

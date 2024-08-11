@@ -11,7 +11,9 @@ const initialState = {
     currentPage: 1,
     pageSize: 5, // Số lượng nhân viên trên mỗi trang
     loading: false,
-    error: ''
+    error: '',
+    totalCount: 0, // Tổng số nhân viên
+    totalPages: 0 // Tổng số trang
 };
 
 const employeeReducer = (state = initialState, action) => {
@@ -22,12 +24,15 @@ const employeeReducer = (state = initialState, action) => {
                 loading: true
             };
         case FETCH_EMPLOYEE_SUCCESS:
-            const employees = Array.isArray(action.payload) ? action.payload : []; // Đảm bảo payload là một mảng
+            // const employees = Array.isArray(action.payload) ? action.payload : []; // Đảm bảo payload là một mảng
             return {
                 ...state,
                 loading: false,
-                allEmployees: employees,
-                employee: employees.slice(0, state.pageSize)
+                allEmployees: action.payload.results,
+                totalCount: action.payload.totalCount,
+                totalPages: action.payload.totalPages,
+                currentPage: action.payload.currentPage,
+                employee: action.payload.results.slice(0, state.pageSize) // Dữ liệu cho trang hiện tại
             };
         case FETCH_EMPLOYEE_FAILURE:
             return {
