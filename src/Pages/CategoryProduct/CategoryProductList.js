@@ -5,6 +5,7 @@ import { fetchProductCategory, deleteProductCategory, setCurrentPage } from '../
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import { SuccessAlert } from '../../Components/Alert/Alert';
 
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -19,6 +20,7 @@ export default function CategoryProductList () {
     const urlPage = parseInt(query.get('page')) || 1;
 
     const [open, setOpen] = useState(false);
+    const [openSuccess, setOpenSuccess] = useState(false);
     const [selectedProductCategory, setSelectedProductCategory] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -40,10 +42,19 @@ export default function CategoryProductList () {
         setSelectedProductCategory(null);
     };
 
+    const handleSuccessClose = () => {
+        setOpenSuccess(false);
+    };
+
     const handleConfirm = async () => {
         if (setSelectedProductCategory) {
-            dispatch(deleteProductCategory(selectedProductCategory));
-            handleClose();
+            try {
+                await dispatch(deleteProductCategory(selectedProductCategory));
+                handleClose();
+                setOpenSuccess(true); // Hiển thị thông báo thành công
+            } catch (error) {
+                console.error("Error deleting customer:", error);
+            }
         }
     };
 
@@ -177,6 +188,7 @@ export default function CategoryProductList () {
                             </div>
                         </div>
                     </div>
+                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Xóa danh mục thành công!" />
                 </div>
             </div>
             <DialogConfirm open={open} onClose={handleClose} onConfirm={handleConfirm} />

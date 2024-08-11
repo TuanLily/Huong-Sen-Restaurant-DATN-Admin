@@ -5,6 +5,7 @@ import { fetchPromotion, deletePromotion, setCurrentPage } from '../../Actions/P
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import { SuccessAlert } from '../../Components/Alert/Alert';
 
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -19,6 +20,7 @@ export default function PromotionList () {
     const urlPage = parseInt(query.get('page')) || 1;
 
     const [open, setOpen] = useState(false);
+    const [openSuccess, setOpenSuccess] = useState(false);
     const [selectedPromotion, setSelectedPromotion] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -40,10 +42,19 @@ export default function PromotionList () {
         setSelectedPromotion(null);
     };
 
+    const handleSuccessClose = () => {
+        setOpenSuccess(false);
+    };
+
     const handleConfirm = async () => {
         if (setSelectedPromotion) {
-            dispatch(deletePromotion(selectedPromotion));
-            handleClose();
+            try {
+                await dispatch(deletePromotion(selectedPromotion));
+                handleClose();
+                setOpenSuccess(true); // Hiển thị thông báo thành công
+            } catch (error) {
+                console.error("Error deleting promotion:", error);
+            }
         }
     };
 
@@ -171,6 +182,7 @@ export default function PromotionList () {
                             </div>
                         </div>
                     </div>
+                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Xóa khuyến mãi thành công!" />
                 </div>
             </div>
             <DialogConfirm open={open} onClose={handleClose} onConfirm={handleConfirm} />

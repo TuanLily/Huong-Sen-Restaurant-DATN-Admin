@@ -6,6 +6,7 @@ import { fetchProductCategory } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/DialogKhoiPhuc';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import { SuccessAlert } from '../../Components/Alert/Alert';
 
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -21,6 +22,7 @@ export default function ProductTamXoa () {
     const urlPage = parseInt(query.get('page')) || 1;
 
     const [open, setOpen] = useState(false);
+    const [openSuccess, setOpenSuccess] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -49,10 +51,19 @@ export default function ProductTamXoa () {
         setSelectedProduct(null);
     };
 
-    const handleConfirm = () => {
+    const handleSuccessClose = () => {
+        setOpenSuccess(false);
+    };
+
+    const handleConfirm = async () => {
         if (setSelectedProduct) {
-            dispatch(updateStatus(selectedProduct, {status: 1}, 'tam_xoa'));
-            handleClose();
+            try {
+                dispatch(updateStatus(selectedProduct, {status: 1}, 'tam_xoa'));
+                handleClose();
+                setOpenSuccess(true); // Hiển thị thông báo thành công
+            } catch (error) {
+                console.error("Error deleting product:", error);
+            }
         }
     };
 
@@ -187,6 +198,7 @@ export default function ProductTamXoa () {
                             </div>
                         </div>
                     </div>
+                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Khôi phục sản phẩm thành công!" />
                 </div>
             </div>
             <DialogConfirm open={open} onClose={handleClose} onConfirm={handleConfirm} />
