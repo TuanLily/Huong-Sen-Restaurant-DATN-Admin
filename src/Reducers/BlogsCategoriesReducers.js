@@ -8,10 +8,12 @@ import {
 const initialState = {
     loading: false,
     categories: [],
-    allCategories: [], // Nếu cần lưu trữ tất cả các danh mục
+    allCategories: [], // Lưu trữ tất cả các danh mục
     error: '',
     currentPage: 1,
     pageSize: 5,
+    totalCount: 0, // Tổng số danh mục blog
+    totalPages: 0 // Tổng số trang
 };
 
 const blogsCategoriesReducer = (state = initialState, action) => {
@@ -26,9 +28,11 @@ const blogsCategoriesReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                allCategories: action.payload || [], // Lưu tất cả các danh mục
-                error: '',
-                categories: (action.payload || []).slice((state.currentPage - 1) * state.pageSize, state.currentPage * state.pageSize),
+                allCategories: action.payload.results || [], // Lưu tất cả các danh mục
+                totalCount: action.payload.totalCount,
+                totalPages: action.payload.totalPages,
+                currentPage: action.payload.currentPage,
+                categories: action.payload.results.slice(0, state.pageSize), // Dữ liệu cho trang hiện tại
             };
         case FETCH_CATEGORY_BLOG_FAILURE:
             return {
@@ -38,6 +42,7 @@ const blogsCategoriesReducer = (state = initialState, action) => {
                 error: action.payload,
             };
         case SET_CURRENT_PAGE:
+            // Tính chỉ mục bắt đầu và kết thúc cho dữ liệu của trang hiện tại
             const start = (action.payload - 1) * state.pageSize;
             const end = start + state.pageSize;
             return {

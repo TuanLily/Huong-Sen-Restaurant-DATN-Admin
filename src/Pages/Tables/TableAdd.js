@@ -23,6 +23,12 @@ export default function TableAdd() {
   };
 
   const onSubmit = async (data) => {
+    if (data.capacity > 8) {
+      setErrorMessage("Số lượng người không được quá 8 người");
+      setOpenError(true);
+      return;
+    }
+
     const currentDate = new Date().toISOString();
     const tableData = {
       ...data,
@@ -58,7 +64,7 @@ export default function TableAdd() {
                     <div className="form-group">
                       <label htmlFor="number">Số Bàn</label>
                       <input
-                        type="number" // Change type to "number"
+                        type="number"
                         className="form-control"
                         id="number"
                         placeholder="Nhập số bàn"
@@ -73,16 +79,22 @@ export default function TableAdd() {
                   </div>
                   <div className="col-md-6 col-lg-6">
                     <div className="form-group">
-                      <label htmlFor="type">Loại Bàn</label>
-                      <select
-                        id="type"
+                      <label htmlFor="capacity">Số Lượng Người Tối Đa</label>
+                      <input
+                        type="number"
                         className="form-control"
-                        {...register("type", { required: "Loại bàn là bắt buộc" })}
-                      >
-                        <option value="1">Bàn Thường</option>
-                        <option value="2">Bàn VIP</option>
-                      </select>
-                      {errors.type && <p className="text-danger">{errors.type.message}</p>}
+                        id="capacity"
+                        placeholder="Nhập số lượng người tối đa"
+                        {...register("capacity", {
+                          required: "Số lượng người tối đa là bắt buộc",
+                          valueAsNumber: true,
+                          validate: {
+                            numberCheck: value => !isNaN(value) || "Số lượng người tối đa phải là số",
+                            maxCapacity: value => value <= 8 || "Số lượng người không được quá 8 người"
+                          }
+                        })}
+                      />
+                      {errors.capacity && <p className="text-danger">{errors.capacity.message}</p>}
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-6">
@@ -93,8 +105,8 @@ export default function TableAdd() {
                         className="form-control"
                         {...register("status", { required: "Trạng thái là bắt buộc" })}
                       >
-                        <option value="1">Còn Bàn</option>
-                        <option value="0">Hết Bàn</option>
+                        <option value="1">Bàn trống</option>
+                        <option value="0">Có khách</option>
                       </select>
                       {errors.status && <p className="text-danger">{errors.status.message}</p>}
                     </div>

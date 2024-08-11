@@ -8,6 +8,8 @@ import { SuccessAlert, DangerAlert } from "../../Components/Alert/Alert";
 export default function CategoryBlogEdit() {
   const dispatch = useDispatch();
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const categoryBlogState = useSelector((state) =>
     state.categories.categories.find((category) => category.id === parseInt(id))
   );
@@ -19,11 +21,17 @@ export default function CategoryBlogEdit() {
     setValue,
     reset,
   } = useForm();
-  const navigate = useNavigate();
 
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    if (categoryBlogState) {
+      setValue("name", categoryBlogState.name);
+      setValue("status", categoryBlogState.status);
+    }
+  }, [categoryBlogState, setValue]);
 
   const handleSuccessClose = () => {
     setOpenSuccess(false);
@@ -32,13 +40,6 @@ export default function CategoryBlogEdit() {
   const handleErrorClose = () => {
     setOpenError(false);
   };
-
-  useEffect(() => {
-    if (categoryBlogState) {
-      setValue("name", categoryBlogState.name);
-      setValue("status", categoryBlogState.status);
-    }
-  }, [categoryBlogState, setValue]);
 
   const onSubmit = async (data) => {
     const updatedData = {

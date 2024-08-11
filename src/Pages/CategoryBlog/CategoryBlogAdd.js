@@ -17,6 +17,7 @@ export default function CategoryBlogAdd() {
 
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openError, setOpenError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSuccessClose = () => {
@@ -36,6 +37,7 @@ export default function CategoryBlogAdd() {
       updated_at: currentDate,
     };
 
+    setLoading(true);
     try {
       await dispatch(addCategoryBlog(categoryData));
       setOpenSuccess(true);
@@ -46,8 +48,18 @@ export default function CategoryBlogAdd() {
     } catch (error) {
       setErrorMessage(error.message);
       setOpenError(true);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="container">
+        <div className="text-center">Đang xử lý...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
@@ -94,15 +106,15 @@ export default function CategoryBlogAdd() {
               </div>
               <div className="card-footer">
                 <div className="btn-group mt-3" role="group">
-                  <button type="submit" className="btn btn-success">
-                    Submit
+                  <button type="submit" className="btn btn-success" disabled={loading}>
+                    Thêm mới
                   </button>
                   <button
                     type="button"
                     className="btn btn-danger"
                     onClick={() => navigate("/category-blog")}
                   >
-                    Cancel
+                    Hủy
                   </button>
                 </div>
               </div>

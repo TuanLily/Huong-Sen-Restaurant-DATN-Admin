@@ -4,27 +4,35 @@ import { useForm } from 'react-hook-form';
 import { useParams, useNavigate } from 'react-router-dom';
 import { updateTable } from '../../Actions/TablesActions';
 import { SuccessAlert, DangerAlert } from '../../Components/Alert/Alert';
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
 export default function TableEdit() {
-  const dispatch = useDispatch();
+  const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
   const { id } = useParams();
-  
-  // Giả sử state.tables là một đối tượng chứa thuộc tính tables là mảng
-  const tables = useSelector(state => state.tables.tables || []); // Thay đổi tùy vào cấu trúc của state
-  const tableState = tables.find((table) => table.id === parseInt(id));
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    reset,
-  } = useForm();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const tables = useSelector(state => state.tables.tables || []);
+  const tableState = tables.find((table) => table.id === parseInt(id));
 
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchTable = async () => {
+      setLoading(true); // Start spinner when loading data
+      if (tableState) {
+        setValue('number', tableState.number);
+        setValue('capacity', tableState.capacity);
+        setValue('status', tableState.status);
+      }
+      setLoading(false); // Stop spinner when data is loaded
+    };
+
+    fetchTable();
+  }, [tableState, setValue]);
 
   const handleSuccessClose = () => {
     setOpenSuccess(false);
@@ -34,15 +42,14 @@ export default function TableEdit() {
     setOpenError(false);
   };
 
-  useEffect(() => {
-    if (tableState) {
-      setValue('number', tableState.number);
-      setValue('type', tableState.type);
-      setValue('status', tableState.status);
-    }
-  }, [tableState, setValue]);
-
   const onSubmit = async (data) => {
+    if (data.capacity > 8) {
+      setErrorMessage("Số lượng người không được quá 8 người");
+      setOpenError(true);
+      return;
+    }
+
+    setLoading(true);
     const updatedData = {
       ...data,
       updated_at: new Date().toISOString(),
@@ -54,12 +61,23 @@ export default function TableEdit() {
       reset();
       setTimeout(() => {
         navigate('/tables');
-      }, 2000);
+      }, 2000); // Navigate after 2 seconds to let user see the success message
     } catch (error) {
+      console.error('Error updating table:', error);
       setErrorMessage(error.message);
       setOpenError(true);
+    } finally {
+      setLoading(false); // Stop spinner when done
     }
   };
+
+  if (loading) {
+    return (
+      <div className="container">
+        <CustomSpinner />
+      </div>
+    );
+  }
 
   return (
     <div className="container">
@@ -91,16 +109,22 @@ export default function TableEdit() {
                   </div>
                   <div className="col-md-6 col-lg-6">
                     <div className="form-group">
-                      <label htmlFor="type">Loại Bàn</label>
-                      <select
-                        id="type"
+                      <label htmlFor="capacity">Số Lượng Người Tối Đa</label>
+                      <input
+                        type="number"
                         className="form-control"
-                        {...register('type', { required: 'Loại bàn là bắt buộc' })}
-                      >
-                        <option value="1">Bàn Thường</option>
-                        <option value="2">Bàn VIP</option>
-                      </select>
-                      {errors.type && <p className="text-danger">{errors.type.message}</p>}
+                        id="capacity"
+                        placeholder="Nhập số lượng người tối đa"
+                        {...register('capacity', {
+                          required: 'Số lượng người tối đa là bắt buộc',
+                          valueAsNumber: true,
+                          validate: {
+                            numberCheck: value => !isNaN(value) || "Số lượng người tối đa phải là số",
+                            maxCapacity: value => value <= 8 || "Số lượng người không được quá 8 người"
+                          }
+                        })}
+                      />
+                      {errors.capacity && <p className="text-danger">{errors.capacity.message}</p>}
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-6">
@@ -111,8 +135,8 @@ export default function TableEdit() {
                         className="form-control"
                         {...register('status', { required: 'Trạng thái là bắt buộc' })}
                       >
-                        <option value="1">Còn Bàn</option>
-                        <option value="0">Hết Bàn</option>
+                        <option value="1">Bàn trống</option>
+                        <option value="0">Có khách</option>
                       </select>
                       {errors.status && <p className="text-danger">{errors.status.message}</p>}
                     </div>
@@ -152,4 +176,3 @@ export default function TableEdit() {
     </div>
   );
 }
- 
