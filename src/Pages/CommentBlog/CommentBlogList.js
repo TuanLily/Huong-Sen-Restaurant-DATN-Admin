@@ -6,6 +6,7 @@ import { fetchCustomer } from '../../Actions/CustomerActions'; // Import fetchCu
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import { format } from 'date-fns';
 
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -140,8 +141,8 @@ export default function CommentBlogList() {
                                                     <td>{(commentBlogState.currentPage - 1) * commentBlogState.pageSize + index + 1}</td>
                                                     <td>{getCustomerNameById(item.customer_id)}</td> {/* Display customer name */}
                                                     <td>{item.content}</td>
-                                                    <td>{item.created_at}</td>
-                                                    <td>{item.updated_at}</td>
+                                                    <td>{format(new Date(item.created_at), 'dd/MM/yyyy HH:mm')}</td>
+                                                    <td>{format(new Date(item.updated_at), 'dd/MM/yyyy HH:mm')}</td>
                                                     <td>
                                                         <div className="btn-group mt-3" role="group">
                                                             <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
