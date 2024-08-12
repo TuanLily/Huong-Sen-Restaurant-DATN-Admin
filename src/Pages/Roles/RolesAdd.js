@@ -7,7 +7,7 @@ import { DangerAlert, SuccessAlert } from "../../Components/Alert/Alert";
 
 export default function RolesAdd() {
     const dispatch = useDispatch();
-    const { register, handleSubmit, formState: { errors }, reset } = useForm();
+    const { register, handleSubmit, formState: { errors } } = useForm();
 
     const navigate = useNavigate();
 
@@ -19,10 +19,9 @@ export default function RolesAdd() {
         try {
             await dispatch(addRole(data)); 
             setOpenSuccess(true);
-            reset();
             setTimeout(() => {
                 navigate('/role');
-            });
+            }, 2000);
         } catch (error) {
             setErrorMessage(error.message);
             setOpenError(true);
@@ -69,6 +68,7 @@ export default function RolesAdd() {
                                                 className="form-control"
                                                 id="description"
                                                 placeholder="Nhập mô tả"
+                                                {...register('description')}
                                             />
                                         </div>
                                     </div>
@@ -76,7 +76,7 @@ export default function RolesAdd() {
                             </div>
                             <div className="card-footer">
                                 <div className="btn-group mt-3" role="group">
-                                    <button type="submit" className="btn btn-success">Xác nhận</button>
+                                    <button type="submit" className="btn btn-success">Thêm mới</button>
                                     <button type="button" className="btn btn-danger" onClick={() => navigate('/role')}>Hủy</button>
                                 </div>
                             </div>

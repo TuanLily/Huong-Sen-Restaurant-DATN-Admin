@@ -43,7 +43,7 @@ export default function RolesEdit() {
             setOpenSuccess(true);
             setTimeout(() => {
                 navigate('/role');
-            });
+            }, 2000);
         } catch (error) {
             setErrorMessage(error.response?.data?.error || error.message);
             setOpenError(true);
@@ -90,7 +90,7 @@ export default function RolesEdit() {
                             </div>
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button type="submit" className="btn btn-success">Xác nhận</button>
+                                    <button type="submit" className="btn btn-success">Cập nhật</button>
                                     <button type="button" className="btn btn-danger" onClick={() => navigate('/role')}>Hủy</button>
                                 </div>
                             </div>
