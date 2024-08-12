@@ -2,14 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
-import { addEmployee } from "../../Actions/EmployeeActions";
+import { addEmployee, checkEmailExists } from "../../Actions/EmployeeActions";
 import { fetchRole } from "../../Actions/RoleActions";
 import ImageUploadComponent from "../../Components/ImageUpload/ImageUpload";
-import { SuccessAlert } from "../../Components/Alert/Alert";
+import { DangerAlert, SuccessAlert } from "../../Components/Alert/Alert";
+import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 
 export default function EmployeeAdd () {
     const dispatch = useDispatch();
-    const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
+    const { register, handleSubmit, formState: { errors }, setError, reset, watch } = useForm();
     const roleState = useSelector(state => state.role);
 
     useEffect(() => {
@@ -20,7 +21,8 @@ export default function EmployeeAdd () {
 
     const [avatar, setAvatar] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
-
+    const [openError, setOpenError] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const password = watch('password');
 
@@ -34,15 +36,55 @@ export default function EmployeeAdd () {
         setOpenSuccess(false);
     };
 
-    const onSubmit = (data) => {
-        data.avatar = avatar;
-        dispatch(addEmployee(data))
-        setOpenSuccess(true);
-        reset();
-        setTimeout(() => {
-            navigate('/employee');
-        }, 1000);
+    const handleErrorClose = () => {
+        setOpenError(false);
     };
+
+    // Hàm kiểm tra email có tồn tại trên hệ thống chưa.
+    const validateEmailExists = async (email) => {
+        try {
+            const user = await checkEmailExists(email);
+            if (user) {
+                setError('email', {
+                    type: 'manual',
+                    message: 'Email đã tồn tại trên hệ thống',
+                });
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Error checking email:', error);
+            return false;
+        }
+    };
+
+    const onSubmit = async (data) => {
+        const emailIsValid = await validateEmailExists(data.email);
+        if (!emailIsValid) return;
+
+        setLoading(true); 
+        data.avatar = avatar;
+        try {
+            await dispatch(addEmployee(data));
+            setOpenSuccess(true);
+            setTimeout(() => {
+                navigate('/employee');
+            }, 1000);
+        } catch (error) {
+            setOpenError(true); // Hiển thị thông báo lỗi
+            console.error('Error adding employee:', error);
+        } finally {
+            setLoading(false); 
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="container">
+                <CustomSpinner />
+            </div>
+        );
+    }
 
     return (
         <div className="container">
@@ -63,14 +105,20 @@ export default function EmployeeAdd () {
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="email">Email</label>
-                                            <input type="email" className="form-control" id="email" placeholder="Nhập email" {...register('email', { 
-                                                required: 'Vui lòng điền email!',
-                                                pattern: {
+                                            <input
+                                                type="email"
+                                                className="form-control"
+                                                id="email"
+                                                placeholder="Nhập email"
+                                                {...register('email', {
+                                                    required: 'Email là bắt buộc',
+                                                    pattern: {
                                                         value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
                                                         message: 'Email không hợp lệ',
-                                                    }, 
-                                                })}/>
-                                            {errors.email && <div className="text-danger">{errors.email.message}</div>}
+                                                    },
+                                                })}
+                                            />
+                                            {errors.email && <p className="text-danger">{errors.email.message}</p>}
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="tel">Số điện thoại</label>
@@ -115,9 +163,22 @@ export default function EmployeeAdd () {
                                             {errors.password && <div className="text-danger">{errors.password.message}</div>}
                                         </div>
                                         <div className="form-group">
+                                            <label htmlFor="confirmPassword">Mật khẩu xác nhận</label>
+                                            <input
+                                                type="password"
+                                                className="form-control"
+                                                id="confirmPassword"
+                                                placeholder="Nhập mật khẩu xác nhận"
+                                                {...register('confirmPassword', {
+                                                    required: 'Mật khẩu xác nhận là bắt buộc',
+                                                    validate: (value) => value === password || 'Mật khẩu xác nhận không khớp',
+                                                })}
+                                            />
+                                            {errors.confirmPassword && <p className="text-danger">{errors.confirmPassword.message}</p>}
+                                        </div>
+                                        <div className="form-group">
                                             <label>Trạng thái</label>
                                             <select className="form-select" id="status" {...register('status', { required: 'Vui lòng chọn trạng thái!' })}>
-                                                <option value="">---</option>
                                                 <option value='1'>Đang làm việc</option>
                                                 <option value='0'>Nghỉ việc</option>
                                             </select>
@@ -131,13 +192,14 @@ export default function EmployeeAdd () {
                             </div>
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button className="btn btn-success">Xác nhận</button>
-                                    <button className="btn btn-danger" onClick={() => navigate('/employee')}>Hủy</button>
+                                    <button type="submit" className="btn btn-success" disabled={loading}>Thêm mới</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/employee')}>Hủy</button>
                                 </div>   
                             </div>
                         </div>
                     </form>
                     <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Thêm nhân viên thành công!" vertical="top" horizontal="right" />
+                    <DangerAlert open={openError} onClose={handleErrorClose} message="Có lỗi khi thêm tài khoản" vertical="top" horizontal="right" />
                 </div>
             </div>
         </div>

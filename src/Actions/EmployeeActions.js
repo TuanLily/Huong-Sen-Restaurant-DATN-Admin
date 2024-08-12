@@ -105,3 +105,14 @@ export const deleteEmployee = (id) => {
             });
     };
 };
+
+
+export const checkEmailExists = async (email) => {
+    try {
+        const response = await axios.get(`${API_ENDPOINT}/auth/check-email`, { params: { email } });
+        return response.data.exists ? response.data.user : null;
+    } catch (error) {
+        console.error('Error checking user existence:', error);
+        throw error;
+    }
+};

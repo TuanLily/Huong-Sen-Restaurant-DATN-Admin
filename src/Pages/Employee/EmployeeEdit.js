@@ -146,7 +146,7 @@ export default function EmployeeEdit() {
                             </div>
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
-                                    <button className="btn btn-success">Xác nhận</button>
+                                    <button className="btn btn-success">Cập nhật</button>
                                     <button className="btn btn-danger" onClick={() => navigate('/employee')}>Hủy</button>
                                 </div>   
                             </div>
