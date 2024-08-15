@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { InputBase, Paper } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import debounce from 'lodash.debounce';
+
 import { deleteCustomer, fetchCustomer, setCurrentPage } from '../../Actions/CustomerActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
-
-import { InputBase, Paper } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 
 export default function CustomerList() {
     const dispatch = useDispatch();
     const customerState = useSelector(state => state.customer);
-    
+
 
     const navigate = useNavigate();
 
@@ -24,14 +26,32 @@ export default function CustomerList() {
     const [open, setOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [openSuccess, setOpenSuccess] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(''); // State cho thanh tìm kiếm
+    const [searchTerm, setSearchTerm] = useState('');
 
-    // Fetch customers khi trang thay đổi hoặc khi tìm kiếm
+    // Debounce hàm tìm kiếm để giảm số lần gọi API
+    const debouncedSearch = useMemo(() => debounce((term) => {
+        dispatch(fetchCustomer(term, urlPage, customerState.pageSize));
+        dispatch(setCurrentPage(1));
+    }, 1000), [dispatch, urlPage, customerState.pageSize]);
+
     useEffect(() => {
-        dispatch(fetchCustomer(searchTerm, urlPage, customerState.pageSize));
-    }, [dispatch, urlPage, customerState.pageSize, searchTerm]);
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [debouncedSearch]);
 
-    // Cập nhật URL khi currentPage thay đổi
+    useEffect(() => {
+        if (!searchTerm) {
+            dispatch(fetchCustomer('', urlPage, customerState.pageSize));
+        }
+    }, [dispatch, urlPage, customerState.pageSize]);
+
+    useEffect(() => {
+        if (searchTerm) {
+            debouncedSearch(searchTerm);
+        }
+    }, [searchTerm]);
+
     useEffect(() => {
         navigate(`?page=${customerState.currentPage}`);
     }, [customerState.currentPage, navigate]);
@@ -66,7 +86,7 @@ export default function CustomerList() {
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
-        dispatch(setCurrentPage(1));
+        debouncedSearch(event.target.value);
     };
 
     const handleEdit = (id) => {

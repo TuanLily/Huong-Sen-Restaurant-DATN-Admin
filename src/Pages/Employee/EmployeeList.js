@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -13,6 +13,7 @@ import CustomPagination from "../../Components/Pagination/CustomPagination";
 
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import debounce from "lodash.debounce";
 
 export default function EmployeeList() {
     const dispatch = useDispatch();
@@ -29,14 +30,33 @@ export default function EmployeeList() {
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [searchTerm, setSearchTerm] = useState(''); // State cho thanh tìm kiếm
 
-    useEffect(() => {
-        dispatch(fetchEmployees(searchTerm, urlPage, employeeState.pageSize));
-        dispatch(fetchRole());
-    }, [dispatch, urlPage, employeeState.pageSize, searchTerm]);
+    // Debounce hàm tìm kiếm để giảm số lần gọi API
+    const debouncedSearch = useMemo(() => debounce((term) => {
+        dispatch(fetchEmployees(term, urlPage, employeeState.pageSize));
+        dispatch(setCurrentPage(1));
+    }, 1000), [dispatch, urlPage, employeeState.pageSize]);
 
-   // Cập nhật URL khi currentPage thay đổi
-   useEffect(() => {
-    navigate(`?page=${employeeState.currentPage}`);
+    useEffect(() => {
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [debouncedSearch]);
+
+    useEffect(() => {
+        if (!searchTerm) {
+            dispatch(fetchEmployees('', urlPage, employeeState.pageSize));
+        }
+    }, [dispatch, urlPage, employeeState.pageSize]);
+
+    useEffect(() => {
+        if (searchTerm) {
+            debouncedSearch(searchTerm);
+        }
+    }, [searchTerm]);
+
+    // Cập nhật URL khi currentPage thay đổi
+    useEffect(() => {
+        navigate(`?page=${employeeState.currentPage}`);
     }, [employeeState.currentPage, navigate]);
 
     const getRoleName = (id) => {
@@ -63,15 +83,15 @@ export default function EmployeeList() {
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
-        dispatch(setCurrentPage(1));
+        debouncedSearch(event.target.value);
     };
 
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
     };
 
-     //* Hàm để chuyển trang và render dữ liệu đến trang hiện tại
-     const handlePageChange = (page) => {
+    //* Hàm để chuyển trang và render dữ liệu đến trang hiện tại
+    const handlePageChange = (page) => {
         navigate(`?page=${page}`); // Cập nhật URL với page
         dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
         dispatch(fetchEmployees(searchTerm, page, employeeState.pageSize));
@@ -100,7 +120,7 @@ export default function EmployeeList() {
                                 <div className="card-head-row card-tools-still-right">
                                     <div className="card-title">Danh sách</div>
                                     <div className="card-tools">
-                                    <Paper
+                                        <Paper
                                             component="form"
                                             sx={{
                                                 p: '2px 4px',
@@ -211,7 +231,7 @@ export default function EmployeeList() {
                                         count={employeeState.totalPages} // Tổng số trang
                                         currentPageSelector={state => state.employee.currentPage} // Selector để lấy trang hiện tại
                                         fetchAction={(page, pageSize) => fetchEmployees(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
-                                        onPageChange={handlePageChange} 
+                                        onPageChange={handlePageChange}
                                     />
                                 </div>
                             </div>

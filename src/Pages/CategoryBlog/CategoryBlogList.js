@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import DialogConfirm from "../../Components/Dialog/Dialog";
@@ -11,6 +11,7 @@ import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 import { InputBase, Paper } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import debounce from "lodash.debounce";
 
 export default function CategoryBlogList() {
   const dispatch = useDispatch();
@@ -23,13 +24,29 @@ export default function CategoryBlogList() {
   const [open, setOpen] = useState(false);
   const [selectedCategoryBlog, setSelectedCategoryBlog] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // State cho thanh tìm kiếm
+  // Debounce hàm tìm kiếm để giảm số lần gọi API
+  const debouncedSearch = useMemo(() => debounce((term) => {
+    dispatch(fetchCategoryBlog(term, urlPage, categoryBlogState.pageSize));
+    dispatch(setCurrentPage(1));
+  }, 1000), [dispatch, urlPage, categoryBlogState.pageSize]);
 
-  // Fetch categories khi trang thay đổi hoặc khi tìm kiếm
   useEffect(() => {
-    dispatch(
-      fetchCategoryBlog(searchTerm, urlPage, categoryBlogState.pageSize)
-    );
-  }, [dispatch, urlPage, categoryBlogState.pageSize, searchTerm]);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (!searchTerm) {
+      dispatch(fetchCategoryBlog('', urlPage, categoryBlogState.pageSize));
+    }
+  }, [dispatch, urlPage, categoryBlogState.pageSize]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      debouncedSearch(searchTerm);
+    }
+  }, [searchTerm]);
 
   // Cập nhật URL khi currentPage thay đổi
   useEffect(() => {
@@ -55,7 +72,7 @@ export default function CategoryBlogList() {
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
-    dispatch(setCurrentPage(1));
+    debouncedSearch(event.target.value);
   };
 
   const handleEdit = (id) => {

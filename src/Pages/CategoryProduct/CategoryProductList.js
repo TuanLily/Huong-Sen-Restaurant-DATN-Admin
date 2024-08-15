@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { fetchProductCategory, deleteProductCategory, setCurrentPage } from '../../Actions/ProductCategoryActions';
@@ -9,6 +9,7 @@ import { SuccessAlert } from '../../Components/Alert/Alert';
 
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import debounce from 'lodash.debounce';
 
 export default function CategoryProductList () {
     const dispatch = useDispatch();
@@ -24,9 +25,29 @@ export default function CategoryProductList () {
     const [selectedProductCategory, setSelectedProductCategory] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Debounce hàm tìm kiếm để giảm số lần gọi API
+    const debouncedSearch = useMemo(() => debounce((term) => {
+        dispatch(fetchProductCategory(term, urlPage, productCategoryState.pageSize));
+        dispatch(setCurrentPage(1));
+    }, 1000), [dispatch, urlPage, productCategoryState.pageSize]);
+
     useEffect(() => {
-        dispatch(fetchProductCategory(searchTerm, urlPage, productCategoryState.pageSize));
-    }, [dispatch, urlPage, productCategoryState.pageSize, searchTerm]);
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [debouncedSearch]);
+
+    useEffect(() => {
+        if (!searchTerm) {
+            dispatch(fetchProductCategory('', urlPage, productCategoryState.pageSize));
+        }
+    }, [dispatch, urlPage, productCategoryState.pageSize]);
+
+    useEffect(() => {
+        if (searchTerm) {
+            debouncedSearch(searchTerm);
+        }
+    }, [searchTerm]);
 
     useEffect(() => {
         navigate(`?page=${productCategoryState.currentPage}`);
@@ -64,7 +85,7 @@ export default function CategoryProductList () {
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
-        dispatch(setCurrentPage(1));
+        debouncedSearch(event.target.value);
     };
 
     const handlePageChange = (page) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { deleteCommentBlog, fetchCommentBlog, setCurrentPage } from '../../Actions/CommentBlogActions';
@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import debounce from 'lodash.debounce';
 
 export default function CommentBlogList() {
     const dispatch = useDispatch();
@@ -24,10 +25,29 @@ export default function CommentBlogList() {
     const [selectedBlogState, setSelectedBlogState] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Debounce hàm tìm kiếm để giảm số lần gọi API
+    const debouncedSearch = useMemo(() => debounce((term) => {
+        dispatch(fetchCommentBlog(term, urlPage, commentBlogState.pageSize));
+        dispatch(setCurrentPage(1));
+    }, 1000), [dispatch, urlPage, commentBlogState.pageSize]);
+
     useEffect(() => {
-        dispatch(fetchCustomer()); // Fetch customer data
-        dispatch(fetchCommentBlog(searchTerm, urlPage, commentBlogState.pageSize));
-    }, [dispatch, urlPage, commentBlogState.pageSize, searchTerm]);
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [debouncedSearch]);
+
+    useEffect(() => {
+        if (!searchTerm) {
+            dispatch(fetchCommentBlog('', urlPage, commentBlogState.pageSize));
+        }
+    }, [dispatch, urlPage, commentBlogState.pageSize]);
+
+    useEffect(() => {
+        if (searchTerm) {
+            debouncedSearch(searchTerm);
+        }
+    }, [searchTerm]);
 
     useEffect(() => {
         navigate(`?page=${commentBlogState.currentPage}`);
@@ -52,7 +72,7 @@ export default function CommentBlogList() {
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
-        dispatch(setCurrentPage(1));
+        debouncedSearch(event.target.value);
     };
 
     const handleEdit = (id) => {
