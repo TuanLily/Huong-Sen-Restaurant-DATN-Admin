@@ -1,4 +1,3 @@
-import axios from "axios";
 
 export const FETCH_PRODUCT_REQUEST = 'FETCH_PRODUCT_REQUEST';
 export const FETCH_PRODUCT_SUCCESS = 'FETCH_PRODUCT_SUCCESS';
@@ -7,6 +6,7 @@ export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
+import http from "../Utils/Http";
 
 export const fetchProductRequest = () => ({
     type: FETCH_PRODUCT_REQUEST
@@ -45,7 +45,7 @@ export const fetchProduct = (name = '', page = 1, pageSize = 10) => {
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
 
-        axios.get(url.toString())
+        http.get(url.toString())
             .then(response => {
                 const { results, totalCount, totalPages, currentPage } = response.data;
 
@@ -72,7 +72,7 @@ export const fetchProductHoatDong = (name = '', page = 1, pageSize = 10) => {
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
 
-        axios.get(url.toString())
+        http.get(url.toString())
             .then(response => {
                 const { results, totalCount, totalPages, currentPage } = response.data;
 
@@ -99,7 +99,7 @@ export const fetchProductNgungHoatDong = (name = '', page = 1, pageSize = 10) =>
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
 
-        axios.get(url.toString())
+        http.get(url.toString())
             .then(response => {
                 const { results, totalCount, totalPages, currentPage } = response.data;
 
@@ -116,7 +116,7 @@ export const fetchProductNgungHoatDong = (name = '', page = 1, pageSize = 10) =>
 export const addProduct = (product) => {
     return dispatch => {
         dispatch(fetchProductRequest());
-        axios.post(`${API_ENDPOINT}/${AdminConfig.routes.product}`, product)
+        http.post(`${API_ENDPOINT}/${AdminConfig.routes.product}`, product)
             .then((response) => {
                 // Sau khi thêm san pham mới, gọi lại fetchProduct để làm mới danh sách
                 dispatch(fetchProductSuccess(response.data.data));
@@ -133,7 +133,7 @@ export const addProduct = (product) => {
 export const updateProduct = (id, data) => {
     return (dispatch) => {
         dispatch(fetchProductRequest());
-        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`, data)
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`, data)
             .then((response) => {
                 dispatch(fetchProductSuccess(response.data.data));
                 dispatch(fetchProductNHoatDong()); // Reload danh sách sau khi cập nhật
@@ -147,7 +147,7 @@ export const updateProduct = (id, data) => {
 export const updateStatus = (id, data, start) => {
     return dispatch => {
         dispatch(fetchProductRequest());
-        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`, data)
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`, data)
             .then(() => {
                 if (start == 'list') {
                     dispatch(fetchProductHoatDong());
@@ -164,7 +164,7 @@ export const updateStatus = (id, data, start) => {
 export const deleteProduct = (id) => {
     return dispatch => {
         dispatch(fetchProductRequest());
-        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`)
+        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`)
             .then(() => {
                 // Sau khi xóa khách hàng, gọi lại fetchProduct để làm mới danh sách
                 dispatch(fetchProduct());

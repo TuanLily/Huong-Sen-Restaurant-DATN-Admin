@@ -1,4 +1,3 @@
-import axios from "axios";
 
 export const FETCH_PROMOTION_REQUEST = 'FETCH_PROMOTION_REQUEST';
 export const FETCH_PROMOTION_SUCCESS = 'FETCH_PROMOTION_SUCCESS';
@@ -7,6 +6,7 @@ export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
+import http from "../Utils/Http";
 
 export const fetchPromotionRequest = () => ({
     type: FETCH_PROMOTION_REQUEST
@@ -45,7 +45,7 @@ export const fetchPromotion = (code_name = '', page = 1, pageSize = 10) => {
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
 
-        axios.get(url.toString())
+        http.get(url.toString())
             .then(response => {
                 const { results, totalCount, totalPages, currentPage } = response.data;
 
@@ -62,7 +62,7 @@ export const fetchPromotion = (code_name = '', page = 1, pageSize = 10) => {
 export const addPromotion = (product) => {
     return dispatch => {
         dispatch(fetchPromotionRequest());
-        axios.post(`${API_ENDPOINT}/${AdminConfig.routes.promotion}`, product)
+        http.post(`${API_ENDPOINT}/${AdminConfig.routes.promotion}`, product)
             .then((response) => {
                 dispatch(fetchPromotionSuccess(response.data.data));
                 dispatch(fetchPromotion());
@@ -77,7 +77,7 @@ export const addPromotion = (product) => {
 export const updatePromotions = (id, data) => {
     return (dispatch) => {
         dispatch(fetchPromotionRequest());
-        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.promotion}/${id}`, data)
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.promotion}/${id}`, data)
             .then((response) => {
                 dispatch(fetchPromotionSuccess(response.data.data));
                 dispatch(fetchPromotion()); // Reload danh sách sau khi cập nhật
@@ -91,7 +91,7 @@ export const updatePromotions = (id, data) => {
 export const deletePromotion = (id) => {
     return dispatch => {
         dispatch(fetchPromotionRequest());
-        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.promotion}/${id}`)
+        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.promotion}/${id}`)
             .then(() => {
                 dispatch(fetchPromotion());
             })

@@ -1,4 +1,3 @@
-import axios from "axios";
 
 export const FETCH_PERMISSIONS_REQUEST = 'FETCH_PERMISSIONS_REQUEST';
 export const FETCH_PERMISSIONS_SUCCESS = 'FETCH_PERMISSIONS_SUCCESS';
@@ -7,6 +6,7 @@ export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
+import http from "../Utils/Http";
 
 // Action Creators
 export const fetchPermissionsRequest = () => ({
@@ -38,7 +38,7 @@ export const fetchPermissions = (name = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchPermissionsRequest());
 
-        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.Permissions}`);
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.permissions}`);
 
         if (name) {
             url.searchParams.append('search', name);
@@ -46,7 +46,7 @@ export const fetchPermissions = (name = '', page = 1, pageSize = 10) => {
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
 
-        axios.get(url.toString())
+        http.get(url.toString())
             .then(response => {
                 const { results, totalCount, totalPages, currentPage } = response.data;
                 dispatch(fetchPermissionsSuccess(results, totalCount, totalPages, currentPage));
@@ -63,7 +63,7 @@ export const addPermissions = (permissions) => {
     return async dispatch => {
         dispatch(fetchPermissionsRequest());
         try {
-            await axios.post(`${API_ENDPOINT}/${AdminConfig.routes.Permissions}`, permissions);
+            await http.post(`${API_ENDPOINT}/${AdminConfig.routes.permissions}`, permissions);
             
             return Promise.resolve(); 
         } catch (error) {
@@ -82,7 +82,7 @@ export const addPermissions = (permissions) => {
 export const updatePermissions = (id, data) => {
     return dispatch => {
         dispatch(fetchPermissionsRequest());
-        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.Permissions}/${id}`, data)
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.permissions}/${id}`, data)
             .then(() => {
                 dispatch(fetchPermissions());
             })
@@ -97,7 +97,7 @@ export const updatePermissions = (id, data) => {
 export const deletePermissions = (id) => {
     return dispatch => {
         dispatch(fetchPermissionsRequest());
-        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.Permissions}/${id}`)
+        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.permissions}/${id}`)
             .then(() => {
                 dispatch(fetchPermissions()); // Refresh the permissions list
             })

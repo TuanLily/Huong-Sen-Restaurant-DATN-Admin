@@ -1,8 +1,22 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import logo from '../Assets/Images/huong-sen-logo.png'
 
 export default function MenuBar() {
+    const location = useLocation();
+
+    // Kiểm tra xem hiện tại đang ở trong dropdown nào
+    const isDashboardActive = location.pathname === '/dashboard';
+    const isProductManagementActive = location.pathname.startsWith('/category-product') || location.pathname.startsWith('/product');
+    const isBlogManagementActive = location.pathname.startsWith('/category-blog') || location.pathname.startsWith('/blogs');
+    const isOtherManagementActive = location.pathname.startsWith('/promotions') || location.pathname.startsWith('/customer-group') || location.pathname.startsWith('/places');;
+    const isAccountManagementActive = location.pathname.startsWith('/employee') || location.pathname.startsWith('/customer');
+    const isOrderManagementActive = location.pathname.startsWith('/order') || location.pathname.startsWith('/order-detail') || location.pathname.startsWith('/pay-method');
+    const isTableManagementActive = location.pathname.startsWith('/tables') || location.pathname.startsWith('/reservation');
+    const isCommentManagementActive = location.pathname.startsWith('/comment-products') || location.pathname.startsWith('/comment-blog');
+    const isRoleManagementActive = location.pathname.startsWith('/role') || location.pathname.startsWith('/permissions');
+
+
     return (
         <div className="sidebar" data-background-color="dark">
             <div className="sidebar-logo">
@@ -32,361 +46,225 @@ export default function MenuBar() {
             <div className="sidebar-wrapper scrollbar scrollbar-inner">
                 <div className="sidebar-content">
                     <ul className="nav nav-secondary">
-                        <li className="nav-item active">
-                            <a
-                                data-bs-toggle="collapse"
-                                href="#dashboard"
-                                className="collapsed"
-                                aria-expanded="false"
-                            >
+                        <li className={`nav-item ${isDashboardActive ? 'active' : ''}`}>
+                            <NavLink exact to="/dashboard" className="collapsed">
                                 <i className="fas fa-home"></i>
                                 <p>Dashboard</p>
-                                <span className="caret"></span>
-                            </a>
-                            <div className="collapse" id="dashboard">
-                                <ul className="nav nav-collapse">
-                                    <li>
-                                        <Link to={'/'}>
-                                            <span className="sub-item">Dashboard</span>
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </div>
+                            </NavLink>
                         </li>
-                        <li className="nav-section">
 
+                        {/* Quản Lý Sản Phẩm */}
+                        <li className="nav-section">
                             <h4 className="text-section">Quản Lý Danh Sách</h4>
                         </li>
-
-                        <li className="nav-item">
-                            <a data-bs-toggle="collapse" href="#productManagement">
-                                <i className="fa-solid fa-bowl-food"></i>                                <p>Quản Lý Sản Phẩm</p>
+                        <li className={`nav-item ${isProductManagementActive ? 'active' : ''}`}>
+                            <NavLink to="#productManagement" className="collapsed" aria-expanded={isProductManagementActive.toString()} data-bs-toggle="collapse">
+                                <i className="fa-solid fa-bowl-food"></i>
+                                <p>Quản Lý Sản Phẩm</p>
                                 <span className="caret"></span>
-                            </a>
-                            <div className="collapse" id="productManagement">
+                            </NavLink>
+                            <div className={`collapse ${isProductManagementActive ? 'show' : ''}`} id="productManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <Link to='category-product'>
+                                        <NavLink to="/category-product">
                                             <span className="sub-item">Danh mục sản phẩm</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='product'>
+                                        <NavLink to="/product">
                                             <span className="sub-item">Sản phẩm</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='product/tam_xoa'>
+                                        <NavLink to="/product/tam_xoa">
                                             <span className="sub-item">Sản phẩm tạm xóa</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
-
                                 </ul>
                             </div>
                         </li>
-                        <li className="nav-item">
-                            <a data-bs-toggle="collapse" href="#blogManagement">
+
+                        {/* Quản Lý Bài Viết */}
+                        <li className={`nav-item ${isBlogManagementActive ? 'active' : ''}`}>
+                            <NavLink to="#blogManagement" className="collapsed" aria-expanded={isBlogManagementActive.toString()} data-bs-toggle="collapse">
                                 <i className="fa-solid fa-blog"></i>
                                 <p>Quản Lý Bài Viết</p>
                                 <span className="caret"></span>
-                            </a>
-                            <div className="collapse" id="blogManagement">
+                            </NavLink>
+                            <div className={`collapse ${isBlogManagementActive ? 'show' : ''}`} id="blogManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <Link to='category-blog'>
+                                        <NavLink to="/category-blog">
                                             <span className="sub-item">Danh mục bài viết</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='category-blog-lock'>
+                                        <NavLink to="/category-blog-lock">
                                             <span className="sub-item">Danh mục bài viết tạm xóa</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='blogs'>
+                                        <NavLink to="/blogs">
                                             <span className="sub-item">Bài viết</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='blog-lock'>
+                                        <NavLink to="/blog-lock">
                                             <span className="sub-item">Bài viết tạm xóa</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
-
                                 </ul>
                             </div>
                         </li>
-                        <li className="nav-item">
-                            <a data-bs-toggle="collapse" href="#otherManagement">
+
+                        {/* Quản Lý Khác */}
+                        <li className={`nav-item ${isOtherManagementActive ? 'active' : ''}`}>
+                            <NavLink to="#otherManagement" className="collapsed" aria-expanded={isOtherManagementActive.toString()} data-bs-toggle="collapse">
                                 <i className="fa-solid fa-list"></i>
                                 <p>Quản Lý Khác</p>
                                 <span className="caret"></span>
-                            </a>
-                            <div className="collapse" id="otherManagement">
+                            </NavLink>
+                            <div className={`collapse ${isOtherManagementActive ? 'show' : ''}`} id="otherManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <Link to='promotions'>
+                                        <NavLink to="/promotions">
                                             <span className="sub-item">Quản lý khuyến mãi</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='CustomerGroup'>
+                                        <NavLink to="/customer-group">
                                             <span className="sub-item">Quản lý nhóm khách hàng</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='Places'>
+                                        <NavLink to="/places">
                                             <span className="sub-item">Quản lý thứ hạng</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                 </ul>
                             </div>
                         </li>
-                        <li className="nav-section">
 
-                            <h4 className="text-section">Quản Lý Tài Khoản</h4>
-                        </li>
-                        <li className="nav-item">
-                            <a data-bs-toggle="collapse" href="#accountManagement">
+                        {/* Quản Lý Tài khoản */}
+                        <li className={`nav-item ${isAccountManagementActive ? 'active' : ''}`}>
+                            <NavLink to="#accountManagement" className="collapsed" aria-expanded={isAccountManagementActive.toString()} data-bs-toggle="collapse">
                                 <i className="fa-solid fa-users"></i>
                                 <p>Quản Lý Tài khoản</p>
                                 <span className="caret"></span>
-                            </a>
-                            <div className="collapse" id="accountManagement">
+                            </NavLink>
+                            <div className={`collapse ${isAccountManagementActive ? 'show' : ''}`} id="accountManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <Link to='employee'>
+                                        <NavLink to="/employee">
                                             <span className="sub-item">Nhân viên</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='customer'>
+                                        <NavLink to="/customer">
                                             <span className="sub-item">Khách hàng</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                 </ul>
                             </div>
                         </li>
-                        <li className="nav-section">
 
-                            <h4 className="text-section">Quản Lý Đơn Hàng</h4>
-                        </li>
-                        <li className="nav-item">
-                            <a data-bs-toggle="collapse" href="#orderManagement">
-                                <i className="fa-solid fa-cart-shopping"></i>                                <p>Quản Lý Đơn Hàng</p>
+                        {/* Quản Lý Đơn Hàng */}
+                        <li className={`nav-item ${isOrderManagementActive ? 'active' : ''}`}>
+                            <NavLink to="#orderManagement" className="collapsed" aria-expanded={isOrderManagementActive.toString()} data-bs-toggle="collapse">
+                                <i className="fa-solid fa-cart-shopping"></i>
+                                <p>Quản Lý Đơn Hàng</p>
                                 <span className="caret"></span>
-                            </a>
-                            <div className="collapse" id="orderManagement">
+                            </NavLink>
+                            <div className={`collapse ${isOrderManagementActive ? 'show' : ''}`} id="orderManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <Link to='order'>
+                                        <NavLink to="/order">
                                             <span className="sub-item">Đơn hàng</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='orderDetail'>
+                                        <NavLink to="/order-detail">
                                             <span className="sub-item">Chi tiết đơn hàng</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='payMethod'>
+                                        <NavLink to="/pay-method">
                                             <span className="sub-item">Quản lý thanh toán</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                 </ul>
                             </div>
                         </li>
-                        <li className="nav-section">
 
-                            <h4 className="text-section">Quản Lý Đặt Bàn</h4>
-                        </li>
-                        <li className="nav-item">
-                            <a data-bs-toggle="collapse" href="#tableManagement">
+                        {/* Quản Lý Đặt Bàn */}
+                        <li className={`nav-item ${isTableManagementActive ? 'active' : ''}`}>
+                            <NavLink to="#tableManagement" className="collapsed" aria-expanded={isTableManagementActive.toString()} data-bs-toggle="collapse">
                                 <i className="fa-solid fa-chair"></i>
                                 <p>Quản Lý Đặt Bàn</p>
                                 <span className="caret"></span>
-                            </a>
-                            <div className="collapse" id="tableManagement">
+                            </NavLink>
+                            <div className={`collapse ${isTableManagementActive ? 'show' : ''}`} id="tableManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <Link to='tables'>
+                                        <NavLink to="/tables">
                                             <span className="sub-item">Quản lý bàn ăn</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='reservation'>
+                                        <NavLink to="/reservation">
                                             <span className="sub-item">Quản lý đặt bàn</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                 </ul>
                             </div>
                         </li>
-                        <li className="nav-section">
 
-                            <h4 className="text-section">Quản Lý Bình Luận</h4>
-                        </li>
-                        <li className="nav-item">
-                            <a data-bs-toggle="collapse" href="#commentManagement">
-                                <i className="fa-solid fa-comment"></i>
+                        {/* Quản Lý Bình Luận */}
+                        <li className={`nav-item ${isCommentManagementActive ? 'active' : ''}`}>
+                            <NavLink to="#commentManagement" className="collapsed" aria-expanded={isCommentManagementActive.toString()} data-bs-toggle="collapse">
+                                <i className="fa-solid fa-comments"></i>
                                 <p>Quản Lý Bình Luận</p>
                                 <span className="caret"></span>
-                            </a>
-                            <div className="collapse" id="commentManagement">
+                            </NavLink>
+                            <div className={`collapse ${isCommentManagementActive ? 'show' : ''}`} id="commentManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <Link to='commentproducts'>
-                                            <span className="sub-item">Quản lý bình luận sản phẩm</span>
-                                        </Link>
+                                        <NavLink to="/comment-products">
+                                            <span className="sub-item">Bình luận sản phẩm</span>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='comment-blog'>
-                                            <span className="sub-item">Quản lý bình luận blog</span>
-                                        </Link>
+                                        <NavLink to="/comment-blog">
+                                            <span className="sub-item">Bình luận bài viết</span>
+                                        </NavLink>
                                     </li>
                                 </ul>
                             </div>
                         </li>
-                        <li className="nav-section">
 
-                            <h4 className="text-section">Quản Lý Vai Trò & Quyền Hạn</h4>
-                        </li>
-                        <li className="nav-item">
-                            <a data-bs-toggle="collapse" href="#roleManagement">
-                                <i className="fa-solid fa-users-gear"></i>
-                                <p>Quản Lý Vai trò-Quyền Hạn</p>
+                        {/* Quản Lý Quyền */}
+                        <li className={`nav-item ${isRoleManagementActive ? 'active' : ''}`}>
+                            <NavLink to="#roleManagement" className="collapsed" aria-expanded={isRoleManagementActive.toString()} data-bs-toggle="collapse">
+                                <i className="fa-solid fa-user-shield"></i>
+                                <p>Quản Lý Quyền</p>
                                 <span className="caret"></span>
-                            </a>
-                            <div className="collapse" id="roleManagement">
+                            </NavLink>
+                            <div className={`collapse ${isRoleManagementActive ? 'show' : ''}`} id="roleManagement">
                                 <ul className="nav nav-collapse">
                                     <li>
-                                        <Link to='role'>
-                                            <span className="sub-item">Quản lý vai trò</span>
-                                        </Link>
+                                        <NavLink to="/role">
+                                            <span className="sub-item">Vai trò</span>
+                                        </NavLink>
                                     </li>
                                     <li>
-                                        <Link to='permissions'>
+                                        <NavLink to="/permissions">
                                             <span className="sub-item">Quản lý quyền hạn</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='rolespermissions'>
-                                            <span className="sub-item">Quản lý vai trò quyền hạn</span>
-                                        </Link>
+                                        </NavLink>
                                     </li>
                                 </ul>
                             </div>
                         </li>
-                        {/* <li className="nav-item">
-                            <a data-bs-toggle="collapse" href="#base">
-                                <i className="fas fa-layer-group"></i>
-                                <p>Quản trị</p>
-                                <span className="caret"></span>
-                            </a>
-                            <div className="collapse" id="base">
-                                <ul className="nav nav-collapse">
-                                    <li>
-                                        <Link to='product'>
-                                            <span className="sub-item">Quản lý sản phẩm</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='categoryProduct'>
-                                            <span className="sub-item">Quản lý danh mục sp</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='customer'>
-                                            <span className="sub-item">Quản lý khách hàng</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='employee'>
-                                            <span className="sub-item">Quản lý nhân viên</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='blog'>
-                                            <span className="sub-item">Quản lý bài viết</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='categoryBlog'>
-                                            <span className="sub-item">Quản lý danh mục bv</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='productImage'>
-                                            <span className="sub-item">Quản lý ảnh sp</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='table'>
-                                            <span className="sub-item">Quản lý bàn ăn</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='reservation'>
-                                            <span className="sub-item">Quản lý đặt bàn</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='order'>
-                                            <span className="sub-item">Quản lý đơn hàng</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='orderDetail'>
-                                            <span className="sub-item">Quản lý chi tiết đơn hàng</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='promotion'>
-                                            <span className="sub-item">Quản lý khuyến mãi</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='payMethod'>
-                                            <span className="sub-item">Quản lý thanh toán</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='CustomerGroup'>
-                                            <span className="sub-item">Quản lý nhóm khách hàng</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='Places'>
-                                            <span className="sub-item">Quản lý thứ hạng</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='Roles'>
-                                            <span className="sub-item">Quản lý vai trò</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='permissions'>
-                                            <span className="sub-item">Quản lý quyền hạn</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='rolespermissions'>
-                                            <span className="sub-item">Quản lý vai trò quyền hạn</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='commentproducts'>
-                                            <span className="sub-item">Quản lý vai trò đánh giá sản phẩm</span>
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to='commentblog'>
-                                            <span className="sub-item">Quản lý bình luận blog</span>
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li> */}
+
                     </ul>
                 </div>
             </div>

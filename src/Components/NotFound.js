@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 export default function NotFound() {
     return (
@@ -7,7 +8,7 @@ export default function NotFound() {
                 <h1 className="display-1 font-weight-bold text-dark">404</h1>
                 <p className="h4 mb-4">Trang không tìm thấy</p>
                 <p className="lead">Xin lỗi, trang bạn đang tìm kiếm không tồn tại hoặc đã bị di chuyển.</p>
-                <a href="/" className="btn btn-primary mt-3">Trở về trang chủ</a>
+                <Link to="/dashboard" className="btn btn-primary mt-3">Trở về trang chủ</Link>
             </div>
         </div>
     )

@@ -24,13 +24,6 @@ import CategoryBlogAdd from '../Pages/CategoryBlog/CategoryBlogAdd';
 import CategoryBlogEdit from '../Pages/CategoryBlog/CategoryBlogEdit';
 import CategoryBlogDelete from '../Pages/CategoryBlog/CategoryBlogDelete';
 
-import ProductImageList from '../Pages/ProductImage/ProductImageList';
-import ProductImageAdd from '../Pages/ProductImage/ProductImageAdd';
-import ProductImageDelete from '../Pages/ProductImage/ProductImageDelete';
-
-import ProductImageDetailList from '../Pages/ProductImage/Detail/ProductImageDetailList';
-import ProductImageDetailAdd from '../Pages/ProductImage/Detail/ProductImageDetailAdd';
-import ProductImageDetailDelete from '../Pages/ProductImage/Detail/ProductImageDetailDelete';
 
 import TableList from '../Pages/Tables/TableList';
 import TableAdd from '../Pages/Tables/TableAdd';
@@ -140,14 +133,6 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.categoryBlogEdit, component: CategoryBlogEdit },
     { path: AdminConfig.routes.categoryBlogDelete, component: CategoryBlogDelete },
 
-    { path: AdminConfig.routes.productImage, component: ProductImageList },
-    { path: AdminConfig.routes.productImageAdd, component: ProductImageAdd },
-    { path: AdminConfig.routes.productImageDelete, component: ProductImageDelete },
-
-    { path: AdminConfig.routes.productImageDetail, component: ProductImageDetailList },
-    { path: AdminConfig.routes.productImageDetailAdd, component: ProductImageDetailAdd },
-    { path: AdminConfig.routes.productImageDetailDelete, component: ProductImageDetailDelete },
-
     { path: AdminConfig.routes.table, component: TableList },
     { path: AdminConfig.routes.tableAdd, component: TableAdd },
     { path: AdminConfig.routes.tableEdit, component: TableEdit },
@@ -177,35 +162,35 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.payMethodEdit, component: PayMethodEdit },
     { path: AdminConfig.routes.payMethodDelete, component: PayMethodDelete },
 
-    { path: AdminConfig.routes.CustomerGroup, component: CustomerGroupList },
-    { path: AdminConfig.routes.CustomerGroupAdd, component: CustomerGroupAdd },
-    { path: AdminConfig.routes.CustomerGroupEdit, component: CustomerGroupEdit },
-    { path: AdminConfig.routes.CustomerGroupDelete, component: CustomerGroupDelete },
+    { path: AdminConfig.routes.customerGroup, component: CustomerGroupList },
+    { path: AdminConfig.routes.customerGroupAdd, component: CustomerGroupAdd },
+    { path: AdminConfig.routes.customerGroupEdit, component: CustomerGroupEdit },
+    { path: AdminConfig.routes.customerGroupDelete, component: CustomerGroupDelete },
 
-    { path: AdminConfig.routes.Places, component: PlacesList },
-    { path: AdminConfig.routes.PlacesAdd, component: PlacesAdd },
-    { path: AdminConfig.routes.PlacesEdit, component: PlacesEdit },
-    { path: AdminConfig.routes.PlacesDelete, component: PlacesDelete },
+    { path: AdminConfig.routes.places, component: PlacesList },
+    { path: AdminConfig.routes.placesAdd, component: PlacesAdd },
+    { path: AdminConfig.routes.placesEdit, component: PlacesEdit },
+    { path: AdminConfig.routes.placesDelete, component: PlacesDelete },
     
     { path: AdminConfig.routes.role, component: RolesList },
     { path: AdminConfig.routes.roleAdd, component: RolesAdd },
     { path: AdminConfig.routes.roleEdit, component: RolesEdit },
     { path: AdminConfig.routes.roleDelete, component: RolesDelete },
 
-    { path: AdminConfig.routes.Permissions, component: PermissionsList },
-    { path: AdminConfig.routes.PermissionsAdd, component: PermissionsAdd },
-    { path: AdminConfig.routes.PermissionsEdit, component: PermissionsEdit },
-    { path: AdminConfig.routes.PermissionsDelete, component: PermissionsDelete },
+    { path: AdminConfig.routes.permissions, component: PermissionsList },
+    { path: AdminConfig.routes.permissionsAdd, component: PermissionsAdd },
+    { path: AdminConfig.routes.permissionsEdit, component: PermissionsEdit },
+    { path: AdminConfig.routes.permissionsDelete, component: PermissionsDelete },
 
-    { path: AdminConfig.routes.RolesPermissions, component: RolesPermissionsList },
+    { path: AdminConfig.routes.rolesPermissions, component: RolesPermissionsList },
 
-    { path: AdminConfig.routes.CommentProducts, component: CommentProductsList },
-    { path: AdminConfig.routes.CommentProductsDelete, component: CommentProductsDelete },
+    { path: AdminConfig.routes.commentProducts, component: CommentProductsList },
+    { path: AdminConfig.routes.commentProductsDelete, component: CommentProductsDelete },
 
-    { path: AdminConfig.routes.CommentBlog, component: CommentBlogList },
-    { path: AdminConfig.routes.CommentBlogAdd, component: CommentBlogAdd },
-    { path: AdminConfig.routes.CommentBlogEdit, component: CommentBlogEdit },
-    { path: AdminConfig.routes.CommentBlogDelete, component: CommentBlogDelete },
+    { path: AdminConfig.routes.commentBlog, component: CommentBlogList },
+    { path: AdminConfig.routes.commentBlogAdd, component: CommentBlogAdd },
+    { path: AdminConfig.routes.commentBlogEdit, component: CommentBlogEdit },
+    { path: AdminConfig.routes.commentBlogDelete, component: CommentBlogDelete },
    
 ];
 

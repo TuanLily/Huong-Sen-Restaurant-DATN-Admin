@@ -1,4 +1,3 @@
-import axios from "axios";
 
 export const FETCH_CUSTOMER_REQUEST = 'FETCH_CUSTOMER_REQUEST';
 export const FETCH_CUSTOMER_SUCCESS = 'FETCH_CUSTOMER_SUCCESS';
@@ -7,6 +6,7 @@ export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
+import http from "../Utils/Http";
 
 export const fetchCustomerRequest = () => ({
     type: FETCH_CUSTOMER_REQUEST
@@ -46,7 +46,7 @@ export const fetchCustomer = (fullname = '', page = 1, pageSize = 5) => {
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
 
-        axios.get(url.toString())
+        http.get(url.toString())
             .then(response => {
                 const { results, totalCount, totalPages, currentPage } = response.data;
 
@@ -68,7 +68,7 @@ export const fetchCustomer = (fullname = '', page = 1, pageSize = 5) => {
 export const addCustomer = (customer) => {
     return dispatch => {
         dispatch(fetchCustomerRequest());
-        axios.post(`${API_ENDPOINT}/${AdminConfig.routes.customer}`, customer)
+        http.post(`${API_ENDPOINT}/${AdminConfig.routes.customer}`, customer)
             .then((response) => {
                 // Sau khi thêm khách hàng mới, gọi lại fetchCustomer để làm mới danh sách
                 dispatch(fetchCustomerSuccess(response.data.data));
@@ -85,7 +85,7 @@ export const addCustomer = (customer) => {
 export const updateCustomer = (id, data) => {
     return (dispatch) => {
         dispatch(fetchCustomerRequest());
-        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.customer}/${id}`, data)
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.customer}/${id}`, data)
             .then((response) => {
                 dispatch(fetchCustomerSuccess(response.data.data));
                 dispatch(fetchCustomer()); // Reload danh sách khách hàng sau khi cập nhật
@@ -100,7 +100,7 @@ export const deleteCustomer = (id) => {
     return async dispatch => {
         try {
             dispatch(fetchCustomerRequest());
-            await axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.customer}/${id}`);
+            await http.delete(`${API_ENDPOINT}/${AdminConfig.routes.customer}/${id}`);
             dispatch(fetchCustomer());
         } catch (error) {
             const errorMsg = error.message || 'Đã xảy ra lỗi trong quá trình xóa khách hàng';
@@ -112,7 +112,7 @@ export const deleteCustomer = (id) => {
 
 export const checkEmailExists = async (email) => {
     try {
-        const response = await axios.get(`${API_ENDPOINT}/auth/check-email`, { params: { email } });
+        const response = await http.get(`${API_ENDPOINT}/auth/check-email`, { params: { email } });
         return response.data.exists ? response.data.user : null;
     } catch (error) {
         console.error('Error checking user existence:', error);

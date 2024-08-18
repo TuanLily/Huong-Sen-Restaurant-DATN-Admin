@@ -1,4 +1,3 @@
-import axios from "axios";
 
 export const FETCH_ROLE_REQUEST = 'FETCH_ROLE_REQUEST';
 export const FETCH_ROLE_SUCCESS = 'FETCH_ROLE_SUCCESS';
@@ -7,6 +6,7 @@ export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
+import http from "../Utils/Http";
 
 export const fetchRoleRequest = () => ({
     type: FETCH_ROLE_REQUEST
@@ -46,7 +46,7 @@ export const fetchRole = (name = '', page = 1, pageSize = 10) => {
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
 
-        axios.get(url.toString())
+        http.get(url.toString())
             .then(response => {
                 const { results, totalCount, totalPages, currentPage } = response.data;
 
@@ -64,7 +64,7 @@ export const addRole = (role) => {
     return async (dispatch) => {
         dispatch(fetchRoleRequest());
         try {
-            const response = await axios.post(`${API_ENDPOINT}/${AdminConfig.routes.role}`, role);
+            const response = await http.post(`${API_ENDPOINT}/${AdminConfig.routes.role}`, role);
             dispatch(fetchRoleSuccess(response.data));
             dispatch(fetchRole());
         } catch (error) {
@@ -78,7 +78,7 @@ export const updateRole = (id, data) => {
     return async (dispatch) => {
         dispatch(fetchRoleRequest());
         try {
-            const response = await axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.role}/${id}`, data);
+            const response = await http.patch(`${API_ENDPOINT}/${AdminConfig.routes.role}/${id}`, data);
             dispatch(fetchRoleSuccess(response.data));
             dispatch(fetchRole());
         } catch (error) {
@@ -92,7 +92,7 @@ export const deleteRole = (id) => {
     return async (dispatch) => {
         dispatch(fetchRoleRequest());
         try {
-            await axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.role}/${id}`);
+            await http.delete(`${API_ENDPOINT}/${AdminConfig.routes.role}/${id}`);
             // Sau khi xóa vai trò, gọi lại fetchRole để làm mới danh sách
             dispatch(fetchRole());
         } catch (error) {

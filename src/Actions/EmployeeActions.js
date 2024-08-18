@@ -1,4 +1,4 @@
-import axios from "axios";
+
 
 export const FETCH_EMPLOYEE_REQUEST = 'FETCH_EMPLOYEE_REQUEST';
 export const FETCH_EMPLOYEE_SUCCESS = 'FETCH_EMPLOYEE_SUCCESS';
@@ -7,6 +7,7 @@ export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
+import http from "../Utils/Http";
 import { fetchRole } from "./RoleActions";
 
 export const fetchEmployeeRequest = () => ({
@@ -47,7 +48,7 @@ export const fetchEmployees = (fullname = '', page = 1, pageSize = 10) => {
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
 
-        axios.get(url.toString())
+        http.get(url.toString())
             .then(response => {
                 const { results, totalCount, totalPages, currentPage } = response.data;
 
@@ -64,7 +65,7 @@ export const fetchEmployees = (fullname = '', page = 1, pageSize = 10) => {
 export const addEmployee = (employee) => {
     return dispatch => {
         dispatch(fetchEmployeeRequest());
-        axios.post(`${API_ENDPOINT}/${AdminConfig.routes.employee}`, employee)
+        http.post(`${API_ENDPOINT}/${AdminConfig.routes.employee}`, employee)
             .then(response => {
                 dispatch(fetchEmployeeSuccess(response.data.data));
                 dispatch(fetchEmployees()); 
@@ -80,7 +81,7 @@ export const addEmployee = (employee) => {
 export const updateEmployee = (id, data) => {
     return dispatch => {
         dispatch(fetchEmployeeRequest());
-        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.employee}/${id}`, data)
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.employee}/${id}`, data)
             .then(response => {
                 dispatch(fetchEmployeeSuccess(response.data)); // Điều chỉnh dựa trên cấu trúc trả về từ server
                 dispatch(fetchEmployees()); // Cập nhật danh sách nhân viên sau khi cập nhật
@@ -95,7 +96,7 @@ export const updateEmployee = (id, data) => {
 export const deleteEmployee = (id) => {
     return dispatch => {
         dispatch(fetchEmployeeRequest());
-        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.employee}/${id}`)
+        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.employee}/${id}`)
             .then(() => {
                 dispatch(fetchEmployees()); // Cập nhật danh sách nhân viên sau khi xóa
             })
@@ -109,7 +110,7 @@ export const deleteEmployee = (id) => {
 
 export const checkEmailExists = async (email) => {
     try {
-        const response = await axios.get(`${API_ENDPOINT}/auth/check-email`, { params: { email } });
+        const response = await http.get(`${API_ENDPOINT}/auth/check-email`, { params: { email } });
         return response.data.exists ? response.data.user : null;
     } catch (error) {
         console.error('Error checking user existence:', error);

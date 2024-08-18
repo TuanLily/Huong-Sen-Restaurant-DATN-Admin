@@ -34,14 +34,6 @@ const AdminRoutes = {
     categoryBlogEdit: 'category-blog/edit/:id',
     categoryBlogDelete: 'category-blog/delete',
 
-    productImage: 'productImage',
-    productImageAdd: 'productImage/add',
-    productImageDelete: 'productImage/delete',
-
-    productImageDetail: 'productImage/productImageDetail',
-    productImageDetailAdd: 'productImage/productImageDetail/add',
-    productImageDetailDelete: 'productImage/productImageDetail/delete',
-
     table: 'tables',
     tableAdd: 'tables/add',
     tableEdit: 'tables/edit/:id',
@@ -57,49 +49,49 @@ const AdminRoutes = {
     orderEdit: 'order/edit',
     orderDelete: 'order/delete',
 
-    orderDetail: 'orderDetail',
-    orderDetailAdd: 'orderDetail/add',
-    orderDetailDelete: 'orderDetail/delete',
+    orderDetail: 'order-detail',
+    orderDetailAdd: 'order-detail/add',
+    orderDetailDelete: 'order-detail/delete',
 
     promotion: 'promotions',
     promotionAdd: 'promotions/add',
     promotionEdit: 'promotions/edit/:id',
     promotionDelete: 'promotions/delete',
 
-    payMethod: 'payMethod',
-    payMethodAdd: 'payMethod/add',
-    payMethodEdit: 'payMethod/edit',
-    payMethodDelete: 'payMethod/delete',
+    payMethod: 'pay-method',
+    payMethodAdd: 'pay-method/add',
+    payMethodEdit: 'pay-method/edit',
+    payMethodDelete: 'pay-method/delete',
 
-    CustomerGroup: 'CustomerGroup',
-    CustomerGroupAdd: 'CustomerGroup/add',
-    CustomerGroupEdit: 'CustomerGroup/edit',
-    CustomerGroupDelete: 'CustomerGroup/delete',
+    customerGroup: 'customer-group',
+    customerGroupAdd: 'customer-group/add',
+    customerGroupEdit: 'customer-group/edit',
+    customerGroupDelete: 'customer-group/delete',
 
-    Places: 'Places',
-    PlacesAdd: 'Places/add',
-    PlacesEdit: 'Places/edit',
-    PlacesDelete: 'Places/delete',
+    places: 'places',
+    placesAdd: 'places/add',
+    placesEdit: 'places/edit',
+    placesDelete: 'places/delete',
 
     role: 'role',
     roleAdd: 'role/add',
     roleEdit: 'role/edit/:id',
     roleDelete: 'role/delete',
 
-    Permissions: 'permissions',
-    PermissionsAdd: 'permissions/add',
-    PermissionsEdit: 'permissions/edit/:id',
-    PermissionsDelete: 'permissions/delete',
+    permissions: 'permissions',
+    permissionsAdd: 'permissions/add',
+    permissionsEdit: 'permissions/edit/:id',
+    permissionsDelete: 'permissions/delete',
 
-    RolesPermissions: 'rolespermissions',
+    rolesPermissions: 'roles-permissions',
 
-    CommentProducts: 'commentproducts',
-    CommentProductsDelete: 'commentproducts/delete',
+    commentProducts: 'comment-products',
+    commentProductsDelete: 'comment-products/delete',
 
-    CommentBlog: 'comment-blog',
-    CommentBlogAdd: 'comment-blog/add',
-    CommentBlogEdit: 'comment-blog/edit/:id',
-    CommentBlogDelete: 'comment-blog/delete',
+    commentBlog: 'comment-blog',
+    commentBlogAdd: 'comment-blog/add',
+    commentBlogEdit: 'comment-blog/edit/:id',
+    commentBlogDelete: 'comment-blog/delete',
 
 };
 

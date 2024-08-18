@@ -1,4 +1,3 @@
-import axios from "axios";
 
 export const FETCH_COMMENTBLOG_REQUEST = 'FETCH_COMMENTBLOG_REQUEST';
 export const FETCH_COMMENTBLOG_SUCCESS = 'FETCH_COMMENTBLOG_SUCCESS';
@@ -7,6 +6,7 @@ export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
+import http from "../Utils/Http";
 
 // Action Creators
 export const fetchCommentBlogRequest = () => ({
@@ -37,7 +37,7 @@ export const fetchCommentBlog = (content = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchCommentBlogRequest());
 
-        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.CommentBlog}`);
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}`);
         
         if (content) {
             url.searchParams.append('search', content);
@@ -45,7 +45,7 @@ export const fetchCommentBlog = (content = '', page = 1, pageSize = 10) => {
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
 
-        axios.get(url.toString())
+        http.get(url.toString())
             .then(response => {
                 const { results, totalCount, totalPages, currentPage } = response.data;
                 dispatch(fetchCommentBlogSuccess(results, totalCount, totalPages, currentPage));
@@ -61,7 +61,7 @@ export const fetchCommentBlog = (content = '', page = 1, pageSize = 10) => {
 export const addCommentBlog = (commentblog) => {
     return dispatch => {
         dispatch(fetchCommentBlogRequest());
-        axios.post(`${API_ENDPOINT}/${AdminConfig.routes.CommentBlog}`, commentblog)
+        http.post(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}`, commentblog)
             .then((response) => {
                 // Sau khi thêm san pham mới, gọi lại fetchProduct để làm mới danh sách
                 dispatch(fetchCommentBlogSuccess(response.data.data));
@@ -79,7 +79,7 @@ export const addCommentBlog = (commentblog) => {
 export const updateCommentBlog = (id, data) => {
     return dispatch => {
         dispatch(fetchCommentBlogRequest());
-        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.CommentBlog}/${id}`, data)
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}/${id}`, data)
             .then(() => {
                 dispatch(fetchCommentBlog());
             })
@@ -94,7 +94,7 @@ export const updateCommentBlog = (id, data) => {
 export const deleteCommentBlog = (id) => {
     return dispatch => {
         dispatch(fetchCommentBlogRequest());
-        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.CommentBlog}/${id}`)
+        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}/${id}`)
             .then(() => {
                 dispatch(fetchCommentBlog()); // Refresh the permissions list
             })

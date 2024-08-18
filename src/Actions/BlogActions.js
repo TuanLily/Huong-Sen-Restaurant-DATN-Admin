@@ -1,4 +1,3 @@
-import axios from "axios";
 
 export const FETCH_BLOG_REQUEST = "FETCH_BLOG_REQUEST";
 export const FETCH_BLOG_SUCCESS = "FETCH_BLOG_SUCCESS";
@@ -6,6 +5,7 @@ export const FETCH_BLOG_FAILURE = "FETCH_BLOG_FAILURE";
 export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from "../Config/index";
+import http from "../Utils/Http";
 
 
 
@@ -48,7 +48,7 @@ export const fetchBlog = (name = '', page = 1, pageSize = 10) => {
     url.searchParams.append('page', page);
     url.searchParams.append('pageSize', pageSize);
 
-    axios.get(url.toString())
+    http.get(url.toString())
       .then((response) => {
         const { results, totalCount, totalPages, currentPage } = response.data;
 
@@ -66,7 +66,7 @@ export const fetchBlog = (name = '', page = 1, pageSize = 10) => {
 export const addBlog = (blog) => {
   return (dispatch) => {
     dispatch(fetchBlogRequest());
-    axios
+    http
       .post(`${API_ENDPOINT}/${AdminConfig.routes.blog}`, blog)
       .then((response) => {
         dispatch(fetchBlogSuccess(response.data.data));
@@ -83,7 +83,7 @@ export const addBlog = (blog) => {
 export const updateBlog = (id, data) => {
   return (dispatch) => {
     dispatch(fetchBlogRequest());
-    axios
+    http
       .patch(`${API_ENDPOINT}/${AdminConfig.routes.blog}/${id}`, data)
       .then((response) => {
         dispatch(fetchBlogSuccess(response.data.data));
@@ -98,7 +98,7 @@ export const updateBlog = (id, data) => {
 export const deleteBlog = (id) => {
     return dispatch => {
         dispatch(fetchBlogRequest());
-        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.blog}/${id}`)
+        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.blog}/${id}`)
             .then(() => {
                 // Sau khi xóa khách hàng, gọi lại fetchCustomer để làm mới danh sách
                 dispatch(fetchBlog());

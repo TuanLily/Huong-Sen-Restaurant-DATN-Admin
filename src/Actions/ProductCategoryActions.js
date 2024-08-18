@@ -1,4 +1,3 @@
-import axios from "axios";
 
 export const FETCH_PRODUCT_CATEGORY_REQUEST = 'FETCH_PRODUCT_CATEGORY_REQUEST';
 export const FETCH_PRODUCT_CATEGORY_SUCCESS = 'FETCH_PRODUCT_CATEGORY_SUCCESS';
@@ -7,6 +6,7 @@ export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
+import http from "../Utils/Http";
 
 export const fetchProductCategoryRequest = () => ({
     type: FETCH_PRODUCT_CATEGORY_REQUEST
@@ -45,7 +45,7 @@ export const fetchProductCategory = (name = '', page = 1, pageSize = 10) => {
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
 
-        axios.get(url.toString())
+        http.get(url.toString())
             .then(response => {
                 const { results, totalCount, totalPages, currentPage } = response.data;
 
@@ -62,7 +62,7 @@ export const fetchProductCategory = (name = '', page = 1, pageSize = 10) => {
 export const addProductCategory = (product) => {
     return dispatch => {
         dispatch(fetchProductCategoryRequest());
-        axios.post(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}`, product)
+        http.post(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}`, product)
             .then((response) => {
                 // Sau khi thêm san pham mới, gọi lại fetchProduct để làm mới danh sách
                 dispatch(fetchProductCategorySuccess(response.data.data));
@@ -78,7 +78,7 @@ export const addProductCategory = (product) => {
 export const updateProductCategory = (id, data) => {
     return (dispatch) => {
         dispatch(fetchProductCategoryRequest());
-        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`, data)
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`, data)
             .then((response) => {
                 dispatch(fetchProductCategorySuccess(response.data.data));
                 dispatch(fetchProductCategory()); // Reload danh sách sau khi cập nhật
@@ -92,7 +92,7 @@ export const updateProductCategory = (id, data) => {
 export const deleteProductCategory = (id) => {
     return dispatch => {
         dispatch(fetchProductCategoryRequest());
-        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`)
+        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`)
             .then(() => {
                 // Sau khi xóa danh muc, gọi lại fetchProductCategory để làm mới danh sách
                 dispatch(fetchProductCategory());

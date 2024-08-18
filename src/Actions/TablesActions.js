@@ -1,4 +1,3 @@
-import axios from "axios";
 
 export const FETCH_TABLE_REQUEST = "FETCH_TABLE_REQUEST";
 export const FETCH_TABLE_SUCCESS = "FETCH_TABLE_SUCCESS";
@@ -7,6 +6,7 @@ export const SET_CURRENT_PAGE = "SET_CURRENT_PAGE";
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from "../Config/index";
+import http from "../Utils/Http";
 
 // Action creators
 export const fetchTableRequest = () => ({
@@ -52,8 +52,7 @@ export const fetchTables = (number = "", page = 1, pageSize = 5) => {
     url.searchParams.append("page", page);
     url.searchParams.append("pageSize", pageSize);
 
-    axios
-      .get(url.toString())
+    http.get(url.toString())
       .then((response) => {
         const { results, totalCount, totalPages, currentPage } = response.data;
         dispatch(
@@ -72,7 +71,7 @@ export const addTable = (table) => {
   return async (dispatch) => {
     dispatch(fetchTableRequest());
     try {
-      const response = await axios.post(
+      const response = await http.post(
         `${API_ENDPOINT}/${AdminConfig.routes.table}`,
         table
       );
@@ -90,7 +89,7 @@ export const updateTable = (id, data) => {
   return async (dispatch) => {
     dispatch(fetchTableRequest());
     try {
-      const response = await axios.patch(
+      const response = await http.patch(
         `${API_ENDPOINT}/${AdminConfig.routes.table}/${id}`,
         data
       );
@@ -109,7 +108,7 @@ export const deleteTable = (id) => {
   return async (dispatch) => {
     dispatch(fetchTableRequest());
     try {
-      await axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.table}/${id}`);
+      await http.delete(`${API_ENDPOINT}/${AdminConfig.routes.table}/${id}`);
       dispatch(fetchTables()); // Tải lại danh sách bàn sau khi xóa
     } catch (error) {
       const errorMsg = error.response?.data?.error || error.message || "Đã xảy ra lỗi trong quá trình xóa bàn";

@@ -1,4 +1,3 @@
-import axios from "axios";
 
 export const FETCH_CATEGORY_BLOG_REQUEST = "FETCH_CATEGORY_BLOG_REQUEST";
 export const FETCH_CATEGORY_BLOG_SUCCESS = "FETCH_CATEGORY_BLOG_SUCCESS";
@@ -7,6 +6,7 @@ export const SET_CURRENT_PAGE = "SET_CURRENT_PAGE";
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from "../Config/index";
+import http from "../Utils/Http";
 
 // Action creators
 export const fetchCategoryBlogRequest = () => ({
@@ -48,7 +48,7 @@ export const fetchCategoryBlog = (name = '', page = 1, pageSize = 5) => {
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
 
-        axios.get(url.toString())
+        http.get(url.toString())
             .then(response => {
                 const { results, totalCount, totalPages, currentPage } = response.data;
 
@@ -68,7 +68,7 @@ export const fetchCategoryBlog = (name = '', page = 1, pageSize = 5) => {
 export const addCategoryBlog = (categoryBlog) => {
     return (dispatch) => {
         dispatch(fetchCategoryBlogRequest());
-        axios.post(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}`, categoryBlog)
+        http.post(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}`, categoryBlog)
             .then((response) => {
                 dispatch(fetchCategoryBlogSuccess(response.data.data));
                 dispatch(fetchCategoryBlog()); // Refresh the list after adding
@@ -84,7 +84,7 @@ export const addCategoryBlog = (categoryBlog) => {
 export const updateCategoryBlog = (id, data) => {
     return (dispatch) => {
         dispatch(fetchCategoryBlogRequest());
-        axios.patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`, data)
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`, data)
             .then((response) => {
                 dispatch(fetchCategoryBlogSuccess(response.data.data));
                 dispatch(fetchCategoryBlog()); // Refresh the list after updating
@@ -100,7 +100,7 @@ export const updateCategoryBlog = (id, data) => {
 export const deleteCategoryBlog = (id) => {
     return (dispatch) => {
         dispatch(fetchCategoryBlogRequest());
-        axios.delete(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`)
+        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`)
             .then(() => {
                 dispatch(fetchCategoryBlog()); // Refresh the list after deletion
             })
