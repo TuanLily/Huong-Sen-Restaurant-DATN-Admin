@@ -93,6 +93,10 @@ const AdminRoutes = {
     commentBlogEdit: 'comment-blog/edit/:id',
     commentBlogDelete: 'comment-blog/delete',
 
+    users: 'users',
+    usersAdd: 'users/add',
+    usersEdit: 'users/edit/:id'
+
 };
 
 export default AdminRoutes;

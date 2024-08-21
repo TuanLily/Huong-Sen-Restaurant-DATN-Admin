@@ -10,7 +10,8 @@ import promotionReducer from "./PromotionsReducers";
 import employeeReducer from "./EmployeeReducers";
 import tablesReducer from "./TablesReducers";
 import authReducer from "./AuthReducers";
-import CommentBlogReducer from "./CommentBlogReducers";
+import commentBlogReducer from "./CommentBlogReducers";
+import userReducer from "./UserReducers";
 
 
 const rootReducer = combineReducers({
@@ -29,7 +30,8 @@ const rootReducer = combineReducers({
     employee: employeeReducer,
     tables: tablesReducer,
     auth: authReducer,
-    commentBlog: CommentBlogReducer
+    commentBlog: commentBlogReducer,
+    users: userReducer
 });
 
 export default rootReducer;

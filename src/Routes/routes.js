@@ -95,6 +95,10 @@ import CommentBlogAdd from '../Pages/CommentBlog/CommentBlogAdd';
 import CommentBlogEdit from '../Pages/CommentBlog/CommentBlogEdit';
 import CommentBlogDelete from '../Pages/CommentBlog/CommentBlogDelete';
 
+import UsersList from "../Pages/Users/UserList";
+import UsersAdd from "../Pages/Users/UserAdd";
+import UsersEdit from "../Pages/Users/UserEdit";
+
 // Public routes
 const publicAdminRoutes = [
     // *Admin routes
@@ -171,7 +175,7 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.placesAdd, component: PlacesAdd },
     { path: AdminConfig.routes.placesEdit, component: PlacesEdit },
     { path: AdminConfig.routes.placesDelete, component: PlacesDelete },
-    
+
     { path: AdminConfig.routes.role, component: RolesList },
     { path: AdminConfig.routes.roleAdd, component: RolesAdd },
     { path: AdminConfig.routes.roleEdit, component: RolesEdit },
@@ -191,7 +195,11 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.commentBlogAdd, component: CommentBlogAdd },
     { path: AdminConfig.routes.commentBlogEdit, component: CommentBlogEdit },
     { path: AdminConfig.routes.commentBlogDelete, component: CommentBlogDelete },
-   
+
+    { path: AdminConfig.routes.users, component: UsersList },
+    { path: AdminConfig.routes.usersAdd, component: UsersAdd },
+    { path: AdminConfig.routes.usersEdit, component: UsersEdit },
+
 ];
 
 export { publicAdminRoutes };

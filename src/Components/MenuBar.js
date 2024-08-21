@@ -10,7 +10,7 @@ export default function MenuBar() {
     const isProductManagementActive = location.pathname.startsWith('/category-product') || location.pathname.startsWith('/product');
     const isBlogManagementActive = location.pathname.startsWith('/category-blog') || location.pathname.startsWith('/blogs');
     const isOtherManagementActive = location.pathname.startsWith('/promotions') || location.pathname.startsWith('/customer-group') || location.pathname.startsWith('/places');;
-    const isAccountManagementActive = location.pathname.startsWith('/employee') || location.pathname.startsWith('/customer');
+    const isAccountManagementActive = location.pathname.startsWith('/users') || location.pathname.startsWith('/employee') || location.pathname.startsWith('/customer');
     const isOrderManagementActive = location.pathname.startsWith('/order') || location.pathname.startsWith('/order-detail') || location.pathname.startsWith('/pay-method');
     const isTableManagementActive = location.pathname.startsWith('/tables') || location.pathname.startsWith('/reservation');
     const isCommentManagementActive = location.pathname.startsWith('/comment-products') || location.pathname.startsWith('/comment-blog');
@@ -154,6 +154,11 @@ export default function MenuBar() {
                             </NavLink>
                             <div className={`collapse ${isAccountManagementActive ? 'show' : ''}`} id="accountManagement">
                                 <ul className="nav nav-collapse">
+                                    <li>
+                                        <NavLink to="/users">
+                                            <span className="sub-item">Tài khoản</span>
+                                        </NavLink>
+                                    </li>
                                     <li>
                                         <NavLink to="/employee">
                                             <span className="sub-item">Nhân viên</span>
