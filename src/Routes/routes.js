@@ -1,7 +1,9 @@
 import AdminConfig from '../Config/index';
 import Dashboard from '../Pages/Dashboard';
 import Login from '../Pages/Authentication/Login';
+import Otp from '../Pages/Authentication/Otp';
 import Forgot from '../Pages/Authentication/Forgot';
+import Acount from '../Pages/Authentication/Acount';
 
 import ProductList from '../Pages/Product/ProductList';
 import ProductAdd from '../Pages/Product/ProductAdd';
@@ -103,7 +105,9 @@ import UsersEdit from "../Pages/Users/UserEdit";
 const publicAdminRoutes = [
     // *Admin routes
     { path: AdminConfig.routes.login, component: Login },
+    { path: AdminConfig.routes.otp, component: Otp },
     { path: AdminConfig.routes.forgot, component: Forgot },
+    { path: AdminConfig.routes.acount, component: Acount },
     { path: AdminConfig.routes.dashboard, component: Dashboard },
 
     { path: AdminConfig.routes.product, component: ProductList },

@@ -14,7 +14,7 @@ export default function Footer() {
                 </nav>
                 <div className="copyright">
                     2024, bản quyền <i className="fa fa-heart heart text-danger"></i> thuộc về
-                    <a href="http://www.themekita.com"> KSTB Teams</a>
+                    <Link to="/dashboard"> DOM TEAM</Link>
                 </div>
             </div>
         </footer>

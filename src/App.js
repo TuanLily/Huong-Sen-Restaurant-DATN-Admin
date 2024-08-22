@@ -6,6 +6,7 @@ import { publicAdminRoutes } from './Routes/routes';
 import NotFound from './Components/NotFound';
 import Layout from './Layouts/Layout';
 import Login from './Pages/Authentication/Login';
+import Otp from './Pages/Authentication/Otp';
 import Forgot from './Pages/Authentication/Forgot';
 import ProtectedRoute from './Components/ProtectedRoute';
 
@@ -18,6 +19,7 @@ function App() {
           <Route path="/" element={<Navigate to="/dashboard" />} />
           
           <Route path="/login" element={<Login />} />
+          <Route path="/otp" element={<Otp />} />
           <Route path="/forgot" element={<Forgot />} />
 
           <Route path={''} element={<ProtectedRoute element={<Layout />} />}>

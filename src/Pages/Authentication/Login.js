@@ -92,7 +92,7 @@ export default function Login() {
                                     <button type="submit" className="btn btn-primary rounded submit">Đăng nhập</button>
                                 </div>
                                 <div className="form-group mt-1">
-                                    <p><Link to="/forgot">Quên mật khẩu?</Link></p>
+                                    <p><Link to="/otp">Quên mật khẩu?</Link></p>
                                 </div>
                             </form>
                         </div>

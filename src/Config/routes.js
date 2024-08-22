@@ -1,7 +1,9 @@
 const AdminRoutes = {
     dashboard: 'dashboard',
     login: 'login',
+    otp: 'otp',
     forgot: 'forgot',
+    acount: 'acount',
 
     product: 'product',
     productAdd: 'product/add',

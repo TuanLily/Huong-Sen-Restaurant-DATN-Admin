@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function Header() {
     const navigate = useNavigate();
@@ -383,7 +383,7 @@ export default function Header() {
                                     </li>
                                     <li>
                                         <div className="dropdown-divider"></div>
-                                        <a className="dropdown-item" href="#">Thông tin cá nhân</a>
+                                        <Link to='acount'><a className="dropdown-item" href="#">Thông tin cá nhân</a></Link>
                                         <div className="dropdown-divider"></div>
                                         <a className="dropdown-item" href="#">Cài đặt tài khoản</a>
                                         <div className="dropdown-divider"></div>
