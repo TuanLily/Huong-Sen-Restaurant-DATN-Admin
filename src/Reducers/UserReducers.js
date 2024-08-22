@@ -10,12 +10,12 @@ const initialState = {
     allUsers: [],
     user: [],
     currentPage: 1,
-    pageSize: 5,
     loading: false,
     error: '',
     totalCount: 0, // Tổng số khách hàng
     totalPages: 0 // Tổng số trang
 };
+
 
 const userReducer = (state = initialState, action) => {
     switch (action.type) {
@@ -32,7 +32,7 @@ const userReducer = (state = initialState, action) => {
                 totalCount: action.payload.totalCount,
                 totalPages: action.payload.totalPages,
                 currentPage: action.payload.currentPage,
-                user: action.payload.results.slice(0, state.pageSize) // Dữ liệu cho trang hiện tại
+                user: Array.isArray(action.payload.results) ? action.payload.results.slice(0, state.pageSize) : [],
             };
         case FETCH_USERS_FAILURE:
             return {
@@ -41,14 +41,12 @@ const userReducer = (state = initialState, action) => {
                 error: action.payload
             };
         case SET_CURRENT_PAGE:
-            // Tính chỉ mục bắt đầu và kết thúc cho dữ liệu của trang hiện tại
-            const start = (action.payload - 1) * state.pageSize;
-            const end = start + state.pageSize;
-
+            const start = (action.payload - 1) * 5;
+            const end = start + 5;
             return {
                 ...state,
                 currentPage: action.payload,
-                user: state.allUsers.slice(start, end) // Dữ liệu cho trang hiện tại
+                user: state.allUsers.slice(start, end)
             };
         default:
             return state;

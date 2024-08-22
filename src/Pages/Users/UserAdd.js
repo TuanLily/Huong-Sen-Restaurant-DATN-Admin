@@ -24,10 +24,6 @@ export default function UserAdd() {
     const [openError, setOpenError] = useState(false);
     const [loading, setLoading] = useState(false);
 
-
-    const [role, setRole] = useState('');
-    const [status, setStatus] = useState('');
-
     const password = watch('password');
 
     const handleImageUpload = (fileNames) => {

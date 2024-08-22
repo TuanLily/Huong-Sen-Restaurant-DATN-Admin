@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { checkEmailExists, fetchCustomer, updateCustomer } from '../../Actions/CustomerActions';
 import ImageUploadComponent from '../../Components/ImageUpload/ImageUpload';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import { fetchRole } from '../../Actions/RoleActions';
+import { fetchUserById, updateUser } from '../../Actions/UsersAction';
 
 export default function UserEdit() {
-    const { register, handleSubmit, setValue, formState: { errors }, reset, setError } = useForm();
+    const { register, handleSubmit, setValue, clearErrors, formState: { errors }, reset, setError } = useForm();
 
     const { id } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const customerState = useSelector(state => state.customer);
+    const userState = useSelector(state => state.users);
+    const roleState = useSelector(state => state.role);
+
+    useEffect(() => {
+        dispatch(fetchRole());
+    }, [dispatch]);
 
     const [initialAvatar, setInitialAvatar] = useState(null);
     const [avatar, setAvatar] = useState('');
@@ -22,29 +28,42 @@ export default function UserEdit() {
     const [loading, setLoading] = useState(false);
 
 
+
     useEffect(() => {
-        const fetchCustomer = async () => {
-            setLoading(true); // Bắt đầu spinner khi tải dữ liệu
-            const customer = customerState.customer.find((cust) => cust.id === parseInt(id));
-            if (customer) {
-                setValue('fullname', customer.fullname);
-                setValue('email', customer.email);
-                setValue('address', customer.address);
-                setValue('tel', customer.tel);
-                setInitialAvatar(customer.avatar);
-                setAvatar(customer.avatar); // Đặt avatar để hiển thị
+        const fetchUser = async (id) => {
+            setLoading(true); // Start spinner while data is loading
+
+            try {
+                const user = await dispatch(fetchUserById(id)); // Await the dispatch
+                if (user) {
+                    setValue('fullname', user.fullname);
+                    setValue('username', user.username);
+                    setValue('email', user.email);
+                    setValue('address', user.address);
+                    setValue('tel', user.tel);
+                    setValue('user_type', user.user_type);
+                    setValue('role_id', user.role_id);
+                    setValue('status', user.status);
+                    setValue('salary', user.salary);
+                    setInitialAvatar(user.avatar);
+                    setAvatar(user.avatar); // Set avatar to display
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            } finally {
+                setLoading(false); // Stop spinner when data is loaded
             }
-            setLoading(false); // Dừng spinner khi dữ liệu đã được tải
         };
 
-        fetchCustomer();
-    }, [customerState.customer, id, setValue]);
+        fetchUser(id);
+    }, [dispatch, id, setValue]);
+
+
     const handleSuccessClose = () => {
         setOpenSuccess(false);
     };
 
     const onSubmit = async (data) => {
-
 
         setLoading(true);
         const updatedData = {
@@ -53,11 +72,11 @@ export default function UserEdit() {
         };
 
         try {
-            await dispatch(updateCustomer(id, updatedData));
+            await dispatch(updateUser(id, updatedData));
             setOpenSuccess(true);
             reset();
             setTimeout(() => {
-                navigate('/customer');
+                navigate('/users');
             }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
         } catch (error) {
             console.error('Error updating customer:', error);
@@ -68,12 +87,13 @@ export default function UserEdit() {
 
     const handleImageUpload = (fileNames) => {
         if (fileNames.length > 0) {
-            setAvatar(fileNames[0]); // Cập nhật avatar với file mới
-            setValue('avatar', fileNames[0]); // Cập nhật giá trị của avatar trong form
+            setAvatar(fileNames[0]);
+            setValue('avatar', fileNames[0]);
         }
     };
 
-    if (customerState.loading && loading) {
+
+    if (userState.loading && loading) {
         return (
             <div className="container">
                 <CustomSpinner />
@@ -92,17 +112,28 @@ export default function UserEdit() {
                             </div>
                             <div className="card-body">
                                 <div className="row">
-                                    <div className="col-md-6 col-lg-6">
+                                    <div className="col-md-6">
                                         <div className="form-group">
-                                            <label htmlFor="fullname">Tên</label>
+                                            <label htmlFor="fullname">Họ và tên</label>
                                             <input
                                                 type="text"
                                                 className="form-control"
                                                 id="fullname"
+                                                placeholder="Nhập tên đầy đủ"
                                                 {...register('fullname', { required: 'Tên là bắt buộc' })}
-                                                placeholder="Nhập tên"
                                             />
-                                            {errors.fullname && <p>{errors.fullname.message}</p>}
+                                            {errors.fullname && <p className="text-danger">{errors.fullname.message}</p>}
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="username">Tên đăng nhập</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                id="username"
+                                                placeholder="Nhập tên đăng nhập"
+                                                {...register('username', { required: 'Tên đăng nhập là bắt buộc' })}
+                                            />
+                                            {errors.username && <p className="text-danger">{errors.username.message}</p>}
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="email">Email</label>
@@ -110,23 +141,16 @@ export default function UserEdit() {
                                                 type="email"
                                                 className="form-control"
                                                 id="email"
-                                                {...register('email', { required: 'Email là bắt buộc' })}
                                                 placeholder="Nhập email"
+                                                {...register('email', {
+                                                    required: 'Email là bắt buộc',
+                                                    pattern: {
+                                                        value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                                                        message: 'Email không hợp lệ',
+                                                    },
+                                                })}
                                             />
-                                            {errors.email && <p>{errors.email.message}</p>}
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6 col-lg-6">
-                                        <div className="form-group">
-                                            <label htmlFor="address">Địa chỉ</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                id="address"
-                                                {...register('address', { required: 'Địa chỉ là bắt buộc' })}
-                                                placeholder="Nhập địa chỉ"
-                                            />
-                                            {errors.address && <p>{errors.address.message}</p>}
+                                            {errors.email && <p className="text-danger">{errors.email.message}</p>}
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="tel">Số điện thoại</label>
@@ -134,13 +158,93 @@ export default function UserEdit() {
                                                 type="text"
                                                 className="form-control"
                                                 id="tel"
-                                                {...register('tel', { required: 'Số điện thoại là bắt buộc' })}
                                                 placeholder="Nhập số điện thoại"
+                                                {...register('tel', {
+                                                    required: 'Số điện thoại là bắt buộc',
+                                                    pattern: {
+                                                        value: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/,
+                                                        message: 'Số điện thoại không đúng định dạng',
+                                                    },
+                                                })}
                                             />
-                                            {errors.tel && <p>{errors.tel.message}</p>}
+                                            {errors.tel && <p className="text-danger">{errors.tel.message}</p>}
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="userType">Loại người dùng</label>
+                                            <select
+                                                className="form-control"
+                                                id="user_type"
+                                                {...register('user_type')}
+                                            >
+                                                <option value="Khách Hàng">Khách hàng</option>
+                                                <option value="Nhân Viên">Nhân viên</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="status">Trạng thái</label>
+                                            <select
+                                                className="form-control"
+                                                id="status"
+                                                {...register('status')}
+                                            >
+                                                <option value="1">Hoạt động</option>
+                                                <option value="0">Ngưng hoạt động</option>
+                                            </select>
                                         </div>
                                     </div>
-                                    <div className='col-md-6'>
+                                    <div className="col-md-6">
+                                        <div className="form-group">
+                                            <label htmlFor="address">Địa chỉ</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                id="address"
+                                                placeholder="Nhập địa chỉ"
+                                                {...register('address', { required: 'Địa chỉ là bắt buộc' })}
+                                            />
+                                            {errors.address && <p className="text-danger">{errors.address.message}</p>}
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="role_id">Vai trò <strong>(Dành cho nhân viên)</strong></label>
+                                            <select
+                                                className="form-control"
+                                                id="role_id"
+                                                {...register('role_id', {
+                                                    valueAsNumber: true
+                                                })}
+                                            >
+                                                <option value="" selected>Chọn vai trò cho nhân viên</option>
+                                                {roleState.role && roleState.role.map((item, index) => (
+                                                    <option key={item.id} value={item.id}>{item.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="salary">Lương <strong>(Dành cho nhân viên)</strong></label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                id="salary"
+                                                placeholder="Nhập lương"
+                                                {...register('salary', {
+                                                    valueAsNumber: true,
+                                                    validate: value => {
+                                                        if (value === undefined || value === null || value === '') {
+                                                            return true; // Không có lỗi nếu không nhập giá trị
+                                                        }
+                                                        if (value < 10000) {
+                                                            return 'Lương phải lớn hơn hoặc bằng 10.000đ';
+                                                        }
+                                                        if (value < 0) {
+                                                            return 'Lương không được là số âm';
+                                                        }
+                                                        return true; // Không có lỗi
+                                                    }
+                                                })}
+                                            />
+                                            {errors.salary && <p className="text-danger">{errors.salary.message}</p>}
+                                        </div>
+
                                         <div className="form-group">
                                             <label htmlFor="avatar">Ảnh đại diện</label><br />
                                             <ImageUploadComponent id="avatar" onImageUpload={handleImageUpload} />
@@ -156,7 +260,7 @@ export default function UserEdit() {
                             <div className="card-action">
                                 <div className="btn-group mt-3" role="group">
                                     <button type="submit" className="btn btn-success">Cập nhật</button>
-                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Hủy</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/users')}>Hủy</button>
                                 </div>
                             </div>
                         </div>

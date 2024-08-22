@@ -35,7 +35,7 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
-export const fetchUsers = (fullname = '', page = 1, pageSize = 5) => {
+export const fetchUsers = (fullname = '', page = 1) => {
     return dispatch => {
         dispatch(fetchUserRequest());
 
@@ -47,7 +47,6 @@ export const fetchUsers = (fullname = '', page = 1, pageSize = 5) => {
         }
         // Thêm tham số phân trang
         url.searchParams.append('page', page);
-        url.searchParams.append('pageSize', pageSize);
 
         http.get(url.toString())
             .then(response => {
@@ -62,6 +61,29 @@ export const fetchUsers = (fullname = '', page = 1, pageSize = 5) => {
             });
     };
 };
+
+
+
+export const fetchUserById = (id) => {
+    return async (dispatch) => {
+        dispatch(fetchUserRequest());
+
+        try {
+            const url = `${API_ENDPOINT}/${AdminConfig.routes.users}/${id}`;
+            const response = await http.get(url);
+            const user = response.data.result;
+            dispatch(fetchUserSuccess(user));
+            return user; // Return the fetched user data
+        } catch (error) {
+            const errorMsg = error.message;
+            dispatch(fetchUserFailure(errorMsg));
+            throw error; // Rethrow the error for handling in the calling function
+        }
+    };
+};
+
+
+
 
 export const checkEmailExists = async (email) => {
     try {
@@ -80,8 +102,8 @@ export const addUser = (user) => {
         http.post(`${API_ENDPOINT}/${AdminConfig.routes.users}`, user)
             .then(response => {
                 dispatch(fetchUserSuccess(response.data.data));
-                dispatch(fetchUsers()); 
-                dispatch(fetchRole()); 
+                dispatch(fetchUsers());
+                dispatch(fetchRole());
             })
             .catch(error => {
                 const errorMsg = error.message;
@@ -90,20 +112,20 @@ export const addUser = (user) => {
     };
 };
 
-// export const updateEmployee = (id, data) => {
-//     return dispatch => {
-//         dispatch(fetchEmployeeRequest());
-//         http.patch(`${API_ENDPOINT}/${AdminConfig.routes.employee}/${id}`, data)
-//             .then(response => {
-//                 dispatch(fetchUsersuccess(response.data)); // Điều chỉnh dựa trên cấu trúc trả về từ server
-//                 dispatch(fetchUsers()); // Cập nhật danh sách nhân viên sau khi cập nhật
-//             })
-//             .catch(error => {
-//                 const errorMsg = error.message;
-//                 dispatch(fetchEmployeeFailure(errorMsg));
-//             });
-//     };
-// };
+export const updateUser = (id, data) => {
+    return dispatch => {
+        dispatch(fetchUserRequest());
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.users}/${id}`, data)
+            .then(response => {
+                dispatch(fetchUserSuccess(response.data)); // Điều chỉnh dựa trên cấu trúc trả về từ server
+                dispatch(fetchUsers()); // Cập nhật danh sách nhân viên sau khi cập nhật
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchUserFailure(errorMsg));
+            });
+    };
+};
 
 export const deleteUsers = (id) => {
     return dispatch => {
