@@ -85,15 +85,15 @@ export default function CustomerList() {
 
 
     const handleDelete = async () => {
-        // if (selectedUser) {
-        //     try {
-        //         await dispatch(deleteUsers(selectedUser));
-        //         handleClose();
-        //         setOpenSuccess(true); // Hiển thị thông báo thành công
-        //     } catch (error) {
-        //         console.error("Error deleting customer:", error);
-        //     }
-        // }
+        if (selectedUser) {
+            try {
+                await dispatch(deleteUsers(selectedUser));
+                handleClose();
+                setOpenSuccess(true);
+            } catch (error) {
+                console.error("Lỗi khi xóa tài khoản:", error);
+            }
+        }
     };
 
 
