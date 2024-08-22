@@ -1,80 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation ,useNavigate } from 'react-router-dom';
-import { deletePermissions, fetchPermissions, setCurrentPage } from '../../Actions/PermissionsActions';
-import DialogConfirm from '../../Components/Dialog/Dialog';
-import CustomPagination from '../../Components/Pagination/CustomPagination';
-import CustomSpinner from '../../Components/Spinner/CustomSpinner';
-import { format } from 'date-fns';
-
-import { InputBase, Paper } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import React from 'react';
 
 export default function PermissionsList() {
-    
-    const dispatch = useDispatch();
-    const permissionsState = useSelector(state => state.permissions);
-    console.log(permissionsState);
-    
-
-    const navigate = useNavigate();
-    const location = useLocation();
-    const query = new URLSearchParams(location.search);
-    const urlPage = parseInt(query.get('page')) || 1;
-
-    const [open, setOpen] = useState(false);
-    const [selectedPermissions, setSelectedPermissions] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    useEffect(() => {
-        dispatch(fetchPermissions(searchTerm, urlPage, permissionsState.pageSize)); 
-    }, [dispatch, urlPage, permissionsState.pageSize, searchTerm]);
-
-    // Cập nhật URL khi currentPage thay đổi
-    useEffect(() => {
-        navigate(`?page=${permissionsState.currentPage}`);
-    }, [permissionsState.currentPage, navigate]);
-
-    const handleClickOpen = (permissionsId) => {
-        setSelectedPermissions(permissionsId);
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-        setSelectedPermissions(null);
-    };
-
-    const handleConfirm = () => {
-        if (selectedPermissions) {
-            dispatch(deletePermissions(selectedPermissions));
-            handleClose();
-        }
-    };
-    const handleSearch = (event) => {
-        setSearchTerm(event.target.value);
-        dispatch(setCurrentPage(1));
-    };
-
-    const handleEdit = (id) => {
-        navigate(`edit/${id}`);
-    };
-    const handlePageChange = (page) => {
-        navigate(`?page=${page}`); // Cập nhật URL với page
-        dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-        dispatch(fetchPermissions(searchTerm, page, permissionsState.pageSize));
-    };
-
     return (
+        
         <div className="container">
             <div className="page-inner">
                 <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
                     <div>
-                        <h3 className="fw-bold mb-3">Quản lý quyền hạn</h3>
+                        <h4 className="fw-bold mb-3">Quản lý quyền hạn</h4>
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
-                    </div>
-                    <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="/permissions/add" className="btn btn-primary btn-round">Thêm khách hàng</Link>
-                        <DialogConfirm />
                     </div>
                 </div>
                 <div className="row">
@@ -82,90 +16,371 @@ export default function PermissionsList() {
                         <div className="card card-round">
                             <div className="card-header">
                                 <div className="card-head-row card-tools-still-right">
-                                    <div className="card-title">Danh sách</div>
-                                    <div className="card-tools">
-                                        <Paper
-                                            component="form"
-                                            sx={{
-                                                p: '2px 4px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                width: 320,
-                                            }}
-                                        >
-                                            <SearchIcon />
-                                            <InputBase
-                                                sx={{ ml: 1, flex: 1 }}
-                                                placeholder="Tìm kiếm quyền hạn ở đây!"
-                                                inputProps={{ 'aria-label': 'search' }}
-                                                value={searchTerm}
-                                                onChange={handleSearch} // Thêm xử lý thay đổi từ khóa tìm kiếm
-                                            />
-                                        </Paper>
-                                    </div>
+                                    <div className="card-title">Danh sách vai trò</div>
                                 </div>
                             </div>
-                            <div className="card-body p-0">
-                                <div className="table-responsive text-center">
-                                    <table className="table align-items-center mb-0">
-                                        <thead className="thead-light">
-                                            <tr>
-                                                <th scope="col">STT</th>
-                                                <th scope="col">Tên</th>
-                                                <th scope="col">Ngày tạo</th>
-                                                <th scope="col">Ngày cập nhật</th>
-                                                <th scope="col">Thao tác</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {permissionsState.loading && (
-                                                <tr>
-                                                    <td colSpan="7"><CustomSpinner /></td>
-                                                </tr>
-                                            )}
-                                            {!permissionsState.loading && permissionsState.permissions.length === 0 && (
-                                                <tr>
-                                                    <td colSpan="7">Không tìm thấy quyền hạng</td>
-                                                </tr>
-                                            )}
-                                            {permissionsState.permissions && permissionsState.permissions.map((item, index) => (
-                                                <tr key={item.id}>
-                                                    <td>{(permissionsState.currentPage - 1) * permissionsState.pageSize + index + 1}</td>
-                                                    
-                                                    <td>{item.name}</td>
-                                                    <td>{format(new Date(item.created_at), 'dd/MM/yyyy HH:mm')}</td>
-                                                    <td>{format(new Date(item.updated_at), 'dd/MM/yyyy HH:mm')}</td>
-                                                    <td>
-                                                        <div className="btn-group mt-3" role="group">
-                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
-                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
-                                                                <span className='text-danger'>Xóa</span>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                            <div className="card-body">
+                                <div className="mb-3 col-md-4">
+                                    <select className="form-select">
+                                        <option selected>Chọn vai trò ...</option>
+                                        <option value="1">Vai trò 1</option>
+                                        <option value="2">Vai trò 2</option>
+                                        <option value="3">Vai trò 3</option>
+                                    </select>
                                 </div>
-                                <div className='my-2'>
-                                    <CustomPagination
-                                        count={permissionsState.totalPages}
-                                        currentPageSelector={state => state.permissions.currentPage} 
-                                        fetchAction={(page, pageSize) => fetchPermissions(searchTerm, page, pageSize)} 
-                                        onPageChange={handlePageChange} 
-                                    />
+                                <div className="mb-3 col-md-4">
+                                    <input type="text" className="form-control" placeholder="Tìm kiếm chức năng ở đây..." />
                                 </div>
+                                <div className="row justify-content-around">
+                                    {/* Hàng 1 */}
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý sản phẩm</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="productCreate" />
+                                            <label className="form-check-label" htmlFor="productCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="productEdit" />
+                                            <label className="form-check-label" htmlFor="productEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="productDelete" />
+                                            <label className="form-check-label" htmlFor="productDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="productView" />
+                                            <label className="form-check-label" htmlFor="productView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="productRestore" />
+                                            <label className="form-check-label" htmlFor="productRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý danh mục</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="categoryCreate" />
+                                            <label className="form-check-label" htmlFor="categoryCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="categoryEdit" />
+                                            <label className="form-check-label" htmlFor="categoryEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="categoryDelete" />
+                                            <label className="form-check-label" htmlFor="categoryDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="categoryView" />
+                                            <label className="form-check-label" htmlFor="categoryView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="categoryRestore" />
+                                            <label className="form-check-label" htmlFor="categoryRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý bài viết</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="postCreate" />
+                                            <label className="form-check-label" htmlFor="postCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="postEdit" />
+                                            <label className="form-check-label" htmlFor="postEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="postDelete" />
+                                            <label className="form-check-label" htmlFor="postDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="postView" />
+                                            <label className="form-check-label" htmlFor="postView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="postRestore" />
+                                            <label className="form-check-label" htmlFor="postRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý khuyến mãi</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="promotionCreate" />
+                                            <label className="form-check-label" htmlFor="promotionCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="promotionEdit" />
+                                            <label className="form-check-label" htmlFor="promotionEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="promotionDelete" />
+                                            <label className="form-check-label" htmlFor="promotionDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="promotionView" />
+                                            <label className="form-check-label" htmlFor="promotionView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="promotionRestore" />
+                                            <label className="form-check-label" htmlFor="promotionRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý nhóm khách hàng</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerGroupCreate" />
+                                            <label className="form-check-label" htmlFor="customerGroupCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerGroupEdit" />
+                                            <label className="form-check-label" htmlFor="customerGroupEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerGroupDelete" />
+                                            <label className="form-check-label" htmlFor="customerGroupDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerGroupView" />
+                                            <label className="form-check-label" htmlFor="customerGroupView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerGroupRestore" />
+                                            <label className="form-check-label" htmlFor="customerGroupRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="row justify-content-around mt-4">
+                                    {/* Hàng 2 */}
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý thứ hạng</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerCreate" />
+                                            <label className="form-check-label" htmlFor="customerCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerEdit" />
+                                            <label className="form-check-label" htmlFor="customerEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerDelete" />
+                                            <label className="form-check-label" htmlFor="customerDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerView" />
+                                            <label className="form-check-label" htmlFor="customerView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerRestore" />
+                                            <label className="form-check-label" htmlFor="customerRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý khách hàng</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="bannerCreate" />
+                                            <label className="form-check-label" htmlFor="bannerCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="bannerEdit" />
+                                            <label className="form-check-label" htmlFor="bannerEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="bannerDelete" />
+                                            <label className="form-check-label" htmlFor="bannerDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="bannerView" />
+                                            <label className="form-check-label" htmlFor="bannerView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="bannerRestore" />
+                                            <label className="form-check-label" htmlFor="bannerRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý nhân viên</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemCreate" />
+                                            <label className="form-check-label" htmlFor="systemCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemEdit" />
+                                            <label className="form-check-label" htmlFor="systemEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemDelete" />
+                                            <label className="form-check-label" htmlFor="systemDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemView" />
+                                            <label className="form-check-label" htmlFor="systemView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemRestore" />
+                                            <label className="form-check-label" htmlFor="systemRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý đơn hàng</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemCreate" />
+                                            <label className="form-check-label" htmlFor="systemCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemEdit" />
+                                            <label className="form-check-label" htmlFor="systemEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemDelete" />
+                                            <label className="form-check-label" htmlFor="systemDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemView" />
+                                            <label className="form-check-label" htmlFor="systemView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemRestore" />
+                                            <label className="form-check-label" htmlFor="systemRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý chi tiết đơn hàng</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemCreate" />
+                                            <label className="form-check-label" htmlFor="systemCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemEdit" />
+                                            <label className="form-check-label" htmlFor="systemEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemDelete" />
+                                            <label className="form-check-label" htmlFor="systemDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemView" />
+                                            <label className="form-check-label" htmlFor="systemView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemRestore" />
+                                            <label className="form-check-label" htmlFor="systemRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="row justify-content-around mt-4">
+                                    {/* Hàng 3 */}
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý thanh toán</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerCreate" />
+                                            <label className="form-check-label" htmlFor="customerCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerEdit" />
+                                            <label className="form-check-label" htmlFor="customerEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerDelete" />
+                                            <label className="form-check-label" htmlFor="customerDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerView" />
+                                            <label className="form-check-label" htmlFor="customerView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="customerRestore" />
+                                            <label className="form-check-label" htmlFor="customerRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý bình luận sản phẩm</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="bannerCreate" />
+                                            <label className="form-check-label" htmlFor="bannerCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="bannerEdit" />
+                                            <label className="form-check-label" htmlFor="bannerEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="bannerDelete" />
+                                            <label className="form-check-label" htmlFor="bannerDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="bannerView" />
+                                            <label className="form-check-label" htmlFor="bannerView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="bannerRestore" />
+                                            <label className="form-check-label" htmlFor="bannerRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý bình luận blog</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemDelete" />
+                                            <label className="form-check-label" htmlFor="systemDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemView" />
+                                            <label className="form-check-label" htmlFor="systemView">Xem</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý bình luận bàn ăn</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemDelete" />
+                                            <label className="form-check-label" htmlFor="systemDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemView" />
+                                            <label className="form-check-label" htmlFor="systemView">Xem</label>
+                                        </div>
+                                    </div>
+
+                                    <div className="col-md-2">
+                                        <h4 className='fw-bold'>Quản lý đặt bàn</h4>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemCreate" />
+                                            <label className="form-check-label" htmlFor="systemCreate">Tạo mới</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemEdit" />
+                                            <label className="form-check-label" htmlFor="systemEdit">Chỉnh sửa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemDelete" />
+                                            <label className="form-check-label" htmlFor="systemDelete">Xóa</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemView" />
+                                            <label className="form-check-label" htmlFor="systemView">Xem</label>
+                                        </div>
+                                        <div className="form-check">
+                                            <input className="form-check-input" type="checkbox" id="systemRestore" />
+                                            <label className="form-check-label" htmlFor="systemRestore">Khôi phục</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button className="btn btn-primary mt-3">Áp dụng</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <DialogConfirm
-                open={open}
-                onClose={handleClose}
-                onConfirm={handleConfirm}
-            />
         </div>
     );
 }
