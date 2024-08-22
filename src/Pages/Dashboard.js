@@ -5,13 +5,51 @@ import * as echarts from 'echarts';
 
 
 export default function Dashboard() {
-    const getOption = () => {
+    const formatCurrency = (value) => {
+        return `${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
+    };
+
+    const orderOption = () => {
+        return {
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                data: ['Xác nhận', 'Chưa xác nhận', 'Đã hủy', 'Đã thanh toán', 'Chưa thanh toán']
+            },
+            series: [
+                {
+                    name: 'Doanh thu',
+                    type: 'pie',
+                    radius: '50%',
+                    data: [
+                        { value: 120, name: 'Xác nhận' },
+                        { value: 310, name: 'Chưa xác nhận' },
+                        { value: 190, name: 'Đã hủy' },
+                        { value: 320, name: 'Đã thanh toán' },
+                        { value: 1320, name: 'Chưa thanh toán' }
+                    ],
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        };
+    };    
+
+    const revenueOption = () => {
         return {
             tooltip: {
                 trigger: 'axis'
             },
             legend: {
-                data: ['Email', 'Affiliate', 'Video Ads', 'Direct', 'Search Engine']
+                data: ['Doanh thu']
             },
             toolbox: {
                 feature: {
@@ -26,62 +64,20 @@ export default function Dashboard() {
             },
             xAxis: {
                 type: 'category',
-                boundaryGap: false,
-                data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                data: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+                axisLabel: {
+                    interval: 0, // Hiển thị tất cả các nhãn tháng
+                    rotate: 30 // Xoay nhãn nếu cần
+                }
             },
             yAxis: {
                 type: 'value'
             },
             series: [
                 {
-                    name: 'Email',
-                    type: 'line',
-                    stack: 'Total',
-                    areaStyle: {},
-                    emphasis: {
-                        focus: 'series'
-                    },
-                    data: [120, 132, 101, 134, 90, 230, 210]
-                },
-                {
-                    name: 'Affiliate',
-                    type: 'line',
-                    stack: 'Total',
-                    areaStyle: {},
-                    emphasis: {
-                        focus: 'series'
-                    },
-                    data: [220, 182, 191, 234, 290, 330, 310]
-                },
-                {
-                    name: 'Video Ads',
-                    type: 'line',
-                    stack: 'Total',
-                    areaStyle: {},
-                    emphasis: {
-                        focus: 'series'
-                    },
-                    data: [150, 232, 201, 154, 190, 330, 410]
-                },
-                {
-                    name: 'Direct',
-                    type: 'line',
-                    stack: 'Total',
-                    areaStyle: {},
-                    emphasis: {
-                        focus: 'series'
-                    },
-                    data: [320, 332, 301, 334, 390, 330, 320]
-                },
-                {
-                    name: 'Search Engine',
-                    type: 'line',
-                    stack: 'Total',
-                    areaStyle: {},
-                    emphasis: {
-                        focus: 'series'
-                    },
-                    data: [820, 932, 901, 934, 1290, 1330, 1320]
+                    name: 'Doanh thu',
+                    type: 'bar',
+                    data: [120, 310, 190, 320, 1320, 530, 600, 750, 900, 1100, 1300, 1500]
                 }
             ]
         };
@@ -96,11 +92,7 @@ export default function Dashboard() {
                 >
                     <div>
                         <h3 className="fw-bold mb-3">Dashboard</h3>
-                        <h6 className="op-7 mb-2">Free Bootstrap 5 Admin Dashboard</h6>
-                    </div>
-                    <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="" className="btn btn-label-info btn-round me-2">Manage</Link>
-                        <Link to="" className="btn btn-primary btn-round">Add Customer</Link>
+                        <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                 </div>
                 <div className="row">
@@ -117,29 +109,8 @@ export default function Dashboard() {
                                     </div>
                                     <div className="col col-stats ms-3 ms-sm-0">
                                         <div className="numbers">
-                                            <p className="card-category">Visitors</p>
+                                            <p className="card-category">Số lượng khách hàng</p>
                                             <h4 className="card-title">1,294</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-sm-6 col-md-3">
-                        <div className="card card-stats card-round">
-                            <div className="card-body">
-                                <div className="row align-items-center">
-                                    <div className="col-icon">
-                                        <div
-                                            className="icon-big text-center icon-info bubble-shadow-small"
-                                        >
-                                            <i className="fas fa-user-check"></i>
-                                        </div>
-                                    </div>
-                                    <div className="col col-stats ms-3 ms-sm-0">
-                                        <div className="numbers">
-                                            <p className="card-category">Subscribers</p>
-                                            <h4 className="card-title">1303</h4>
                                         </div>
                                     </div>
                                 </div>
@@ -159,7 +130,28 @@ export default function Dashboard() {
                                     </div>
                                     <div className="col col-stats ms-3 ms-sm-0">
                                         <div className="numbers">
-                                            <p className="card-category">Sales</p>
+                                            <p className="card-category">Số lượng hóa đơn</p>
+                                            <h4 className="card-title">1,345</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-sm-6 col-md-3">
+                        <div className="card card-stats card-round">
+                            <div className="card-body">
+                                <div className="row align-items-center">
+                                    <div className="col-icon">
+                                        <div
+                                            className="icon-big text-center icon-success bubble-shadow-small" style={{ backgroundColor: '#57EDE5' }}
+                                        >
+                                            <i className="fas fa-utensils"></i>
+                                        </div>
+                                    </div>
+                                    <div className="col col-stats ms-3 ms-sm-0">
+                                        <div className="numbers">
+                                            <p className="card-category">Số lượng sản phẩm</p>
                                             <h4 className="card-title">$ 1,345</h4>
                                         </div>
                                     </div>
@@ -173,14 +165,14 @@ export default function Dashboard() {
                                 <div className="row align-items-center">
                                     <div className="col-icon">
                                         <div
-                                            className="icon-big text-center icon-secondary bubble-shadow-small"
+                                            className="icon-big text-center icon-secondary bubble-shadow-small" style={{ backgroundColor: '#ED9D57' }}
                                         >
-                                            <i className="far fa-check-circle"></i>
+                                            <i className="fas fa-th-list"></i>
                                         </div>
                                     </div>
                                     <div className="col col-stats ms-3 ms-sm-0">
                                         <div className="numbers">
-                                            <p className="card-category">Order</p>
+                                            <p className="card-category">Số lượng danh mục</p>
                                             <h4 className="card-title">576</h4>
                                         </div>
                                     </div>
@@ -190,249 +182,11 @@ export default function Dashboard() {
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col-md-8">
-                        <div className="card card-round">
-                            <div className="card-header">
-                                <div className="card-head-row">
-                                    <div className="card-title">User Statistics</div>
-                                    <div className="card-tools">
-                                        <a
-                                            href="#"
-                                            className="btn btn-label-success btn-round btn-sm me-2"
-                                        >
-                                            <span className="btn-label">
-                                                <i className="fa fa-pencil"></i>
-                                            </span>
-                                            Export
-                                        </a>
-                                        <Link to="" className="btn btn-label-info btn-round btn-sm">
-                                            <span className="btn-label">
-                                                <i className="fa fa-print"></i>
-                                            </span>
-                                            Print
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="card-body">
-                                <div className="chart-container" style={{ minHeight: "375px" }}>
-                                    <ReactEcharts option={getOption()} style={{ height: '400px', width: '100%' }} />
-                                </div>
-                                <div id="myChartLegend"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-md-4">
-                        <div className="card card-primary card-round">
-                            <div className="card-header">
-                                <div className="card-head-row">
-                                    <div className="card-title">Daily Sales</div>
-                                    <div className="card-tools">
-                                        <div className="dropdown">
-                                            <button
-                                                className="btn btn-sm btn-label-light dropdown-toggle"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false"
-                                            >
-                                                Export
-                                            </button>
-                                            <div
-                                                className="dropdown-menu"
-                                                aria-labelledby="dropdownMenuButton"
-                                            >
-                                                <a className="dropdown-item" href="#">Action</a>
-                                                <a className="dropdown-item" href="#">Another action</a>
-                                                <a className="dropdown-item" href="#"
-                                                >Something else here</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="card-category">March 25 - April 02</div>
-                            </div>
-                            <div className="card-body pb-0">
-                                <div className="mb-4 mt-2">
-                                    <h1>$4,578.58</h1>
-                                </div>
-                                <div className="pull-in">
-                                    <canvas id="dailySalesChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="card card-round">
-                            <div className="card-body pb-0">
-                                <div className="h1 fw-bold float-end text-primary">+5%</div>
-                                <h2 className="mb-2">17</h2>
-                                <p className="text-muted">Users online</p>
-                                <div className="pull-in sparkline-fix">
-                                    <div id="lineChart"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-12">
-                        <div className="card card-round">
-                            <div className="card-header">
-                                <div className="card-head-row card-tools-still-right">
-                                    <h4 className="card-title">Users Geolocation</h4>
-                                    <div className="card-tools">
-                                        <button
-                                            className="btn btn-icon btn-link btn-primary btn-xs"
-                                        >
-                                            <span className="fa fa-angle-down"></span>
-                                        </button>
-                                        <button
-                                            className="btn btn-icon btn-link btn-primary btn-xs btn-refresh-card"
-                                        >
-                                            <span className="fa fa-sync-alt"></span>
-                                        </button>
-                                        <button
-                                            className="btn btn-icon btn-link btn-primary btn-xs"
-                                        >
-                                            <span className="fa fa-times"></span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <p className="card-category">
-                                    Map of the distribution of users around the world
-                                </p>
-                            </div>
-                            <div className="card-body">
-                                <div className="row">
-                                    <div className="col-md-6">
-                                        <div className="table-responsive table-hover table-sales">
-                                            <table className="table">
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            <div className="flag">
-                                                                <img
-                                                                    src="../Assets/Images/flags/id.png"
-                                                                    alt="indonesia"
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                        <td>Indonesia</td>
-                                                        <td className="text-end">2.320</td>
-                                                        <td className="text-end">42.18%</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <div className="flag">
-                                                                <img
-                                                                    src="../Assets/Images/flags/us.png"
-                                                                    alt="united states"
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                        <td>USA</td>
-                                                        <td className="text-end">240</td>
-                                                        <td className="text-end">4.36%</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <div className="flag">
-                                                                <img
-                                                                    src="../Assets/Images/flags/au.png"
-                                                                    alt="australia"
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                        <td>Australia</td>
-                                                        <td className="text-end">119</td>
-                                                        <td className="text-end">2.16%</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <div className="flag">
-                                                                <img
-                                                                    src="../Assets/Images/flags/ru.png"
-                                                                    alt="russia"
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                        <td>Russia</td>
-                                                        <td className="text-end">1.081</td>
-                                                        <td className="text-end">19.65%</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <div className="flag">
-                                                                <img
-                                                                    src="../Assets/Images/flags/cn.png"
-                                                                    alt="china"
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                        <td>China</td>
-                                                        <td className="text-end">1.100</td>
-                                                        <td className="text-end">20%</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <div className="flag">
-                                                                <img
-                                                                    src="../Assets/Images/flags/br.png"
-                                                                    alt="brazil"
-                                                                />
-                                                            </div>
-                                                        </td>
-                                                        <td>Brasil</td>
-                                                        <td className="text-end">640</td>
-                                                        <td className="text-end">11.63%</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="mapcontainer">
-                                            <div
-                                                id="world-map"
-                                                className="w-100"
-                                                style={{ height: '300px' }}
-                                            ></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
                     <div className="col-md-4">
                         <div className="card card-round">
                             <div className="card-body">
                                 <div className="card-head-row card-tools-still-right">
-                                    <div className="card-title">New Customers</div>
-                                    <div className="card-tools">
-                                        <div className="dropdown">
-                                            <button
-                                                className="btn btn-icon btn-clean me-0"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false"
-                                            >
-                                                <i className="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div
-                                                className="dropdown-menu"
-                                                aria-labelledby="dropdownMenuButton"
-                                            >
-                                                <a className="dropdown-item" href="#">Action</a>
-                                                <a className="dropdown-item" href="#">Another action</a>
-                                                <a className="dropdown-item" href="#"
-                                                >Something else here</a>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <div className="card-title">Khách Hàng Mới</div>
                                 </div>
                                 <div className="card-list py-4">
                                     <div className="item-list">
@@ -445,14 +199,21 @@ export default function Dashboard() {
                                         </div>
                                         <div className="info-user ms-3">
                                             <div className="username">Jimmy Denis</div>
-                                            <div className="status">Graphic Designer</div>
+                                            <div className="status">trangnqpc05335@gmail.com</div>
                                         </div>
-                                        <button className="btn btn-icon btn-link op-8 me-1">
-                                            <i className="far fa-envelope"></i>
-                                        </button>
-                                        <button className="btn btn-icon btn-link btn-danger op-8">
-                                            <i className="fas fa-ban"></i>
-                                        </button>
+                                    </div>
+                                    <div className="item-list">
+                                        <div className="avatar">
+                                            <img
+                                                src="../Assets/Images/jm_denis.jpg"
+                                                alt="..."
+                                                className="avatar-img rounded-circle"
+                                            />
+                                        </div>
+                                        <div className="info-user ms-3">
+                                            <div className="username">Jimmy Denis</div>
+                                            <div className="status">trangnqpc05335@gmail.com</div>
+                                        </div>
                                     </div>
                                     <div className="item-list">
                                         <div className="avatar">
@@ -464,12 +225,6 @@ export default function Dashboard() {
                                             <div className="username">Chandra Felix</div>
                                             <div className="status">Sales Promotion</div>
                                         </div>
-                                        <button className="btn btn-icon btn-link op-8 me-1">
-                                            <i className="far fa-envelope"></i>
-                                        </button>
-                                        <button className="btn btn-icon btn-link btn-danger op-8">
-                                            <i className="fas fa-ban"></i>
-                                        </button>
                                     </div>
                                     <div className="item-list">
                                         <div className="avatar">
@@ -483,12 +238,6 @@ export default function Dashboard() {
                                             <div className="username">Talha</div>
                                             <div className="status">Front End Designer</div>
                                         </div>
-                                        <button className="btn btn-icon btn-link op-8 me-1">
-                                            <i className="far fa-envelope"></i>
-                                        </button>
-                                        <button className="btn btn-icon btn-link btn-danger op-8">
-                                            <i className="fas fa-ban"></i>
-                                        </button>
                                     </div>
                                     <div className="item-list">
                                         <div className="avatar">
@@ -502,12 +251,6 @@ export default function Dashboard() {
                                             <div className="username">Chad</div>
                                             <div className="status">CEO Zeleaf</div>
                                         </div>
-                                        <button className="btn btn-icon btn-link op-8 me-1">
-                                            <i className="far fa-envelope"></i>
-                                        </button>
-                                        <button className="btn btn-icon btn-link btn-danger op-8">
-                                            <i className="fas fa-ban"></i>
-                                        </button>
                                     </div>
                                     <div className="item-list">
                                         <div className="avatar">
@@ -519,31 +262,9 @@ export default function Dashboard() {
                                             <div className="username">Hizrian</div>
                                             <div className="status">Web Designer</div>
                                         </div>
-                                        <button className="btn btn-icon btn-link op-8 me-1">
-                                            <i className="far fa-envelope"></i>
-                                        </button>
-                                        <button className="btn btn-icon btn-link btn-danger op-8">
-                                            <i className="fas fa-ban"></i>
-                                        </button>
-                                    </div>
-                                    <div className="item-list">
-                                        <div className="avatar">
-                                            <span
-                                                className="avatar-title rounded-circle border border-white bg-secondary"
-                                            >F</span>
-                                        </div>
-                                        <div className="info-user ms-3">
-                                            <div className="username">Farrah</div>
-                                            <div className="status">Marketing</div>
-                                        </div>
-                                        <button className="btn btn-icon btn-link op-8 me-1">
-                                            <i className="far fa-envelope"></i>
-                                        </button>
-                                        <button className="btn btn-icon btn-link btn-danger op-8">
-                                            <i className="fas fa-ban"></i>
-                                        </button>
                                     </div>
                                 </div>
+                                <button type="button" className="btn btn-outline-success mt-2">Xem thêm</button>
                             </div>
                         </div>
                     </div>
@@ -551,150 +272,309 @@ export default function Dashboard() {
                         <div className="card card-round">
                             <div className="card-header">
                                 <div className="card-head-row card-tools-still-right">
-                                    <div className="card-title">Transaction History</div>
-                                    <div className="card-tools">
-                                        <div className="dropdown">
-                                            <button
-                                                className="btn btn-icon btn-clean me-0"
-                                                type="button"
-                                                id="dropdownMenuButton"
-                                                data-bs-toggle="dropdown"
-                                                aria-haspopup="true"
-                                                aria-expanded="false"
-                                            >
-                                                <i className="fas fa-ellipsis-h"></i>
-                                            </button>
-                                            <div
-                                                className="dropdown-menu"
-                                                aria-labelledby="dropdownMenuButton"
-                                            >
-                                                <a className="dropdown-item" href="#">Action</a>
-                                                <a className="dropdown-item" href="#">Another action</a>
-                                                <a className="dropdown-item" href="#">Something else here</a>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <div className="card-title">Sản Phẩm Dùng Nhiều</div>
                                 </div>
                             </div>
                             <div className="card-body p-0">
-                                <div className="table-responsive">
+                                <div className="table-responsive text-center">
                                     <table className="table align-items-center mb-0">
                                         <thead className="thead-light">
                                             <tr>
-                                                <th scope="col">Payment Number</th>
-                                                <th scope="col" className="text-end">Date & Time</th>
-                                                <th scope="col" className="text-end">Amount</th>
-                                                <th scope="col" className="text-end">Status</th>
+                                                <th scope="col">STT</th>
+                                                <th style={{ width: '10%' }} scope="col">Ảnh</th>
+                                                <th scope="col">Tên sản phẩm</th>
+                                                <th scope="col">Mã hiệu</th>
+                                                <th scope="col">Giá</th>
+                                                <th scope="col">Trạng thái</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <th scope="row">
-                                                    <button
-                                                        className="btn btn-icon btn-round btn-success btn-sm me-2"
-                                                    >
-                                                        <i className="fa fa-check"></i>
-                                                    </button>
-                                                    Payment from #10231
-                                                </th>
-                                                <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                                                <td className="text-end">$250.00</td>
-                                                <td className="text-end">
-                                                    <span className="badge badge-success">Completed</span>
+                                                <td>1</td>
+                                                <td>
+                                                    <img className="img-fluid rounded w-100" src='https://firebasestorage.googleapis.com/v0/b/huong-sen-restaurant.appspot.com/o/images%2Fhuong-sen-logo.png?alt=media&token=f117d5c3-ebc4-4449-a0c7-eaa903b2087a' alt="Image"/>
+                                                </td>
+                                                <td>Bánh da lợn hoi</td>
+                                                <td>Pc9283</td>
+                                                <td>
+                                                    <div>
+                                                        <span className="text-danger text-decoration-line-through">{formatCurrency(200000)}</span>
+                                                        <div>{formatCurrency(300000)}</div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span className="badge badge-success">Hoạt động</span>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th scope="row">
-                                                    <button
-                                                        className="btn btn-icon btn-round btn-success btn-sm me-2"
-                                                    >
-                                                        <i className="fa fa-check"></i>
-                                                    </button>
-                                                    Payment from #10231
-                                                </th>
-                                                <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                                                <td className="text-end">$250.00</td>
-                                                <td className="text-end">
-                                                    <span className="badge badge-success">Completed</span>
+                                                <td>1</td>
+                                                <td>
+                                                    <img className="img-fluid rounded w-100" src='https://firebasestorage.googleapis.com/v0/b/huong-sen-restaurant.appspot.com/o/images%2Fhuong-sen-logo.png?alt=media&token=f117d5c3-ebc4-4449-a0c7-eaa903b2087a' alt="Image"/>
+                                                </td>
+                                                <td>Bánh da lợn hoi</td>
+                                                <td>Pc9283</td>
+                                                <td>
+                                                    <div>
+                                                        <span className="text-danger text-decoration-line-through">{formatCurrency(200000)}</span>
+                                                        <div>{formatCurrency(300000)}</div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span className="badge badge-success">Hoạt động</span>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th scope="row">
-                                                    <button
-                                                        className="btn btn-icon btn-round btn-success btn-sm me-2"
-                                                    >
-                                                        <i className="fa fa-check"></i>
-                                                    </button>
-                                                    Payment from #10231
-                                                </th>
-                                                <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                                                <td className="text-end">$250.00</td>
-                                                <td className="text-end">
-                                                    <span className="badge badge-success">Completed</span>
+                                                <td>1</td>
+                                                <td>
+                                                    <img className="img-fluid rounded w-100" src='https://firebasestorage.googleapis.com/v0/b/huong-sen-restaurant.appspot.com/o/images%2Fhuong-sen-logo.png?alt=media&token=f117d5c3-ebc4-4449-a0c7-eaa903b2087a' alt="Image"/>
+                                                </td>
+                                                <td>Bánh da lợn hoi</td>
+                                                <td>Pc9283</td>
+                                                <td>
+                                                    <div>
+                                                        <span className="text-danger text-decoration-line-through">{formatCurrency(200000)}</span>
+                                                        <div>{formatCurrency(300000)}</div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span className="badge badge-success">Hoạt động</span>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th scope="row">
-                                                    <button
-                                                        className="btn btn-icon btn-round btn-success btn-sm me-2"
-                                                    >
-                                                        <i className="fa fa-check"></i>
-                                                    </button>
-                                                    Payment from #10231
-                                                </th>
-                                                <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                                                <td className="text-end">$250.00</td>
-                                                <td className="text-end">
-                                                    <span className="badge badge-success">Completed</span>
+                                                <td>1</td>
+                                                <td>
+                                                    <img className="img-fluid rounded w-100" src='https://firebasestorage.googleapis.com/v0/b/huong-sen-restaurant.appspot.com/o/images%2Fhuong-sen-logo.png?alt=media&token=f117d5c3-ebc4-4449-a0c7-eaa903b2087a' alt="Image"/>
+                                                </td>
+                                                <td>Bánh da lợn hoi</td>
+                                                <td>Pc9283</td>
+                                                <td>
+                                                    <div>
+                                                        <span className="text-danger text-decoration-line-through">{formatCurrency(200000)}</span>
+                                                        <div>{formatCurrency(300000)}</div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span className="badge badge-success">Hoạt động</span>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th scope="row">
-                                                    <button
-                                                        className="btn btn-icon btn-round btn-success btn-sm me-2"
-                                                    >
-                                                        <i className="fa fa-check"></i>
-                                                    </button>
-                                                    Payment from #10231
-                                                </th>
-                                                <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                                                <td className="text-end">$250.00</td>
-                                                <td className="text-end">
-                                                    <span className="badge badge-success">Completed</span>
+                                                <td>1</td>
+                                                <td>
+                                                    <img className="img-fluid rounded w-100" src='https://firebasestorage.googleapis.com/v0/b/huong-sen-restaurant.appspot.com/o/images%2Fhuong-sen-logo.png?alt=media&token=f117d5c3-ebc4-4449-a0c7-eaa903b2087a' alt="Image"/>
                                                 </td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">
-                                                    <button
-                                                        className="btn btn-icon btn-round btn-success btn-sm me-2"
-                                                    >
-                                                        <i className="fa fa-check"></i>
-                                                    </button>
-                                                    Payment from #10231
-                                                </th>
-                                                <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                                                <td className="text-end">$250.00</td>
-                                                <td className="text-end">
-                                                    <span className="badge badge-success">Completed</span>
+                                                <td>Bánh da lợn hoi</td>
+                                                <td>Pc9283</td>
+                                                <td>
+                                                    <div>
+                                                        <span className="text-danger text-decoration-line-through">{formatCurrency(200000)}</span>
+                                                        <div>{formatCurrency(300000)}</div>
+                                                    </div>
                                                 </td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">
-                                                    <button
-                                                        className="btn btn-icon btn-round btn-success btn-sm me-2"
-                                                    >
-                                                        <i className="fa fa-check"></i>
-                                                    </button>
-                                                    Payment from #10231
-                                                </th>
-                                                <td className="text-end">Mar 19, 2020, 2.45pm</td>
-                                                <td className="text-end">$250.00</td>
-                                                <td className="text-end">
-                                                    <span className="badge badge-success">Completed</span>
+                                                <td>
+                                                    <span className="badge badge-success">Hoạt động</span>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                            <div className="card-header">
+                                <div className="card-head-row card-tools-still-right">
+                                    <button type="button" className="btn btn-outline-success text-center">Xem thêm</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-8">
+                        <div className="card card-round">
+                            <div className="card-header">
+                                <div className="card-head-row card-tools-still-right">
+                                    <div className="card-title">Hóa Đơn Mới</div>
+                                </div>
+                            </div>
+                            <div className="card-body p-0">
+                                <div className="table-responsive text-center">
+                                    <table className="table align-items-center mb-0">
+                                        <thead className="thead-light">
+                                            <tr>
+                                                <th scope="col">STT</th>
+                                                <th scope="col">Tên</th>
+                                                <th scope="col">Trạng thái</th>
+                                                <th scope="col">Tổng</th>
+                                                <th scope="col">Ngày thêm</th>
+                                                <th scope="col">Chi tiết</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>
+                                                    Tủn Tủn
+                                                </td>
+                                                <td>Đang thiếu nợ</td>
+                                                <td><div>{formatCurrency(300000)}</div></td>
+                                                <td>
+                                                    2024/12/11
+                                                </td>
+                                                <td>
+                                                    <Link><span className="badge badge-success">Xem</span></Link>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>
+                                                    Tủn Tủn
+                                                </td>
+                                                <td>Đang thiếu nợ</td>
+                                                <td><div>{formatCurrency(300000)}</div></td>
+                                                <td>
+                                                    2024/12/11
+                                                </td>
+                                                <td>
+                                                    <Link><span className="badge badge-success">Xem</span></Link>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>
+                                                    Tủn Tủn
+                                                </td>
+                                                <td>Đang thiếu nợ</td>
+                                                <td><div>{formatCurrency(300000)}</div></td>
+                                                <td>
+                                                    2024/12/11
+                                                </td>
+                                                <td>
+                                                    <Link><span className="badge badge-success">Xem</span></Link>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>
+                                                    Tủn Tủn
+                                                </td>
+                                                <td>Đang thiếu nợ</td>
+                                                <td><div>{formatCurrency(300000)}</div></td>
+                                                <td>
+                                                    2024/12/11
+                                                </td>
+                                                <td>
+                                                    <Link><span className="badge badge-success">Xem</span></Link>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>1</td>
+                                                <td>
+                                                    Tủn Tủn
+                                                </td>
+                                                <td>Đang thiếu nợ</td>
+                                                <td><div>{formatCurrency(300000)}</div></td>
+                                                <td>
+                                                    2024/12/11
+                                                </td>
+                                                <td>
+                                                    <Link><span className="badge badge-success">Xem</span></Link>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div className="card-header">
+                                <div className="card-head-row card-tools-still-right">
+                                    <button type="button" className="btn btn-outline-success text-center">Xem thêm</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="card card-round">
+                            <div className="card-body">
+                                <div className="card-head-row card-tools-still-right">
+                                    <div className="card-title">Danh sách khuyến mãi</div>
+                                </div>
+                                <div className="card-list">
+                                    <div className='item-list d-flex justify-content-between'>
+                                        <div className="md-5">
+                                            <div><strong>Mã: </strong> <span>pc02938</span></div>
+                                            <div><strong>Giảm: </strong> <span className='text-danger'>12%</span></div>
+                                        </div>
+                                        <div className="md-5">
+                                            2024/12/01-2023/12/12
+                                        </div>
+                                    </div>
+                                    <div className='item-list d-flex justify-content-between'>
+                                        <div className="md-5">
+                                            <div><strong>Mã: </strong> <span>pc02938</span></div>
+                                            <div><strong>Giảm: </strong> <span className='text-danger'>12%</span></div>
+                                        </div>
+                                        <div className="md-5">
+                                            2024/12/01-2023/12/12
+                                        </div>
+                                    </div>
+                                    <div className='item-list d-flex justify-content-between'>
+                                        <div className="md-5">
+                                            <div><strong>Mã: </strong> <span>pc02938</span></div>
+                                            <div><strong>Giảm: </strong> <span className='text-danger'>12%</span></div>
+                                        </div>
+                                        <div className="md-5">
+                                            2024/12/01-2023/12/12
+                                        </div>
+                                    </div>
+                                    <div className='item-list d-flex justify-content-between'>
+                                        <div className="md-5">
+                                            <div><strong>Mã: </strong> <span>pc02938</span></div>
+                                            <div><strong>Giảm: </strong> <span className='text-danger'>12%</span></div>
+                                        </div>
+                                        <div className="md-5">
+                                            2024/12/01-2023/12/12
+                                        </div>
+                                    </div>
+                                    <div className='item-list d-flex justify-content-between'>
+                                        <div className="md-5">
+                                            <div><strong>Mã: </strong> <span>pc02938</span></div>
+                                            <div><strong>Giảm: </strong> <span className='text-danger'>12%</span></div>
+                                        </div>
+                                        <div className="md-5">
+                                            2024/12/01-2023/12/12
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" className="btn btn-outline-success mt-2">Xem thêm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <div className="card card-round">
+                            <div className="card-header">
+                                <div className="card-head-row">
+                                    <div className="card-title">Thống Kê Doanh Thu</div>
+                                </div>
+                            </div>
+                            <div className="card-body">
+                                <div className="chart-container" style={{ minHeight: "375px" }}>
+                                    <ReactEcharts option={revenueOption()} style={{ height: '400px', width: '100%' }} />
+                                </div>
+                                <div id="myChartLegend"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <div className="card card-round">
+                            <div className="card-header">
+                                <div className="card-head-row">
+                                    <div className="card-title">Thống Kê Hóa Đơn</div>
+                                </div>
+                            </div>
+                            <div className="card-body">
+                                <div className="chart-container" style={{ minHeight: "375px" }}>
+                                    <ReactEcharts option={orderOption()} style={{ height: '400px', width: '100%' }} />
                                 </div>
                             </div>
                         </div>
