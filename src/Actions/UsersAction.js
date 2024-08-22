@@ -63,21 +63,32 @@ export const fetchUsers = (fullname = '', page = 1, pageSize = 5) => {
     };
 };
 
-// export const addEmployee = (employee) => {
-//     return dispatch => {
-//         dispatch(fetchEmployeeRequest());
-//         http.post(`${API_ENDPOINT}/${AdminConfig.routes.employee}`, employee)
-//             .then(response => {
-//                 dispatch(fetchUsersuccess(response.data.data));
-//                 dispatch(fetchUsers()); 
-//                 dispatch(fetchRole()); 
-//             })
-//             .catch(error => {
-//                 const errorMsg = error.message;
-//                 dispatch(fetchEmployeeFailure(errorMsg));
-//             });
-//     };
-// };
+export const checkEmailExists = async (email) => {
+    try {
+        const response = await http.post(`${API_ENDPOINT}/${AdminConfig.routes.users}/check-email-exists`, { email });
+        return response.data.exists ? response.data.user : null;
+    } catch (error) {
+        console.error('Error checking user existence:', error);
+        throw error; // Ném lỗi để xử lý ở nơi gọi hàm
+    }
+};
+
+
+export const addUser = (user) => {
+    return dispatch => {
+        dispatch(fetchUserRequest());
+        http.post(`${API_ENDPOINT}/${AdminConfig.routes.users}`, user)
+            .then(response => {
+                dispatch(fetchUserSuccess(response.data.data));
+                dispatch(fetchUsers()); 
+                dispatch(fetchRole()); 
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchUserFailure(errorMsg));
+            });
+    };
+};
 
 // export const updateEmployee = (id, data) => {
 //     return dispatch => {
@@ -94,19 +105,19 @@ export const fetchUsers = (fullname = '', page = 1, pageSize = 5) => {
 //     };
 // };
 
-// export const deleteEmployee = (id) => {
-//     return dispatch => {
-//         dispatch(fetchEmployeeRequest());
-//         http.delete(`${API_ENDPOINT}/${AdminConfig.routes.employee}/${id}`)
-//             .then(() => {
-//                 dispatch(fetchUsers()); // Cập nhật danh sách nhân viên sau khi xóa
-//             })
-//             .catch(error => {
-//                 const errorMsg = error.message;
-//                 dispatch(fetchEmployeeFailure(errorMsg));
-//             });
-//     };
-// };
+export const deleteUsers = (id) => {
+    return dispatch => {
+        dispatch(fetchUserRequest());
+        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.users}/${id}`)
+            .then(() => {
+                dispatch(fetchUsers()); // Cập nhật danh sách nhân viên sau khi xóa
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchUserFailure(errorMsg));
+            });
+    };
+};
 
 
 // export const checkEmailExists = async (email) => {

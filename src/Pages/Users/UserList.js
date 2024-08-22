@@ -11,11 +11,13 @@ import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 import { SuccessAlert } from '../../Components/Alert/Alert';
-import { fetchUsers } from '../../Actions/UsersAction';
+import { deleteUsers, fetchUsers } from '../../Actions/UsersAction';
+import { fetchRole } from '../../Actions/RoleActions';
 
 export default function CustomerList() {
     const dispatch = useDispatch();
     const userState = useSelector(state => state.users);
+    const roleState = useSelector(state => state.role);
 
 
     const navigate = useNavigate();
@@ -25,7 +27,7 @@ export default function CustomerList() {
     const urlPage = parseInt(query.get('page')) || 1;
 
     const [open, setOpen] = useState(false);
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [selectedUser, setselectedUser] = useState(null);
     const [openSuccess, setOpenSuccess] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -57,14 +59,24 @@ export default function CustomerList() {
         navigate(`?page=${userState.currentPage}`);
     }, [userState.currentPage, navigate]);
 
+
+    useEffect(() => {
+        dispatch(fetchRole());
+    }, [dispatch]);
+
+    const getRoleNameById = (roleId) => {
+        const role = roleState.role.find(role => role.id === roleId);
+        return role ? role.name : '';
+    };
+
     const handleClickOpen = (customerId) => {
-        setSelectedCustomer(customerId);
+        setselectedUser(customerId);
         setOpen(true);
     };
 
     const handleClose = () => {
         setOpen(false);
-        setSelectedCustomer(null);
+        setselectedUser(null);
     };
 
     const handleSuccessClose = () => {
@@ -72,10 +84,10 @@ export default function CustomerList() {
     };
 
 
-    const handleConfirm = async () => {
-        // if (selectedCustomer) {
+    const handleDelete = async () => {
+        // if (selectedUser) {
         //     try {
-        //         await dispatch(deleteCustomer(selectedCustomer));
+        //         await dispatch(deleteUsers(selectedUser));
         //         handleClose();
         //         setOpenSuccess(true); // Hiển thị thông báo thành công
         //     } catch (error) {
@@ -114,9 +126,6 @@ export default function CustomerList() {
                         <Link to="/users/add" className="btn btn-primary btn-round">Thêm tài khoản</Link>
                     </div>
                 </div>
-
-
-
                 <div className="row">
                     <div className="col-md-12">
                         <div className="card card-round">
@@ -150,14 +159,15 @@ export default function CustomerList() {
                                     <table className="table align-items-center mb-0">
                                         <thead className="thead-light">
                                             <tr>
-                                                <th scope="col">ID</th>
+                                                <th scope="col">#</th>
                                                 <th scope="col">Ảnh đại diện</th>
                                                 <th scope="col">Tên đầy đủ</th>
                                                 <th scope="col">Email</th>
                                                 <th scope="col">SĐT</th>
                                                 <th scope="col">Địa chỉ</th>
-                                                <th scope="col">Vai trò</th>
                                                 <th scope="col">Loại người dùng</th>
+                                                <th scope="col">Vai trò (dành cho nhân viên)</th>
+                                                <th scope="col">Trạng thái</th>
                                                 <th scope="col">Thao tác</th>
                                             </tr>
                                         </thead>
@@ -188,12 +198,21 @@ export default function CustomerList() {
                                                     <td>{user.email}</td>
                                                     <td>{user.tel}</td>
                                                     <td>{user.address}</td>
-                                                    <td>{user.role_id}</td>
                                                     <td>
                                                         {
                                                             user.user_type == "Khách Hàng"
-                                                                ? <span className="badge badge-success">Khách Hàng</span>
-                                                                : <span className="badge badge-danger">Nhân Viên</span>
+                                                                ? <span className="badge badge-secondary">Khách Hàng</span>
+                                                                : <span className="badge badge-info">Nhân Viên</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <span className="badge badge-warning">{getRoleNameById(user.role_id)}</span>
+                                                    </td>
+                                                    <td>
+                                                        {
+                                                            user.status == 1
+                                                                ? <span className="badge badge-success">Hoạt động</span>
+                                                                : <span className="badge badge-danger">Ngưng hoạt động</span>
                                                         }
                                                     </td>
                                                     <td>
@@ -226,7 +245,7 @@ export default function CustomerList() {
             <DialogConfirm
                 open={open}
                 onClose={handleClose}
-                onConfirm={handleConfirm}
+                onConfirm={handleDelete}
             />
         </div>
     );

@@ -1,23 +1,30 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
-import { addCustomer, checkEmailExists } from "../../Actions/CustomerActions";
 import ImageUploadComponent from "../../Components/ImageUpload/ImageUpload";
 import { DangerAlert, SuccessAlert } from "../../Components/Alert/Alert";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
+import { addUser, checkEmailExists } from "../../Actions/UsersAction";
+import { fetchRole } from "../../Actions/RoleActions";
 
 export default function UserAdd() {
     const dispatch = useDispatch();
-    const { register, handleSubmit, formState: { errors }, setError, watch } = useForm();
+    const { register, handleSubmit, clearErrors, formState: { errors }, setError, watch } = useForm();
+    const roleState = useSelector(state => state.role);
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        dispatch(fetchRole());
+    }, [dispatch]);
 
     const [avatar, setAvatar] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
     const [openError, setOpenError] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [userType, setUserType] = useState('Khách Hàng'); // Default to 'Khách Hàng'
+
+
     const [role, setRole] = useState('');
     const [status, setStatus] = useState('');
 
@@ -55,36 +62,24 @@ export default function UserAdd() {
         }
     };
 
-
-
-    const handleUserTypeChange = (event) => {
-        const selectedUserType = event.target.value;
-        console.log("Selected User Type:", selectedUserType); // Debug log
-        setUserType(selectedUserType);
-        setRole(''); // Reset role
-        setStatus(''); // Reset status
-    };
-
-
     const onSubmit = async (data) => {
-        console.log(data)
-        // const emailIsValid = await validateEmailExists(data.email);
-        // if (!emailIsValid) return;
+        const emailIsValid = await validateEmailExists(data.email);
+        if (!emailIsValid) return;
 
-        // setLoading(true);
-        // data.avatar = avatar;
-        // try {
-        //     await dispatch(addCustomer(data));
-        //     setOpenSuccess(true);
-        //     setTimeout(() => {
-        //         navigate('/customer');
-        //     }, 2000);
-        // } catch (error) {
-        //     setOpenError(true); // Hiển thị thông báo lỗi
-        //     console.error('Error adding customer:', error);
-        // } finally {
-        //     setLoading(false);
-        // }
+        setLoading(true);
+        data.avatar = avatar;
+        try {
+            await dispatch(addUser(data));
+            setOpenSuccess(true);
+            setTimeout(() => {
+                navigate('/users');
+            }, 2000);
+        } catch (error) {
+            setOpenError(true); // Hiển thị thông báo lỗi
+            console.error('Error user customer:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
 
@@ -110,7 +105,7 @@ export default function UserAdd() {
                                 <div className="row">
                                     <div className="col-md-6">
                                         <div className="form-group">
-                                            <label htmlFor="fullname">Tên đầy đủ</label>
+                                            <label htmlFor="fullname">Họ và tên</label>
                                             <input
                                                 type="text"
                                                 className="form-control"
@@ -144,6 +139,14 @@ export default function UserAdd() {
                                                         value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
                                                         message: 'Email không hợp lệ',
                                                     },
+                                                    validate: async (value) => {
+                                                        // Clear previous errors before validation
+                                                        clearErrors('email');
+
+                                                        // Validate if email exists
+                                                        const isValid = await validateEmailExists(value);
+                                                        return isValid || 'Email đã tồn tại';
+                                                    }
                                                 })}
                                             />
                                             {errors.email && <p className="text-danger">{errors.email.message}</p>}
@@ -170,63 +173,23 @@ export default function UserAdd() {
                                             <select
                                                 className="form-control"
                                                 id="user_type"
-                                                value={userType}
-                                                onChange={handleUserTypeChange}
                                                 {...register('user_type')}
                                             >
                                                 <option value="Khách Hàng">Khách hàng</option>
                                                 <option value="Nhân Viên">Nhân viên</option>
                                             </select>
-
                                         </div>
-
-                                        {userType === 'Nhân Viên' && (
-                                            <>
-                                                <div className="form-group">
-                                                    <label htmlFor="role_id">Vai trò</label>
-                                                    <select
-                                                        className="form-control"
-                                                        id="role_id"
-                                                        value={role}
-                                                        onChange={(e) => setRole(e.target.value)}
-                                                        {...register('role_id')}
-                                                    >
-                                                        <option value="1" selected>Nhân viên</option>
-                                                        <option value="2">Quản trị viên</option>
-                                                    </select>
-                                                </div>
-                                                <div className="form-group">
-                                                    <label htmlFor="status">Trạng thái</label>
-                                                    <select
-                                                        className="form-control"
-                                                        id="status"
-                                                        value={status}
-                                                        onChange={(e) => setStatus(e.target.value)}
-                                                        {...register('status')}
-
-                                                    >
-                                                        <option value="active" selected>Đang đi làm</option>
-                                                        <option value="inactive">Đã nghỉ làm</option>
-                                                    </select>
-                                                </div>
-                                            </>
-                                        )}
-                                        {userType === 'Khách Hàng' && (
-                                            <div className="form-group">
-                                                <label htmlFor="status">Trạng thái</label>
-                                                <select
-                                                    className="form-control"
-                                                    id="status"
-                                                    value={status}
-                                                    onChange={(e) => setStatus(e.target.value)}
-                                                    {...register('status')}
-
-                                                >
-                                                    <option value="active" selected>Hoạt động</option>
-                                                    <option value="inactive">Ngưng hoạt động</option>
-                                                </select>
-                                            </div>
-                                        )}
+                                        <div className="form-group">
+                                            <label htmlFor="status">Trạng thái</label>
+                                            <select
+                                                className="form-control"
+                                                id="status"
+                                                {...register('status')}
+                                            >
+                                                <option value="1" selected>Hoạt động</option>
+                                                <option value="0">Ngưng hoạt động</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div className="col-md-6">
                                         <div className="form-group">
@@ -255,9 +218,9 @@ export default function UserAdd() {
                                                         message: 'Mật khẩu phải có ít nhất 8 ký tự',
                                                     },
                                                     pattern: {
-                                                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]*$/,
-                                                        message: 'Mật khẩu phải bao gồm chữ hoa, số và ký tự đặc biệt',
-                                                    }
+                                                        value: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+                                                        message: 'Mật khẩu phải bao gồm số và ký tự đặc biệt',
+                                                    },
                                                 })}
                                             />
                                             {errors.password && <p className="text-danger">{errors.password.message}</p>}
@@ -276,6 +239,47 @@ export default function UserAdd() {
                                             />
                                             {errors.confirmPassword && <p className="text-danger">{errors.confirmPassword.message}</p>}
                                         </div>
+                                        <div className="form-group">
+                                            <label htmlFor="role_id">Vai trò <strong>(Dành cho nhân viên)</strong></label>
+                                            <select
+                                                className="form-control"
+                                                id="role_id"
+                                                {...register('role_id', {
+                                                    valueAsNumber: true
+                                                })}
+                                            >
+                                                <option value="" selected>Chọn vai trò cho nhân viên</option>
+                                                {roleState.role && roleState.role.map((item, index) => (
+                                                    <option key={item.id} value={item.id}>{item.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="salary">Lương <strong>(Dành cho nhân viên)</strong></label>
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                id="salary"
+                                                placeholder="Nhập lương"
+                                                {...register('salary', {
+                                                    valueAsNumber: true,
+                                                    validate: value => {
+                                                        if (value === undefined || value === '') {
+                                                            return true;
+                                                        }
+                                                        if (value < 10000) {
+                                                            return 'Lương phải lớn hơn hoặc bằng 10.000đ';
+                                                        }
+                                                        if (value < 0) {
+                                                            return 'Lương không được là số âm';
+                                                        }
+                                                        return true; // Không có lỗi
+                                                    }
+                                                })}
+                                            />
+                                            {errors.salary && <p className="text-danger">{errors.salary.message}</p>}
+                                        </div>
+
                                         <div className="form-group">
                                             <label htmlFor="avatar">Ảnh đại diện</label><br />
                                             <ImageUploadComponent id="avatar" onImageUpload={handleImageUpload} />
