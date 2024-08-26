@@ -374,18 +374,12 @@ export default function Header() {
                                             <div className="u-text">
                                                 <h4>{user_admin ? user_admin.username : 'Guest'}</h4>
                                                 <p className="text-muted">{user_admin ? user_admin.email : 'Guest'}</p>
-                                                <a
-                                                    href="profile.html"
-                                                    className="btn btn-xs btn-secondary btn-sm"
-                                                >Xem Hồ Sơ</a>
                                             </div>
                                         </div>
                                     </li>
                                     <li>
                                         <div className="dropdown-divider"></div>
                                         <Link to='acount'><a className="dropdown-item" href="#">Thông tin cá nhân</a></Link>
-                                        <div className="dropdown-divider"></div>
-                                        <a className="dropdown-item" href="#">Cài đặt tài khoản</a>
                                         <div className="dropdown-divider"></div>
                                         <a className="dropdown-item" href='#' onClick={logOut}>Đăng xuất</a>
                                     </li>

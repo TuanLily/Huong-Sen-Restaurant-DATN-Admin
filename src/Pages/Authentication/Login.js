@@ -9,6 +9,11 @@ export default function Login() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors } } = useForm();
+    const [passwordVisible, setPasswordVisible] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        setPasswordVisible(!passwordVisible);
+    };
 
     let authState = useSelector(state => state.auth);
     const alertShown = useRef(false);
@@ -25,7 +30,7 @@ export default function Login() {
     };
 
     const onSubmit = (data) => {
-        dispatch(fetchLogin(data.username, data.password));
+        dispatch(fetchLogin(data.email, data.password));
         setClick(true);
     };
 
@@ -68,25 +73,23 @@ export default function Login() {
                             <form className="login-form" onSubmit={handleSubmit(onSubmit)}>
                                 <div className="form-group">
                                     <div className="input-group">
-                                        <div className="input-group-prepend">
-                                            <span className="input-group-text" style={{ height: '100%', display: 'flex', alignItems: 'center', borderTopRightRadius: '0', borderBottomRightRadius: '0' }}>
-                                                <i className="fa fa-user"></i>
-                                            </span>
-                                        </div>
-                                        <input type="text" className="form-control rounded-right" placeholder="Username" style={{ borderTopLeftRadius: '0', borderBottomLeftRadius: '0' }} {...register('username', { required: 'Vui lòng điền tên đăng nhập!' })}/>
+                                        <span className="input-group-text" style={{ cursor: 'pointer' }}>
+                                            <i className="fa fa-envelope"></i>
+                                        </span>
+                                        <input type="text" className="form-control rounded-right" placeholder="Email" style={{ borderTopLeftRadius: '0', borderBottomLeftRadius: '0' }} {...register('email', { required: 'Vui lòng điền email!', pattern: {value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: 'Email không đúng định dạng!'}})}/>
                                     </div>
-                                    {errors.username && <div className="text-danger">{errors.username.message}</div>}
+                                    {errors.email && <div className="text-danger">{errors.email.message}</div>}
                                 </div>
                                 <div className="form-group">
                                     <div className="input-group">
-                                        <div className="input-group-prepend">
-                                            <span className="input-group-text" style={{ height: '100%', display: 'flex', alignItems: 'center', borderTopRightRadius: '0', borderBottomRightRadius: '0' }}>
-                                                <i className="fa fa-lock"></i>
-                                            </span>
-                                        </div>
-                                        <input type="password" className="form-control rounded-right" placeholder="Password" style={{ borderTopLeftRadius: '0', borderBottomLeftRadius: '0' }} {...register('password', { required: 'Vui lòng điền mật khẩu!' })}/>
+                                        <span className="input-group-text" style={{ cursor: 'pointer' }}>
+                                            <i className="fa fa-lock"></i>
+                                        </span>
+                                        <input type={passwordVisible ? 'text' : 'password'} className="form-control rounded-right" placeholder="Password" style={{ borderTopLeftRadius: '0', borderBottomLeftRadius: '0' }} {...register('password', { required: 'Vui lòng điền mật khẩu!' })}/>
+                                        <span className="input-group-text" onClick={togglePasswordVisibility} style={{ cursor: 'pointer' }}>
+                                            <i className={passwordVisible ? 'fa fa-eye-slash w-15' : 'fa fa-eye w-15'} aria-hidden="true"></i>
+                                        </span>
                                     </div>
-                                    {errors.password && <div className="text-danger">{errors.password.message}</div>}
                                 </div>
                                 <div className="form-group text-center">
                                     <button type="submit" className="btn btn-primary rounded submit">Đăng nhập</button>

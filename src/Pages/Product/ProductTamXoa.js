@@ -130,7 +130,6 @@ export default function ProductTamXoa () {
                                                 <th scope="col">STT</th>
                                                 <th style={{ width: '10%' }} scope="col">Hình ảnh</th>
                                                 <th scope="col">Tên sản phẩm</th>
-                                                <th scope="col">Mô tả</th>
                                                 <th scope="col">Danh mục</th>
                                                 <th scope="col">Trạng thái</th>
                                                 <th scope="col">Giá</th>
@@ -157,7 +156,6 @@ export default function ProductTamXoa () {
                                                             <img className="img-fluid rounded w-100" src={item.image || '../Assets/Images/default.jpg'} alt="Image"/>
                                                         </td>
                                                         <td>{item.name}</td>
-                                                        <td>{item.description}</td>
                                                         <td>{getCategoryName(item.categories_id)}</td>
                                                         <td>
                                                             {

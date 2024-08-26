@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { fetchProductCategory, deleteProductCategory, setCurrentPage } from '../../Actions/ProductCategoryActions';
+import { fetchProductCategoryHoatDong, fetchProductCategory, deleteProductCategory, setCurrentPage } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
@@ -27,7 +27,7 @@ export default function CategoryProductList () {
 
     // Debounce hàm tìm kiếm để giảm số lần gọi API
     const debouncedSearch = useMemo(() => debounce((term) => {
-        dispatch(fetchProductCategory(term, urlPage, productCategoryState.pageSize));
+        dispatch(fetchProductCategoryHoatDong(term, urlPage, productCategoryState.pageSize));
         dispatch(setCurrentPage(1));
     }, 1000), [dispatch, urlPage, productCategoryState.pageSize]);
 
@@ -39,7 +39,7 @@ export default function CategoryProductList () {
 
     useEffect(() => {
         if (!searchTerm) {
-            dispatch(fetchProductCategory('', urlPage, productCategoryState.pageSize));
+            dispatch(fetchProductCategoryHoatDong('', urlPage, productCategoryState.pageSize));
         }
     }, [dispatch, urlPage, productCategoryState.pageSize]);
 
@@ -91,7 +91,7 @@ export default function CategoryProductList () {
     const handlePageChange = (page) => {
         navigate(`?page=${page}`); // Cập nhật URL với page
         dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-        dispatch(fetchProductCategory(searchTerm, page, productCategoryState.pageSize));
+        dispatch(fetchProductCategoryHoatDong(searchTerm, page, productCategoryState.pageSize));
     };
 
     return (
@@ -202,7 +202,7 @@ export default function CategoryProductList () {
                                     <CustomPagination
                                         count={productCategoryState.totalPages} // Tổng số trang
                                         currentPageSelector={state => state.product_category.currentPage} // Selector để lấy trang hiện tại
-                                        fetchAction={(page, pageSize) => fetchProductCategory(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
+                                        fetchAction={(page, pageSize) => fetchProductCategoryHoatDong(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
                                         onPageChange={handlePageChange} 
                                     />
                                 </div>

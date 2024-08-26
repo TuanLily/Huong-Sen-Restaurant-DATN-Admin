@@ -59,6 +59,33 @@ export const fetchProductCategory = (name = '', page = 1, pageSize = 10) => {
     };
 };
 
+export const fetchProductCategoryHoatDong = (name = '', page = 1, pageSize = 10) => {
+    return dispatch => {
+        dispatch(fetchProductCategoryRequest());
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/hoat_dong`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (name) {
+            url.searchParams.append('search', name);
+        }
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        http.get(url.toString())
+            .then(response => {
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchProductCategorySuccess(results, totalCount, totalPages, currentPage));
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchProductCategoryFailure(errorMsg));
+            });
+    };
+};
+
 export const addProductCategory = (product) => {
     return dispatch => {
         dispatch(fetchProductCategoryRequest());
