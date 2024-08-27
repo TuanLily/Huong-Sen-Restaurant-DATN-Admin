@@ -8,7 +8,11 @@ export const CHECK_PASSWORD_REQUEST = 'CHECK_PASSWORD_REQUEST';
 export const CHECK_PASSWORD_SUCCESS = 'CHECK_PASSWORD_SUCCESS';
 export const CHECK_PASSWORD_FAILURE = 'CHECK_PASSWORD_FAILURE';
 
+export const SHOW_SUCCESS_ALERT = 'SHOW_SUCCESS_ALERT';
+export const SHOW_ERROR_ALERT = 'SHOW_ERROR_ALERT';
+
 import { API_ENDPOINT } from "../Config/APIs";
+import { API_DATA } from "../Config/APIs";
 import AdminConfig from '../Config/index';
 
 export const fetchAuthRequest = () => ({
@@ -37,6 +41,16 @@ export const checkPasswordSuccess = message => ({
 export const checkPasswordFailure = error => ({
     type: CHECK_PASSWORD_FAILURE,
     payload: error
+});
+
+export const showSuccessAlert = (message) => ({
+    type: SHOW_SUCCESS_ALERT,
+    payload: message,
+});
+
+export const showErrorAlert = (message) => ({
+    type: SHOW_ERROR_ALERT,
+    payload: message,
 });
 
 // Đăng nhập
@@ -91,5 +105,45 @@ export const updateProfile = (id, data) => {
                 console.error('Update profile error:', error); // Kiểm tra lỗi
                 dispatch(fetchAuthFailure(error.message));
             });
+    };
+};
+
+// Gửi email xác thực khi quên mật khẩu
+export const forgotPassword = (email) => async (dispatch) => {
+    try {
+        const response = await axios.post(`${API_ENDPOINT}/${API_DATA.forgotPassword}`, { email });
+        dispatch({ type: FETCH_AUTH_SUCCESS, payload: response.data });
+    } catch (error) {
+        // Ném ra lỗi với thông điệp cụ thể
+        if (error.response && error.response.status === 404) {
+            throw new Error('Email không tồn tại trong hệ thống.');
+        } else {
+            throw new Error('Có lỗi xảy ra, vui lòng thử lại.');
+        }
+    }
+};
+
+// Thay đổi mật khẩu
+export const changePassword = (token, newPassword) => {
+    return async dispatch => {
+        dispatch(fetchAuthRequest());
+        try {
+            const response = await axios.post(`${API_ENDPOINT}/${API_DATA.changePassword}`, { token, newPassword });
+            if (response.status === 200) {
+                const data = response.data;
+                console.log(data)
+                dispatch(fetchAuthSuccess(data));
+                dispatch(showSuccessAlert('Đổi mật khẩu thành công'));
+            } else {
+                dispatch(fetchAuthFailure('Unexpected response status: ' + response.status));
+                dispatch(showErrorAlert('Không thể đổi mật khẩu'));
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Đã xảy ra lỗi');
+            }
+        } catch (error) {
+            dispatch(fetchAuthFailure(error.response ? error.response.data.message : error.message));
+            dispatch(showErrorAlert(error.response ? error.response.data.message : error.message));
+            throw error;
+        }
     };
 };

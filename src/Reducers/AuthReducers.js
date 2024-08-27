@@ -4,14 +4,18 @@ import {
     FETCH_AUTH_SUCCESS,
     CHECK_PASSWORD_REQUEST,
     CHECK_PASSWORD_SUCCESS,
-    CHECK_PASSWORD_FAILURE
+    CHECK_PASSWORD_FAILURE,
+    SHOW_SUCCESS_ALERT,
+    SHOW_ERROR_ALERT
 } from "../Actions/AuthActions";
 
 const initialState = {
     loading: false,
     auth: null,
     error: '',
-    passwordCheckMessage: ''
+    passwordCheckMessage: '',
+    successAlert: null,
+    errorAlert: null,
 };
 
 const authReducer = (state = initialState, action) => {
@@ -53,6 +57,16 @@ const authReducer = (state = initialState, action) => {
                 loading: false,
                 passwordCheckMessage: '',
                 error: action.payload
+            };
+        case SHOW_SUCCESS_ALERT:
+            return {
+                ...state,
+                successAlert: action.payload,
+            };
+        case SHOW_ERROR_ALERT:
+            return {
+                ...state,
+                errorAlert: action.payload,
             };
         default:
             return state;

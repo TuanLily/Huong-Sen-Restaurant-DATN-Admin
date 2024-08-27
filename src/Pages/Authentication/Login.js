@@ -90,6 +90,7 @@ export default function Login() {
                                             <i className={passwordVisible ? 'fa fa-eye-slash w-15' : 'fa fa-eye w-15'} aria-hidden="true"></i>
                                         </span>
                                     </div>
+                                    {errors.password && <div className="text-danger">{errors.password.message}</div>}
                                 </div>
                                 <div className="form-group text-center">
                                     <button type="submit" className="btn btn-primary rounded submit">Đăng nhập</button>
