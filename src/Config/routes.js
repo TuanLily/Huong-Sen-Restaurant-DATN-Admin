@@ -97,7 +97,9 @@ const AdminRoutes = {
 
     users: 'users',
     usersAdd: 'users/add',
-    usersEdit: 'users/edit/:id'
+    usersEdit: 'users/edit/:id',
+
+    userChats: 'user-chats',
 
 };
 

@@ -100,6 +100,7 @@ import CommentBlogDelete from '../Pages/CommentBlog/CommentBlogDelete';
 import UsersList from "../Pages/Users/UserList";
 import UsersAdd from "../Pages/Users/UserAdd";
 import UsersEdit from "../Pages/Users/UserEdit";
+import UserChatsList from '../Pages/UserChats/UserChatsList';
 
 // Public routes
 const publicAdminRoutes = [
@@ -203,6 +204,10 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.users, component: UsersList },
     { path: AdminConfig.routes.usersAdd, component: UsersAdd },
     { path: AdminConfig.routes.usersEdit, component: UsersEdit },
+
+
+    { path: AdminConfig.routes.userChats, component: UserChatsList },
+
 
 ];
 

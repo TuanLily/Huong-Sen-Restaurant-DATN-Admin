@@ -12,6 +12,7 @@ import tablesReducer from "./TablesReducers";
 import authReducer from "./AuthReducers";
 import commentBlogReducer from "./CommentBlogReducers";
 import userReducer from "./UserReducers";
+import UserChatsReducer from "./UserChatsReducer";
 
 
 const rootReducer = combineReducers({
@@ -31,7 +32,8 @@ const rootReducer = combineReducers({
     tables: tablesReducer,
     auth: authReducer,
     commentBlog: commentBlogReducer,
-    users: userReducer
+    users: userReducer,
+    userChats: UserChatsReducer
 });
 
 export default rootReducer;
