@@ -60,6 +60,29 @@ export const fetchRole = (name = '', page = 1, pageSize = 10) => {
     };
 };
 
+export const fetchRolePermisson = () => {
+    return dispatch => {
+        dispatch(fetchRoleRequest());
+
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.role}`);
+
+        // Không thêm tham số tìm kiếm và phân trang
+
+        http.get(url.toString())
+            .then(response => {
+                const { results } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchRoleSuccess(results));
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchRoleFailure(errorMsg));
+            });
+    };
+};
+
+
 export const addRole = (role) => {
     return async (dispatch) => {
         dispatch(fetchRoleRequest());
