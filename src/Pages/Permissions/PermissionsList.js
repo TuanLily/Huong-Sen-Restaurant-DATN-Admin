@@ -160,20 +160,19 @@ export default function RolesEdit() {
     const roleState = useSelector((state) => state.role);
     const [selectedPermissions, setSelectedPermissions] = useState([]);
     const [selectedRole, setSelectedRole] = useState(null);
-    const [selectedRoleName, setSelectedRoleName] = useState(''); // New state for role name
-
+    const [selectedRoleName, setSelectedRoleName] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
     const [openError, setOpenError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
-        dispatch(fetchRolePermisson()); // Fetch all roles for selection
+        dispatch(fetchRolePermisson());
     }, [dispatch]);
 
     useEffect(() => {
         if (selectedRole) {
-            dispatch(fetchRolePermisson(selectedRole)); // Fetch the selected role details
+            dispatch(fetchRolePermisson(selectedRole));
         }
     }, [selectedRole, dispatch]);
 
@@ -181,16 +180,16 @@ export default function RolesEdit() {
         const role = roleState.role.find((r) => r.id === parseInt(id));
         if (role) {
             setSelectedRole(role.id);
-            setSelectedRoleName(role.name); // Set role name
-            setSelectedPermissions(role.permissions || '');
+            setSelectedRoleName(role.name);
+            setSelectedPermissions(role.permissions?.split(',') || []);
         }
     }, [roleState.role, id]);
 
     const handleCheckboxChange = (id) => {
-        setSelectedPermissions((prevSelected) =>
-            prevSelected.includes(id)
-                ? prevSelected.filter((permission) => permission !== id)
-                : [...prevSelected, id]
+        setSelectedPermissions((prev) =>
+            prev.includes(id)
+                ? prev.filter((permission) => permission !== id)
+                : [...prev, id]
         );
     };
 
@@ -198,51 +197,32 @@ export default function RolesEdit() {
         const allSelected = group.options.every((option) =>
             selectedPermissions.includes(option.id)
         );
-
-        const updatedPermissions = allSelected
-            ? selectedPermissions.filter(
-                (permission) =>
-                    !group.options.some((option) => option.id === permission)
-            )
-            : [
-                ...selectedPermissions,
-                ...group.options
-                    .filter((option) => !selectedPermissions.includes(option.id))
-                    .map((option) => option.id)
-            ];
-
-        setSelectedPermissions(updatedPermissions);
+        setSelectedPermissions((prev) =>
+            allSelected
+                ? prev.filter((permission) => !group.options.some((option) => option.id === permission))
+                : [...prev, ...group.options.map((option) => option.id).filter((id) => !prev.includes(id))]
+        );
     };
 
     const onSubmit = async () => {
         const updatedData = {
-            name: selectedRoleName, // Include role name
-            permissions: selectedPermissions.join(','), // Include selected permissions
+            name: selectedRoleName,
+            permissions: selectedPermissions.join(',')
         };
-        console.log(updatedData);
 
         try {
             await dispatch(updateRole(selectedRole, updatedData));
             setOpenSuccess(true);
-            setTimeout(() => {
-                navigate('/role');
-            }, 2000);
+            setTimeout(() => navigate('/role'), 2000);
         } catch (error) {
             setErrorMessage(error.response?.data?.error || error.message);
             setOpenError(true);
         }
     };
 
-    const handleSearchChange = (event) => {
-        setSearchTerm(event.target.value);
-    };
-
-    const filteredPermissionsData = permissionsData.map(group => ({
-        ...group,
-        options: group.options.filter(option =>
-            option.label.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-    }));
+    const filteredPermissionsData = permissionsData.filter(group =>
+        group.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="container">
@@ -262,7 +242,9 @@ export default function RolesEdit() {
                                             const selectedId = parseInt(e.target.value);
                                             const selectedRole = roleState.role.find(role => role.id === selectedId);
                                             setSelectedRole(selectedId);
-                                            setSelectedRoleName(selectedRole ? selectedRole.name : ''); // Update role name
+                                            setSelectedRoleName(selectedRole ? selectedRole.name : '');
+                                            // Reset selected permissions based on selected role
+                                            setSelectedPermissions(selectedRole?.permissions?.split(',') || []);
                                         }}
                                         value={selectedRole || ''}
                                     >
@@ -278,9 +260,9 @@ export default function RolesEdit() {
                                     <input
                                         type="text"
                                         className="form-control"
-                                        placeholder="Tìm kiếm chức năng ở đây..."
+                                        placeholder="Tìm kiếm nhóm quyền ở đây..."
                                         value={searchTerm}
-                                        onChange={handleSearchChange}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
                                 <h2 className="text-center my-4">Quản lý phân quyền</h2>
