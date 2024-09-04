@@ -84,14 +84,13 @@ export default function Acount() {
             // Lưu trạng thái thông báo vào localStorage
             localStorage.setItem('profileUpdateStatus', 'success');
 
-            // navigate(0);
             navigate('/acount');
 
         } catch (error) {
             console.error('Error updating profile:', error);
             // Lưu trạng thái thông báo lỗi vào localStorage
             localStorage.setItem('profileUpdateStatus', 'error');
-            navigate(0);
+            navigate('/acount');
 
         }
     };
@@ -190,6 +189,7 @@ export default function Acount() {
                 });
 
                 reSet();
+                getValue ();
 
             } else {
                 setAlert({
@@ -247,28 +247,28 @@ export default function Acount() {
                                                                 <thead>
                                                                     <tr>
                                                                         <th className="col-6" style={{ textTransform: 'none' }}>Họ tên</th>
-                                                                        <th className="col-6" style={{ textTransform: 'none' }}>Email</th>
+                                                                        <td className="col-6">{profile.fullname}</td>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
                                                                     <tr>
-                                                                        <td>{profile.fullname}</td>
+                                                                        <th className="col-6" style={{ fontWeight: '600' }}>Email</th>
                                                                         <td>{profile.email}</td>
                                                                     </tr>
                                                                     <tr>
                                                                         <th className="col-6" style={{ fontWeight: '600' }}>Số điện thoại</th>
-                                                                        <th className="col-6" style={{ fontWeight: '600' }}>Địa chỉ</th>
+                                                                        <td className="col-6">{profile.tel}</td>
                                                                     </tr>
                                                                     <tr>
-                                                                        <td>{profile.tel}</td>
+                                                                        <th className="col-6" style={{ fontWeight: '600' }}>Địa chỉ</th>
                                                                         <td>{profile.address}</td>
                                                                     </tr>
                                                                     <tr>
                                                                         <th className="col-6" style={{ fontWeight: '600' }}>Lương</th>
-                                                                        <th className="col-6" style={{ fontWeight: '600' }}>Trạng thái</th>
+                                                                        <td className="col-6">{profile.salary == null ? 'Chưa biết' : profile.salary}</td>
                                                                     </tr>
                                                                     <tr>
-                                                                        <td>{profile.salary == null ? 'Chưa biết' : profile.salary}</td>
+                                                                        <th className="col-6" style={{ fontWeight: '600' }}>Trạng thái</th>
                                                                         <td>{profile.status == 1 ? 'Đang làm' : 'Nghỉ việc'}</td>
                                                                     </tr>
                                                                 </tbody>
@@ -348,7 +348,7 @@ export default function Acount() {
                                                                     <div className="row g-3">
                                                                         <div className="col-12 position-relative">
                                                                             <div className="form-floating">
-                                                                                <input type={showPassword.currentPassword ? "text" : "password"} className="form-control" id="currentPassword" placeholder="Mật Khẩu Cũ" {...register('currentPassword', { required: "Mật khẩu cũ là bắt buộc", minLength: { value: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự', }, pattern: { value: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/, message: 'Mật khẩu phải bao gồm số và ký tự đặc biệt' }})}/>
+                                                                                <input type={showPassword.currentPassword ? "text" : "password"} className="form-control" id="currentPassword" placeholder="Mật Khẩu Cũ" {...register('currentPassword', { required: "Mật khẩu cũ là bắt buộc" })}/>
                                                                                 <label htmlFor="currentPassword">Mật Khẩu Cũ</label>
                                                                                 <i
                                                                                     className={`fa ${showPassword.currentPassword ? 'fa-eye-slash' : 'fa-eye'} position-absolute top-50 end-0 translate-middle-y pe-3`}

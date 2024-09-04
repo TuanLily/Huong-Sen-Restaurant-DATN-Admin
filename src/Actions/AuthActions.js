@@ -147,3 +147,22 @@ export const changePassword = (token, newPassword) => {
         }
     };
 };
+
+// Hàm lấy quyền hạn
+export const getPermissions = (id) => {
+    return async dispatch => {
+        dispatch(fetchAuthRequest());
+        try {
+            const response = await axios.post(`${API_ENDPOINT}/auth_admin/role_permissions`, { id });
+            if (response.status === 200) {
+                const data = response.data;
+                console.log(data);
+                dispatch(fetchAuthSuccess(data));
+            } else {
+                dispatch(fetchAuthFailure('Unexpected response status: ' + response.status));
+            }
+        } catch (error) {
+            dispatch(fetchAuthFailure(error.response ? error.response.data.message : error.message));
+        }
+    };
+};

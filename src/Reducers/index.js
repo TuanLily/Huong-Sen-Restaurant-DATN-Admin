@@ -13,6 +13,7 @@ import authReducer from "./AuthReducers";
 import commentBlogReducer from "./CommentBlogReducers";
 import userReducer from "./UserReducers";
 import UserChatsReducer from "./UserChatsReducer";
+import getQuyenHanReducer from "./GetQuyenHanReducers";
 
 
 const rootReducer = combineReducers({
@@ -33,7 +34,8 @@ const rootReducer = combineReducers({
     auth: authReducer,
     commentBlog: commentBlogReducer,
     users: userReducer,
-    userChats: UserChatsReducer
+    userChats: UserChatsReducer,
+    getQuyenHan: getQuyenHanReducer,
 });
 
 export default rootReducer;

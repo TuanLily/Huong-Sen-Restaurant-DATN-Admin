@@ -1,9 +1,33 @@
-import React from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, NavLink, useLocation, Navigate, useNavigate } from "react-router-dom";
 import logo from "../Assets/Images/huong-sen-logo.png";
+import { useDispatch, useSelector } from 'react-redux';
+import { jwtDecode as jwt_decode } from 'jwt-decode';
+import { getPermissions } from '../Actions/GetQuyenHanAction';
 
 export default function MenuBar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const token = localStorage.getItem('token');
+  const getQuyenHanState = useSelector(state => state.getQuyenHan);
+  const permissions = getQuyenHanState.getQuyenHan || [];
+
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwt_decode(token);
+      const userIdFromToken = decodedToken.id;
+      dispatch(getPermissions(userIdFromToken));  
+    }
+    const decodedToken = jwt_decode(token);
+    const userIdFromToken = decodedToken.id;
+    dispatch(getPermissions(userIdFromToken));
+  }, [navigate, dispatch, token]);
+
+  const hasPermission = (permissionName) => {
+    return permissions.data && permissions.data.some(permission => permission.name == permissionName);
+  };
 
   // Kiểm tra xem hiện tại đang ở trong dropdown nào
   const isDashboardActive = location.pathname === "/dashboard";
@@ -69,56 +93,52 @@ export default function MenuBar() {
         <div className="sidebar-content">
           <ul className="nav nav-secondary">
             <li className={`nav-item ${isDashboardActive ? "active" : ""}`}>
-              <NavLink exact to="/dashboard" className="collapsed">
+              <NavLink to="/dashboard" className="collapsed">
                 <i className="fas fa-home"></i>
                 <p>Dashboard</p>
               </NavLink>
             </li>
 
-            {/* Quản Lý Sản Phẩm */}
             <li className="nav-section">
               <h4 className="text-section">Quản Lý Danh Sách</h4>
             </li>
-            <li
-              className={`nav-item ${
-                isProductManagementActive ? "active" : ""
-              }`}
-            >
-              <NavLink
-                to="#productManagement"
-                className="collapsed"
-                aria-expanded={isProductManagementActive.toString()}
-                data-bs-toggle="collapse"
-              >
-                <i className="fa-solid fa-bowl-food"></i>
-                <p>Quản Lý Sản Phẩm</p>
-                <span className="caret"></span>
-              </NavLink>
-              <div
-                className={`collapse ${
-                  isProductManagementActive ? "show" : ""
-                }`}
-                id="productManagement"
-              >
-                <ul className="nav nav-collapse">
-                  <li>
-                    <NavLink to="/category-product">
-                      <span className="sub-item">Danh mục sản phẩm</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to="/product">
-                      <span className="sub-item">Sản phẩm</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to="/product/tam_xoa">
-                      <span className="sub-item">Sản phẩm tạm xóa</span>
-                    </NavLink>
-                  </li>
-                </ul>
-              </div>
-            </li>
+
+            {/* Quản Lý Sản Phẩm */}
+
+            {(hasPermission('Xem sản phẩm') || hasPermission('Xem danh mục sản phẩm') || hasPermission('Khôi phục sản phẩm')) && (
+              <li className={ `nav-item ${ (hasPermission('Xem danh mục sản phẩm') && (location.pathname.startsWith("/category-product")) || ((hasPermission('Xem sản phẩm') || hasPermission('Khôi phục sản phẩm')) && location.pathname.startsWith("/product"))) ? "active" : "" }` }>
+                <NavLink to="#productManagement" className="collapsed" aria-expanded={isProductManagementActive.toString()} data-bs-toggle="collapse">
+                  <i className="fa-solid fa-bowl-food"></i>
+                  <p>Quản Lý Sản Phẩm</p>
+                  <span className="caret"></span>
+                </NavLink>
+                <div className={ `collapse ${ (hasPermission('Xem danh mục sản phẩm') && (location.pathname.startsWith("/category-product")) || ((hasPermission('Xem sản phẩm') || hasPermission('Khôi phục sản phẩm')) && location.pathname.startsWith("/product"))) ? "show" : "" }` } id="productManagement">
+                  <ul className="nav nav-collapse">
+                    {hasPermission('Xem danh mục sản phẩm') && (
+                      <li>
+                        <NavLink to="/category-product">
+                          <span className="sub-item">Danh mục sản phẩm</span>
+                        </NavLink>
+                      </li>
+                    )}
+                    {hasPermission('Xem sản phẩm') && (
+                      <li>
+                        <NavLink to="/product">
+                          <span className="sub-item">Sản phẩm</span>
+                        </NavLink>
+                      </li>
+                    )}
+                    {hasPermission('Khôi phục sản phẩm') && (
+                      <li>
+                        <NavLink to="/product/tam_xoa">
+                          <span className="sub-item">Sản phẩm tạm xóa</span>
+                        </NavLink>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </li>
+            )}
 
             {/* Quản Lý Bài Viết */}
             <li
@@ -142,13 +162,6 @@ export default function MenuBar() {
                   <li>
                     <NavLink to="/category-blog">
                       <span className="sub-item">Danh mục bài viết</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to="/category-blog-lock">
-                      <span className="sub-item">
-                        Danh mục bài viết tạm xóa
-                      </span>
                     </NavLink>
                   </li>
                   <li>
@@ -394,7 +407,7 @@ export default function MenuBar() {
                 aria-expanded={isChatManagement.toString()}
                 data-bs-toggle="collapse"
               >
-                <i class="fa-regular fa-message"></i>
+                <i className="fa-regular fa-message"></i>
                 <p>Quản Lý Chat Khách Hàng</p>
                 <span className="caret"></span>
               </NavLink>

@@ -1,17 +1,20 @@
 import React, { useEffect } from 'react';
-import { Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { jwtDecode as jwt_decode } from 'jwt-decode';
+import { getPermissions } from '../Actions/GetQuyenHanAction';
+import NotPermission from './NotPermission';
 
-const ProtectedRoute = ({ element }) => {
-    const location = useLocation();
+const ProtectedRoute = ({ element, requiredPermissions }) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     
     const token = localStorage.getItem('token');
     const expiryTime = localStorage.getItem('expiryTime');
 
-    // Chuyển đổi expiryTime sang số
-    const expiryTimeNumber = expiryTime ? Number(expiryTime) : null;
+    const getQuyenHanState = useSelector(state => state.getQuyenHan);
 
-    // Kiểm tra xem token có tồn tại và chưa hết hạn
+    const expiryTimeNumber = expiryTime ? Number(expiryTime) : null;
     const isAuthenticated = token && expiryTimeNumber && new Date().getTime() < expiryTimeNumber;
 
     useEffect(() => {
@@ -19,10 +22,33 @@ const ProtectedRoute = ({ element }) => {
             localStorage.removeItem('token');
             localStorage.removeItem('expiryTime');
             navigate('/login');
+        } else {
+            const decodedToken = jwt_decode(token);
+            const userIdFromToken = decodedToken.id;
+            dispatch(getPermissions(userIdFromToken));
         }
-    }, [isAuthenticated, navigate]);
+    }, [isAuthenticated, navigate, dispatch]);
 
-    return isAuthenticated ? element : <Navigate to="/login" />;
+    // Kiểm tra quyền hạn
+    const hasRequiredPermissions = (permissions) => {
+        if (!getQuyenHanState || !getQuyenHanState.getQuyenHan || !getQuyenHanState.getQuyenHan.data) {
+            return false; // Nếu chưa có quyền hạn
+        }
+
+        const userPermissions = getQuyenHanState.getQuyenHan.data.map(permission => permission.name);
+        return permissions.every(permission => userPermissions.includes(permission));
+    };
+
+    if (!isAuthenticated) {
+        return <Navigate to="/login" />;
+    }
+
+    // Nếu không có yêu cầu quyền hạn, cho phép truy cập
+    if (requiredPermissions && requiredPermissions.length > 0 && !hasRequiredPermissions(requiredPermissions)) {
+        return <NotPermission />;
+    }
+
+    return element;
 };
 
 export default ProtectedRoute;

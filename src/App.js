@@ -22,9 +22,13 @@ function App() {
           <Route path="/otp" element={<Otp />} />
           <Route path="/forgot" element={<Forgot />} />
 
-          <Route path={''} element={<ProtectedRoute element={<Layout />} />}>
-            {publicAdminRoutes.map(({ path, component: Component }) => (
-              <Route key={path} path={path} element={<Component />}/>
+          <Route path="" element={<ProtectedRoute element={<Layout />} requiredPermissions={[]} />}>
+            {publicAdminRoutes.map(({ path, component: Component, permissions }) => (
+              <Route 
+                key={path} 
+                path={path} 
+                element={<ProtectedRoute element={<Component />} requiredPermissions={permissions || []} />} 
+              />
             ))}
           </Route>
 
