@@ -9,17 +9,27 @@ import {
   onSnapshot,
   addDoc,
   serverTimestamp,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "../../Config/Firebase";
 import Picker from "emoji-picker-react";
+import DialogConfirm from "../../Components/Dialog/Dialog";
+import { SuccessAlert } from "../../Components/Alert/Alert";
+import CustomSpinner from "../../Components/Spinner/CustomSpinner";
+import defaultAvatar from "../../Assets/Images/profile-icon.png"
 
 export default function UserChatsList() {
+  const [isLoading, setIsLoading] = useState(true);
   const [messages, setMessages] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [chatMessages, setChatMessages] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [newMessage, setNewMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState(null);
+  const [openSuccess, setOpenSuccess] = useState(false);
+
   const emojiPickerRef = useRef(null);
 
   const selectedAdminUser = JSON.parse(localStorage.getItem("user_admin"));
@@ -70,9 +80,11 @@ export default function UserChatsList() {
           }));
 
         setMessages(sortedGroupedMessages);
+        setIsLoading(false);
       },
       (error) => {
         console.error("Lỗi khi lấy tin nhắn:", error);
+        setIsLoading(false);
       }
     );
 
@@ -237,6 +249,61 @@ export default function UserChatsList() {
     scrollToBottom();
   }, [chatMessages]);
 
+  const handleOpenDeleteDialog = (chat) => {
+    setChatToDelete(chat);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+    setChatToDelete(null);
+  };
+
+  const handleSuccessClose = () => {
+    setOpenSuccess(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (chatToDelete) {
+      try {
+        // Xóa tất cả tin nhắn trong cuộc trò chuyện
+        const messagesRef = collection(db, "messages");
+        const q = query(
+          messagesRef,
+          where("chatId", "==", chatToDelete.chatId)
+        );
+        const querySnapshot = await getDocs(q);
+
+        // Sử dụng vòng lặp for...of để xóa từng document
+        for (const doc of querySnapshot.docs) {
+          await deleteDoc(doc.ref);
+        }
+
+        // Cập nhật UI sau khi xóa
+        setMessages((prevMessages) =>
+          prevMessages.filter((msg) => msg.chatId !== chatToDelete.chatId)
+        );
+
+        // Reset selectedUser về null
+        setSelectedUser(null);
+
+        // Hiển thị thông báo thành công
+        setOpenSuccess(true);
+      } catch (error) {
+        console.error("Lỗi khi xóa lịch sử chat:", error);
+      }
+    }
+    handleCloseDeleteDialog();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container d-flex justify-content-center align-items-center">
+        <CustomSpinner />
+      </div>
+    );
+  }
+
   return (
     <div className="container">
       <div className="page-inner bg-light rounded p-4 shadow-sm">
@@ -283,7 +350,7 @@ export default function UserChatsList() {
                     <img
                       src={
                         group.customerInfo.avatar ||
-                        "../../Assets/Images/profile.jpg"
+                        defaultAvatar
                       }
                       alt="Avatar"
                       className="rounded-circle me-3"
@@ -319,7 +386,10 @@ export default function UserChatsList() {
             <div className="border bg-white rounded">
               <div className="d-flex align-items-center p-3 border-bottom">
                 <img
-                  src={"../../Assets/Images/profile.jpg"}
+                  src={
+                    selectedUser?.customerInfo?.avatar ||
+                    defaultAvatar
+                  }
                   alt="Avatar"
                   className="me-3 rounded-circle"
                   style={{ width: "50px", height: "50px" }}
@@ -331,36 +401,43 @@ export default function UserChatsList() {
                       : "Chọn tài khoản để chat"}
                   </strong>
                 </p>
-                <div className="ms-auto">
-                  <div className="dropdown">
-                    <button
-                      className="btn btn-light"
-                      type="button"
-                      id="dropdownMenuButton"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      <i className="fas fa-ellipsis-v"></i>
-                    </button>
-                    <ul
-                      className="dropdown-menu"
-                      aria-labelledby="dropdownMenuButton"
-                    >
-                      <li>
-                        <Link className="dropdown-item" to="#">
-                          Kết thúc trò chuyện
-                        </Link>
-                      </li>
-                      <li>
-                        <Link className="dropdown-item" to="#">
-                          <span className="text-danger">Xóa lịch sử chat</span>
-                        </Link>
-                      </li>
-                    </ul>
+                {selectedUser && (
+                  <div className="ms-auto">
+                    <div className="dropdown">
+                      <button
+                        className="btn btn-light"
+                        type="button"
+                        id="dropdownMenuButton"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <i className="fas fa-ellipsis-v"></i>
+                      </button>
+                      <ul
+                        className="dropdown-menu"
+                        aria-labelledby="dropdownMenuButton"
+                      >
+                        <li>
+                          <Link className="dropdown-item" to="#">
+                            Kết thúc trò chuyện
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            className="dropdown-item"
+                            to="#"
+                            onClick={() => handleOpenDeleteDialog(selectedUser)}
+                          >
+                            <span className="text-danger">
+                              Xóa lịch sử chat
+                            </span>
+                          </Link>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
-
               <div
                 className="d-flex flex-column border"
                 style={{ height: "500px", overflowY: "auto" }}
@@ -368,43 +445,39 @@ export default function UserChatsList() {
                 {chatMessages.map((message, index) => (
                   <div
                     key={message.id || index}
-                    className={`d-flex ${
-                      message.role === "admin"
+                    className={`d-flex ${message.role === "admin"
                         ? "justify-content-end"
                         : "justify-content-start"
-                    } mb-3 p-2`}
+                      } mb-3 p-2`}
                   >
                     <div
-                      className={`d-flex ${
-                        message.role === "admin"
+                      className={`d-flex ${message.role === "admin"
                           ? "flex-row-reverse"
                           : "flex-row"
-                      } align-items-end`}
+                        } align-items-end`}
                     >
                       <img
                         src={
                           message.role === "admin"
                             ? "../../Assets/Images/huong-sen-logo.png"
                             : message.avatar ||
-                              "../../Assets/Images/profile.jpg"
+                            defaultAvatar
                         }
                         alt={`${message.role} Avatar`}
                         className="rounded-circle mx-2"
                         style={{ width: "40px", height: "40px" }}
                       />
                       <div
-                        className={`d-flex flex-column ${
-                          message.role === "admin"
+                        className={`d-flex flex-column ${message.role === "admin"
                             ? "align-items-end"
                             : "align-items-start"
-                        }`}
+                          }`}
                       >
                         <div
-                          className={`${
-                            message.role === "admin"
+                          className={`${message.role === "admin"
                               ? "bg-warning text-dark"
                               : "bg-light"
-                          } p-3 rounded`}
+                            } p-3 rounded`}
                           style={{ maxWidth: "300px", wordWrap: "break-word" }}
                         >
                           <small className="text-muted mb-1 d-block">
@@ -465,6 +538,20 @@ export default function UserChatsList() {
           </div>
         </div>
       </div>
+      <DialogConfirm
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa"
+        content="Bạn có chắc chắn muốn xóa lịch sử chat này không?"
+      />
+
+      <SuccessAlert
+        style={{ width: "700px" }}
+        open={openSuccess}
+        onClose={handleSuccessClose}
+        message="Xóa lịch sử chat thành công!"
+      />
     </div>
   );
 }
