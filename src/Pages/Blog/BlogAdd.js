@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
 import ImageUploadComponent from "../../Components/ImageUpload/ImageUpload";
@@ -7,19 +7,22 @@ import { fetchCategoryBlog } from "../../Actions/BlogsCategoriesActions";
 import { addBlog } from "../../Actions/BlogActions";
 import { SuccessAlert } from "../../Components/Alert/Alert";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function BlogAdd() {
     const dispatch = useDispatch();
     const { register, handleSubmit, formState: { errors }, setError } = useForm();
-    const blogCategoryState = useSelector(state => state.categories)
-    
+    const blogCategoryState = useSelector(state => state.categories);
+
     useEffect(() => {
         dispatch(fetchCategoryBlog());
     }, [dispatch]);
-    
+
     const navigate = useNavigate();
 
     const [poster, setPoster] = useState('');
+    const [content, setContent] = useState(''); // New state for content
     const [openSuccess, setOpenSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -36,6 +39,8 @@ export default function BlogAdd() {
     const onSubmit = async (data) => {
         setLoading(true); 
         data.poster = poster;
+        data.content = content; // Assign the Quill content to the data
+
         try {
             await dispatch(addBlog(data));
             setOpenSuccess(true);
@@ -48,6 +53,20 @@ export default function BlogAdd() {
         } finally {
             setLoading(false); 
         }
+    };
+
+    // Define the toolbar options
+    const modules = {
+        toolbar: [
+            [{ 'font': [] }, { 'size': [] }],  // Font and size dropdowns
+            [{ 'header': '1' }, { 'header': '2' }, 'blockquote', 'code-block'],  // Headers and blocks
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],  // Lists and indents
+            ['bold', 'italic', 'underline', 'strike'],  // Formatting options
+            [{ 'color': [] }, { 'background': [] }],  // Text color and background color
+            ['link', 'image', 'video'],  // Links, images, videos
+            ['align', { 'align': [] }],  // Text alignment
+            ['clean']  // Remove formatting
+        ]
     };
 
     if (loading) {
@@ -94,17 +113,18 @@ export default function BlogAdd() {
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="content">Nội dung</label>
-                                            <textarea
+                                            <ReactQuill
+                                                theme="snow"
+                                                value={content}
+                                                onChange={setContent}
                                                 className="form-control"
-                                                id="content"
-                                                rows="4"
-                                                {...register('content', { required: 'Nội dung là bắt buộc' })}
-                                            ></textarea>
+                                                modules={modules}  // Pass the modules prop
+                                            />
                                             {errors.content && <p className="text-danger">{errors.content.message}</p>}
                                         </div>
                                     </div>
                                     <div className="col-md-6">
-                                    <div className="form-group">
+                                        <div className="form-group">
                                             <label>Danh mục</label>
                                             <select className="form-select" id="blog_category_id" {...register('blog_category_id', { required: 'Vui lòng chọn danh mục!' })}>
                                                 {blogCategoryState.categories && blogCategoryState.categories.map((item) => (
@@ -122,8 +142,8 @@ export default function BlogAdd() {
                             </div>
                             <div className="card-footer">
                                 <div className="btn-group mt-3" role="group">
-                                <button type="submit" className="btn btn-success" disabled={loading}>Thêm mới</button>
-                                <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Hủy</button>
+                                    <button type="submit" className="btn btn-success" disabled={loading}>Thêm mới</button>
+                                    <button type="button" className="btn btn-danger" onClick={() => navigate('/customer')}>Hủy</button>
                                 </div>
                             </div>
                         </div>
