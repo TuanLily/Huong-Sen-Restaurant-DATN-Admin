@@ -10,6 +10,10 @@ import {
   addDoc,
   serverTimestamp,
   deleteDoc,
+  doc,
+  updateDoc,
+  setDoc,
+  limit,
 } from "firebase/firestore";
 import { db } from "../../Config/Firebase";
 import Picker from "emoji-picker-react";
@@ -17,6 +21,7 @@ import DialogConfirm from "../../Components/Dialog/Dialog";
 import { SuccessAlert } from "../../Components/Alert/Alert";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 import defaultAvatar from "../../Assets/Images/profile-icon.png"
+
 
 export default function UserChatsList() {
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +34,9 @@ export default function UserChatsList() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [chatToDelete, setChatToDelete] = useState(null);
   const [openSuccess, setOpenSuccess] = useState(false);
-
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef(null);
+  const typingDocRef = useRef(null);
   const emojiPickerRef = useRef(null);
 
   const selectedAdminUser = JSON.parse(localStorage.getItem("user_admin"));
@@ -47,6 +54,8 @@ export default function UserChatsList() {
 
         // Nhóm tin nhắn theo chatId
         const groupedMessages = messagesData.reduce((acc, message) => {
+          if (message.isTypingIndicator) return acc; // Bỏ qua tin nhắn đang nhập
+
           const key = message.chatId;
           if (!acc[key]) {
             acc[key] = {
@@ -61,7 +70,7 @@ export default function UserChatsList() {
           }
           acc[key].messages.push(message);
           // Cập nhật timestamp và lastMessage nếu tin nhắn này mới hơn
-          if (message.timestamp > acc[key].timestamp) {
+          if (message.timestamp > acc[key].timestamp && !message.isTypingIndicator) {
             acc[key].timestamp = message.timestamp;
             acc[key].lastMessage = message.text;
             acc[key].lastMessageRole = message.role;
@@ -179,6 +188,48 @@ export default function UserChatsList() {
     return customerName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
+  // Hàm để cập nhật trạng thái đang nhập
+  const setAdminTyping = async (chatId, isTyping) => {
+    if (isTyping && !typingDocRef.current) {
+      const docRef = await addDoc(collection(db, "messages"), {
+        chatId,
+        adminTyping: true,
+        timestamp: serverTimestamp(),
+        isTypingIndicator: true,
+        role: "admin",
+        text: "...",
+      });
+      typingDocRef.current = docRef;
+    } else if (!isTyping && typingDocRef.current) {
+      await deleteDoc(typingDocRef.current);
+      typingDocRef.current = null;
+    }
+  };
+
+  const handleTyping = (chatId) => {
+    if (!isTyping) {
+      setIsTyping(true);
+      setAdminTyping(chatId, true);
+    }
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      setAdminTyping(chatId, false);
+    }, 3000);
+  };
+
+  // Xử lý khi admin bắt đầu nhập
+  const handleInputChange = (e) => {
+    setNewMessage(e.target.value);
+    if (selectedUser) {
+      handleTyping(selectedUser.chatId);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (newMessage.trim() && selectedUser && selectedAdminUser) {
       // Sử dụng thông tin của khách hàng để tạo chatId
@@ -214,16 +265,18 @@ export default function UserChatsList() {
               : msg
           )
         );
+
+        // Add this: Clear typing status after sending message
+        setIsTyping(false);
+        await setAdminTyping(chatId, false);
       } catch (error) {
         console.error("Error sending message: ", error);
-        // Optionally update the message status to 'error' here
-        setChatMessages((prevMessages) =>
-          prevMessages.map((msg) =>
-            msg.timestamp === newMessageData.timestamp
-              ? { ...msg, status: "error" }
-              : msg
-          )
-        );
+        // ... existing error handling ...
+      }
+
+      // Add this: Clear timeout if exists
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
       }
     }
   };
@@ -359,7 +412,7 @@ export default function UserChatsList() {
                     <div className="flex-grow-1">
                       <p className="mb-0">
                         <strong>
-                          {group.customerInfo.fullname || "Unknown"}
+                          {group.customerInfo.fullname || "Không xác định"}
                         </strong>{" "}
                         {group.lastMessageRole !== "admin" && (
                           <i
@@ -374,7 +427,7 @@ export default function UserChatsList() {
                       </small>
                     </div>
                     <span className="text-muted ms-auto">
-                      {formatMessageTimestamp(group.timestamp)}
+                      {!group.isTypingIndicator ? formatMessageTimestamp(group.timestamp) : ""}
                     </span>
                   </Link>
                 ))}
@@ -446,14 +499,14 @@ export default function UserChatsList() {
                   <div
                     key={message.id || index}
                     className={`d-flex ${message.role === "admin"
-                        ? "justify-content-end"
-                        : "justify-content-start"
+                      ? "justify-content-end"
+                      : "justify-content-start"
                       } mb-3 p-2`}
                   >
                     <div
                       className={`d-flex ${message.role === "admin"
-                          ? "flex-row-reverse"
-                          : "flex-row"
+                        ? "flex-row-reverse"
+                        : "flex-row"
                         } align-items-end`}
                     >
                       <img
@@ -469,14 +522,14 @@ export default function UserChatsList() {
                       />
                       <div
                         className={`d-flex flex-column ${message.role === "admin"
-                            ? "align-items-end"
-                            : "align-items-start"
+                          ? "align-items-end"
+                          : "align-items-start"
                           }`}
                       >
                         <div
                           className={`${message.role === "admin"
-                              ? "bg-warning text-dark"
-                              : "bg-light"
+                            ? "bg-warning text-dark"
+                            : "bg-light"
                             } p-3 rounded`}
                           style={{ maxWidth: "300px", wordWrap: "break-word" }}
                         >
@@ -511,7 +564,7 @@ export default function UserChatsList() {
                     placeholder="Nhập nội dung..."
                     style={{ flex: 1 }}
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyPress={handleKeyPress}
                   />
                   <button
