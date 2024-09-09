@@ -114,13 +114,11 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.product, component: ProductList, permissions: ['Xem sản phẩm'] },
     { path: AdminConfig.routes.productAdd, component: ProductAdd, permissions: ['Thêm sản phẩm'] },
     { path: AdminConfig.routes.productEdit, component: ProductEdit, permissions: ['Sửa sản phẩm'] },
-    { path: AdminConfig.routes.productDelete, component: ProductDelete, permissions: ['Xóa sản phẩm'] },
     { path: AdminConfig.routes.productTamXoa, component: ProductTamXoa, permissions: ['Khôi phục sản phẩm'] },
 
     { path: AdminConfig.routes.categoryProduct, component: CategoryProduct, permissions: ['Xem danh mục sản phẩm'] },
     { path: AdminConfig.routes.categoryProductAdd, component: categoryProductAdd, permissions: ['Thêm danh mục sản phẩm'] },
     { path: AdminConfig.routes.categoryProductEdit, component: categoryProductEdit, permissions: ['Sửa danh mục sản phẩm'] },
-    { path: AdminConfig.routes.categoryProductDelete, component: categoryProductDelete, permissions: ['Xóa danh mục sản phẩm'] },
 
     { path: AdminConfig.routes.customer, component: CustomerList },
     { path: AdminConfig.routes.customerAdd, component: CustomerAdd },
@@ -201,12 +199,11 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.commentBlogEdit, component: CommentBlogEdit },
     { path: AdminConfig.routes.commentBlogDelete, component: CommentBlogDelete },
 
-    { path: AdminConfig.routes.users, component: UsersList },
-    { path: AdminConfig.routes.usersAdd, component: UsersAdd },
-    { path: AdminConfig.routes.usersEdit, component: UsersEdit },
+    { path: AdminConfig.routes.users, component: UsersList, permissions: ['Xem tài khoản'] },
+    { path: AdminConfig.routes.usersAdd, component: UsersAdd, permissions: ['Thêm tài khoản'] },
+    { path: AdminConfig.routes.usersEdit, component: UsersEdit, permissions: ['Sửa tài khoản'] },
 
-
-    { path: AdminConfig.routes.userChats, component: UserChatsList },
+    { path: AdminConfig.routes.userChats, component: UserChatsList, permissions: ['Tư vấn khách hàng'] },
 
 
 ];

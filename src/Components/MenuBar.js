@@ -42,9 +42,7 @@ export default function MenuBar() {
     location.pathname.startsWith("/customer-group") ||
     location.pathname.startsWith("/places");
   const isAccountManagementActive =
-    location.pathname.startsWith("/users") ||
-    location.pathname.startsWith("/employee") ||
-    location.pathname.startsWith("/customer");
+    location.pathname.startsWith("/users")
   const isOrderManagementActive =
     location.pathname.startsWith("/order") ||
     location.pathname.startsWith("/order-detail") ||
@@ -217,46 +215,33 @@ export default function MenuBar() {
             </li>
 
             {/* Quản Lý Tài khoản */}
-            <li
-              className={`nav-item ${
-                isAccountManagementActive ? "active" : ""
-              }`}
-            >
-              <NavLink
-                to="#accountManagement"
-                className="collapsed"
-                aria-expanded={isAccountManagementActive.toString()}
-                data-bs-toggle="collapse"
-              >
-                <i className="fa-solid fa-users"></i>
-                <p>Quản Lý Tài khoản</p>
-                <span className="caret"></span>
-              </NavLink>
-              <div
-                className={`collapse ${
-                  isAccountManagementActive ? "show" : ""
+            {hasPermission('Xem tài khoản') && (
+              <li
+                className={`nav-item ${
+                  (hasPermission('Xem tài khoản') && (location.pathname.startsWith("/users"))) ? "active" : ""
                 }`}
-                id="accountManagement"
               >
-                <ul className="nav nav-collapse">
-                  <li>
-                    <NavLink to="/users">
-                      <span className="sub-item">Tài khoản</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to="/employee">
-                      <span className="sub-item">Nhân viên</span>
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to="/customer">
-                      <span className="sub-item">Khách hàng</span>
-                    </NavLink>
-                  </li>
-                </ul>
-              </div>
-            </li>
+                <NavLink
+                  to="#accountManagement"
+                  className="collapsed"
+                  aria-expanded={isAccountManagementActive.toString()}
+                  data-bs-toggle="collapse"
+                >
+                  <i className="fa-solid fa-users"></i>
+                  <p>Quản Lý Tài khoản</p>
+                  <span className="caret"></span>
+                </NavLink>
+                <div className={`collapse ${ (hasPermission('Xem tài khoản') && (location.pathname.startsWith("/users"))) ? "show" : "" }`} id="accountManagement">
+                  <ul className="nav nav-collapse">
+                    <li>
+                      <NavLink to="/users">
+                        <span className="sub-item">Tài khoản</span>
+                      </NavLink>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            )}
 
             {/* Quản Lý Đơn Hàng */}
             <li
@@ -400,7 +385,8 @@ export default function MenuBar() {
             </li>
 
             {/* Quản Lý chat với khách hàng*/}
-            <li className={`nav-item ${isChatManagement ? "active" : ""}`}>
+            {hasPermission('Tư vấn khách hàng') && (
+              <li className={`nav-item ${(hasPermission('Tư vấn khách hàng') && location.pathname.startsWith("/user-chats")) ? "active" : ""}`}>
               <NavLink
                 to="#chatManagement"
                 className="collapsed"
@@ -412,7 +398,7 @@ export default function MenuBar() {
                 <span className="caret"></span>
               </NavLink>
               <div
-                className={`collapse ${isChatManagement ? "show" : ""}`}
+                className={`collapse ${(hasPermission('Tư vấn khách hàng') && location.pathname.startsWith("/user-chats")) ? "show" : ""}`}
                 id="chatManagement"
               >
                 <ul className="nav nav-collapse">
@@ -424,6 +410,7 @@ export default function MenuBar() {
                 </ul>
               </div>
             </li>
+            )}
           </ul>
         </div>
       </div>

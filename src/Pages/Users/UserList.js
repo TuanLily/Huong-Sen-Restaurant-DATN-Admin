@@ -14,15 +14,36 @@ import { SuccessAlert } from '../../Components/Alert/Alert';
 import { deleteUsers, fetchUsers } from '../../Actions/UsersAction';
 import { fetchRole } from '../../Actions/RoleActions';
 
+import { getPermissions } from '../../Actions/GetQuyenHanAction';
+import { jwtDecode as jwt_decode } from 'jwt-decode';
+
 export default function CustomerList() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const token = localStorage.getItem('token');
+    const getQuyenHanState = useSelector(state => state.getQuyenHan);
+    const permissions = getQuyenHanState.getQuyenHan || [];
+
+    useEffect(() => {
+        if (token) {
+          const decodedToken = jwt_decode(token);
+          const userIdFromToken = decodedToken.id;
+          dispatch(getPermissions(userIdFromToken));  
+        }
+        const decodedToken = jwt_decode(token);
+        const userIdFromToken = decodedToken.id;
+        dispatch(getPermissions(userIdFromToken));
+    }, [navigate, dispatch, token]);
+
+    const hasPermission = (permissionName) => {
+        return permissions.data && permissions.data.some(permission => permission.name == permissionName);
+    };
+
     const userState = useSelector(state => state.users);
     const roleState = useSelector(state => state.role);
 
-
-    const navigate = useNavigate();
-
-    const location = useLocation();
     const query = new URLSearchParams(location.search);
     const urlPage = parseInt(query.get('page')) || 1;
 
@@ -123,7 +144,7 @@ export default function CustomerList() {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="/users/add" className="btn btn-primary btn-round">Thêm tài khoản</Link>
+                    {hasPermission('Thêm tài khoản') && (<Link to="/users/add" className="btn btn-primary btn-round">Thêm tài khoản</Link>)}
                     </div>
                 </div>
                 <div className="row">
@@ -217,10 +238,8 @@ export default function CustomerList() {
                                                     </td>
                                                     <td>
                                                         <div className="btn-group" role="group">
-                                                            <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(user.id)}>Sửa</button>
-                                                            <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(user.id)}>
-                                                                <span className='text-danger'>Xóa</span>
-                                                            </button>
+                                                        {hasPermission('Sửa tài khoản') && (<button type="button" className="btn btn-outline-success" onClick={() => handleEdit(user.id)}>Sửa</button>)}
+                                                        {hasPermission('Xóa tài khoản') && (<button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(user.id)}><span className='text-danger'>Xóa</span></button>)}
                                                         </div>
                                                     </td>
                                                 </tr>
