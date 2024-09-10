@@ -96,13 +96,18 @@ export const updateCategoryBlog = (id, data) => {
     };
 };
 
-// Thunk action creator for deleting a category blog
+// Thunk action creator for soft deleting a category blog
 export const deleteCategoryBlog = (id) => {
     return (dispatch) => {
         dispatch(fetchCategoryBlogRequest());
-        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`)
+
+        // Endpoint cho việc xóa tạm
+        const url = `${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`;
+
+        http.delete(url)
             .then(() => {
-                dispatch(fetchCategoryBlog()); // Refresh the list after deletion
+                // Sau khi xóa tạm, gọi lại fetchCategoryBlog để làm mới danh sách
+                dispatch(fetchCategoryBlog()); 
             })
             .catch(error => {
                 const errorMsg = error.message;
@@ -110,3 +115,4 @@ export const deleteCategoryBlog = (id) => {
             });
     };
 };
+

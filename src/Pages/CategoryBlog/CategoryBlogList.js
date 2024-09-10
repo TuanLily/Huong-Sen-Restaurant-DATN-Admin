@@ -23,7 +23,8 @@ export default function CategoryBlogList() {
 
   const [open, setOpen] = useState(false);
   const [selectedCategoryBlog, setSelectedCategoryBlog] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(""); // State cho thanh tìm kiếm
+  const [searchTerm, setSearchTerm] = useState("");
+
   // Debounce hàm tìm kiếm để giảm số lần gọi API
   const debouncedSearch = useMemo(() => debounce((term) => {
     dispatch(fetchCategoryBlog(term, urlPage, categoryBlogState.pageSize));
@@ -48,7 +49,6 @@ export default function CategoryBlogList() {
     }
   }, [searchTerm]);
 
-  // Cập nhật URL khi currentPage thay đổi
   useEffect(() => {
     navigate(`?page=${categoryBlogState.currentPage}`);
   }, [categoryBlogState.currentPage, navigate]);
@@ -146,12 +146,11 @@ export default function CategoryBlogList() {
                           </td>
                         </tr>
                       )}
-                      {!categoryBlogState.loading &&
-                        categoryBlogState.categories.length === 0 && (
-                          <tr>
-                            <td colSpan="4">Không tìm thấy danh mục</td>
-                          </tr>
-                        )}
+                      {!categoryBlogState.loading && categoryBlogState.categories.length === 0 && (
+                        <tr>
+                          <td colSpan="4">Không tìm thấy danh mục</td>
+                        </tr>
+                      )}
                       {categoryBlogState.error && (
                         <tr>
                           <td colSpan="4">Error: {categoryBlogState.error}</td>
@@ -197,6 +196,15 @@ export default function CategoryBlogList() {
                                   </button>
                                 </div>
                               )}
+                              {item.name === "Undefined" && (
+                                <button
+                                  type="button"
+                                  className="btn btn-outline-secondary"
+                                  disabled
+                                >
+                                  Không thể thao tác
+                                </button>
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -205,10 +213,8 @@ export default function CategoryBlogList() {
                 </div>
                 <div className="my-2">
                   <CustomPagination
-                    count={categoryBlogState.totalPages} // Đây nên là totalPages, không phải allCategories.length / pageSize
-                    currentPageSelector={(state) =>
-                      state.categories.currentPage
-                    }
+                    count={categoryBlogState.totalPages}
+                    currentPageSelector={(state) => state.categories.currentPage}
                     fetchAction={(page, pageSize) =>
                       fetchCategoryBlog(searchTerm, page, pageSize)
                     }
