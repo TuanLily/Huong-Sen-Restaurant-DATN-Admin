@@ -21,6 +21,7 @@ import DialogConfirm from "../../Components/Dialog/Dialog";
 import { SuccessAlert } from "../../Components/Alert/Alert";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 import defaultAvatar from "../../Assets/Images/profile-icon.png"
+import axios from 'axios';
 
 
 export default function UserChatsList() {
@@ -38,6 +39,7 @@ export default function UserChatsList() {
   const typingTimeoutRef = useRef(null);
   const typingDocRef = useRef(null);
   const emojiPickerRef = useRef(null);
+  const [chatMode, setChatMode] = useState('human'); // 'bot' hoặc 'human'
 
   const selectedAdminUser = JSON.parse(localStorage.getItem("user_admin"));
 
@@ -190,19 +192,23 @@ export default function UserChatsList() {
 
   // Hàm để cập nhật trạng thái đang nhập
   const setAdminTyping = async (chatId, isTyping) => {
-    if (isTyping && !typingDocRef.current) {
-      const docRef = await addDoc(collection(db, "messages"), {
-        chatId,
-        adminTyping: true,
-        timestamp: serverTimestamp(),
-        isTypingIndicator: true,
-        role: "admin",
-        text: "...",
-      });
-      typingDocRef.current = docRef;
-    } else if (!isTyping && typingDocRef.current) {
-      await deleteDoc(typingDocRef.current);
-      typingDocRef.current = null;
+    try {
+      if (isTyping && !typingDocRef.current) {
+        const docRef = await addDoc(collection(db, "messages"), {
+          chatId,
+          adminTyping: true,
+          timestamp: serverTimestamp(),
+          isTypingIndicator: true,
+          text: "Admin đang nhập...",
+          role: "admin"
+        });
+        typingDocRef.current = docRef;
+      } else if (!isTyping && typingDocRef.current) {
+        await deleteDoc(typingDocRef.current);
+        typingDocRef.current = null;
+      }
+    } catch (error) {
+      console.error("Error updating typing status:", error);
     }
   };
 
@@ -230,54 +236,62 @@ export default function UserChatsList() {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (newMessage.trim() && selectedUser && selectedAdminUser) {
-      // Sử dụng thông tin của khách hàng để tạo chatId
-      const chatId =
-        selectedUser.chatId ||
-        `${selectedUser.customerInfo.fullname}_${selectedUser.customerInfo.tel}`;
-
-      const newMessageData = {
-        text: newMessage,
-        timestamp: new Date(),
-        role: "admin",
-        fullname: selectedAdminUser.fullname,
-        username: selectedAdminUser.username,
-        tel: selectedAdminUser.tel,
-        status: "sending",
-        chatId: chatId,
-      };
-
-      setChatMessages((prevMessages) => [...prevMessages, newMessageData]);
-      setNewMessage("");
-
+  const handleEndConversation = async () => {
+    if (selectedUser) {
       try {
-        const docRef = await addDoc(collection(db, "messages"), {
-          ...newMessageData,
+        await addDoc(collection(db, "messages"), {
+          chatId: selectedUser.chatId,
+          text: "Cuộc trò chuyện với nhân viên đã kết thúc. Bạn đang chat với bot.",
           timestamp: serverTimestamp(),
-          status: "sent",
+          role: "system",
+          status: "ended"
         });
 
-        setChatMessages((prevMessages) =>
-          prevMessages.map((msg) =>
-            msg.timestamp === newMessageData.timestamp
-              ? { ...msg, status: "sent", id: docRef.id }
-              : msg
-          )
-        );
-
-        // Add this: Clear typing status after sending message
-        setIsTyping(false);
-        await setAdminTyping(chatId, false);
+        setChatMode('bot');
       } catch (error) {
-        console.error("Error sending message: ", error);
-        // ... existing error handling ...
+        console.error("Error ending conversation:", error);
+      }
+    }
+  };
+
+
+
+  const switchToHumanChat = async () => {
+    setChatMode('human');
+    await addDoc(collection(db, "messages"), {
+      chatId: selectedUser.chatId,
+      text: "Bạn đã được chuyển sang chat với nhân viên tư vấn.",
+      timestamp: serverTimestamp(),
+      role: "system"
+    });
+  };
+
+  const handleSendMessage = async () => {
+    if (newMessage.trim() && selectedUser) {
+      const messageData = {
+        chatId: selectedUser.chatId,
+        text: newMessage,
+        timestamp: serverTimestamp(),
+        role: chatMode === 'bot' ? 'customer' : 'admin',
+        fullname: chatMode === 'bot' ? selectedUser.fullname : selectedAdminUser.fullname,
+        username: chatMode === 'bot' ? selectedUser.username : selectedAdminUser.username,
+        tel: chatMode === 'bot' ? selectedUser.tel : selectedAdminUser.tel,
+        status: "sent"
+      };
+
+      try {
+        await addDoc(collection(db, "messages"), messageData);
+
+        if (chatMode === 'bot') {
+          if (newMessage.toLowerCase().includes("gặp nhân viên")) {
+            await switchToHumanChat();
+          }
+        }
+      } catch (error) {
+        console.error("Error sending message:", error);
       }
 
-      // Add this: Clear timeout if exists
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
+      setNewMessage("");
     }
   };
 
@@ -471,10 +485,24 @@ export default function UserChatsList() {
                         aria-labelledby="dropdownMenuButton"
                       >
                         <li>
-                          <Link className="dropdown-item" to="#">
+                          <button
+                            className="dropdown-item"
+                            onClick={handleEndConversation}
+                            disabled={chatMode === 'bot'}
+                          >
                             Kết thúc trò chuyện
-                          </Link>
+                          </button>
                         </li>
+                        {chatMode === 'bot' && (
+                          <li>
+                            <button
+                              className="dropdown-item"
+                              onClick={switchToHumanChat}
+                            >
+                              Tiếp tục trò chuyện với khách hàng
+                            </button>
+                          </li>
+                        )}
                         <li>
                           <Link
                             className="dropdown-item"
@@ -498,20 +526,20 @@ export default function UserChatsList() {
                 {chatMessages.map((message, index) => (
                   <div
                     key={message.id || index}
-                    className={`d-flex ${message.role === "admin"
+                    className={`d-flex ${message.role === "admin" || message.role === "bot" || message.role === "system"
                       ? "justify-content-end"
                       : "justify-content-start"
                       } mb-3 p-2`}
                   >
                     <div
-                      className={`d-flex ${message.role === "admin"
+                      className={`d-flex ${message.role === "admin" || message.role === "bot" || message.role === "system"
                         ? "flex-row-reverse"
                         : "flex-row"
                         } align-items-end`}
                     >
                       <img
                         src={
-                          message.role === "admin"
+                          message.role === "admin" || message.role === "bot" || message.role === "system"
                             ? "../../Assets/Images/huong-sen-logo.png"
                             : message.avatar ||
                             defaultAvatar
@@ -521,13 +549,13 @@ export default function UserChatsList() {
                         style={{ width: "40px", height: "40px" }}
                       />
                       <div
-                        className={`d-flex flex-column ${message.role === "admin"
+                        className={`d-flex flex-column ${message.role === "admin" || message.role === "bot" || message.role === "system"
                           ? "align-items-end"
                           : "align-items-start"
                           }`}
                       >
                         <div
-                          className={`${message.role === "admin"
+                          className={`${message.role === "admin" || message.role === "bot" || message.role === "system"
                             ? "bg-warning text-dark"
                             : "bg-light"
                             } p-3 rounded`}
@@ -557,35 +585,44 @@ export default function UserChatsList() {
                 <div ref={messagesEndRef} />
               </div>
               {selectedUser && (
-                <div className="d-flex align-items-center p-3 border-top bg-light">
-                  <input
-                    type="text"
-                    className="form-control me-3"
-                    placeholder="Nhập nội dung..."
-                    style={{ flex: 1 }}
-                    value={newMessage}
-                    onChange={handleInputChange}
-                    onKeyPress={handleKeyPress}
-                  />
-                  <button
-                    className="btn btn-light me-2"
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  >
-                    😊
-                  </button>
-                  {showEmojiPicker && (
-                    <div
-                      ref={emojiPickerRef}
-                      style={{
-                        position: "absolute",
-                        bottom: "-60px",
-                        right: "45px",
-                      }}
-                    >
-                      <Picker onEmojiClick={onEmojiClick} />
+                <>
+                  {chatMode === 'human' ? (
+                    <div className="d-flex align-items-center p-3 border-top bg-light">
+                      <input
+                        type="text"
+                        className="form-control me-3"
+                        placeholder="Nhập tin nhắn..."
+                        style={{ flex: 1 }}
+                        value={newMessage}
+                        onChange={handleInputChange}
+                        onKeyPress={handleKeyPress}
+                      />
+                      <button
+                        className="btn btn-light me-2"
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                      >
+                        😊
+                      </button>
+                      {showEmojiPicker && (
+                        <div
+                          ref={emojiPickerRef}
+                          style={{
+                            position: "absolute",
+                            bottom: "-60px",
+                            right: "45px",
+                          }}
+                        >
+                          <Picker onEmojiClick={onEmojiClick} />
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="p-3 border-top bg-light text-center">
+                      <p className="mb-0">Cuộc trò chuyện đã kết thúc.</p>
+                      <small className="text-muted">Nhấn vào nút "Tiếp tục trò chuyện với khách hàng" để tiếp tục nhăn tin.</small>
                     </div>
                   )}
-                </div>
+                </>
               )}
             </div>
           </div>
