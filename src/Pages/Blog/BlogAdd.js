@@ -111,17 +111,7 @@ export default function BlogAdd() {
                                             />
                                             {errors.author && <p className="text-danger">{errors.author.message}</p>}
                                         </div>
-                                        <div className="form-group">
-                                            <label htmlFor="content">Nội dung</label>
-                                            <ReactQuill
-                                                theme="snow"
-                                                value={content}
-                                                onChange={setContent}
-                                                className="form-control"
-                                                modules={modules}  // Pass the modules prop
-                                            />
-                                            {errors.content && <p className="text-danger">{errors.content.message}</p>}
-                                        </div>
+                                      
                                     </div>
                                     <div className="col-md-6">
                                         <div className="form-group">
@@ -136,6 +126,19 @@ export default function BlogAdd() {
                                         <div className="form-group">
                                             <label htmlFor="poster">Ảnh poster</label><br />
                                             <ImageUploadComponent id="poster" onImageUpload={handleImageUpload} />
+                                        </div>
+                                    </div>
+                                    <div className="col-md-12">
+                                    <div className="form-group">
+                                            <label htmlFor="content">Nội dung</label>
+                                            <ReactQuill
+                                                theme="snow"
+                                                value={content}
+                                                onChange={setContent}
+                                                className="form-control"
+                                                modules={modules}  // Pass the modules prop
+                                            />
+                                            {errors.content && <p className="text-danger">{errors.content.message}</p>}
                                         </div>
                                     </div>
                                 </div>

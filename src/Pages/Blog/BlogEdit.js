@@ -7,6 +7,8 @@ import { SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
 import { fetchCategoryBlog } from "../../Actions/BlogsCategoriesActions";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function BlogEdit() {
     const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
@@ -21,27 +23,28 @@ export default function BlogEdit() {
     const [poster, setPoster] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [content, setContent] = useState(''); // Track Quill content
 
     useEffect(() => {
         const fetchBlogData = async () => {
             setLoading(true);
-            await dispatch(fetchBlog());
+            await dispatch(fetchBlog(id)); // Fetch the specific blog by ID
             await dispatch(fetchCategoryBlog());
             setLoading(false);
         };
 
         fetchBlogData();
-    }, [dispatch]);
+    }, [dispatch, id]);
 
     useEffect(() => {
         const blog = blogState.blog.find((b) => b.id === parseInt(id));
         if (blog) {
             setValue('title', blog.title);
             setValue('author', blog.author);
-            setValue('content', blog.content);
             setValue('blog_category_id', blog.blog_category_id);
             setInitialPoster(blog.poster);
             setPoster(blog.poster);
+            setContent(blog.content); // Set Quill content
         }
     }, [blogState.blog, id, setValue]);
 
@@ -53,7 +56,8 @@ export default function BlogEdit() {
         setLoading(true);
         const updatedData = {
             ...data,
-            poster: poster || initialPoster, // Cập nhật poster nếu có ảnh mới
+            poster: poster || initialPoster, // Update poster if there's a new one
+            content 
         };
     
         try {
@@ -62,11 +66,11 @@ export default function BlogEdit() {
             reset();
             setTimeout(() => {
                 navigate('/blogs');
-            }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+            }, 2000); // Navigate after 2 seconds
         } catch (error) {
             console.error('Error updating blog:', error);
         } finally {
-            setLoading(false); // Dừng spinner khi hoàn tất gửi form
+            setLoading(false);
         }
     };
 
@@ -75,6 +79,19 @@ export default function BlogEdit() {
             setPoster(fileNames[0]);
             setValue('poster', fileNames[0]);
         }
+    };
+
+    const modules = {
+        toolbar: [
+            [{ 'font': [] }, { 'size': [] }],
+            [{ 'header': '1' }, { 'header': '2' }, 'blockquote', 'code-block'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'color': [] }, { 'background': [] }],
+            ['link', 'image', 'video'],
+            ['align', { 'align': [] }],
+            ['clean']
+        ]
     };
 
     if (loading) {
@@ -119,16 +136,6 @@ export default function BlogEdit() {
                                             />
                                             {errors.author && <p className="text-danger">{errors.author.message}</p>}
                                         </div>
-                                        <div className="form-group">
-                                            <label htmlFor="content">Nội dung</label>
-                                            <textarea
-                                                className="form-control"
-                                                id="content"
-                                                rows="4"
-                                                {...register('content', { required: 'Nội dung là bắt buộc' })}
-                                            ></textarea>
-                                            {errors.content && <p className="text-danger">{errors.content.message}</p>}
-                                        </div>
                                     </div>
                                     <div className="col-md-6">
                                         <div className="form-group">
@@ -156,6 +163,19 @@ export default function BlogEdit() {
                                             )}
                                         </div>
                                     </div>
+                                    <div className="col-md-12">
+                                        <div className="form-group">
+                                            <label htmlFor="content">Nội dung</label>
+                                            <ReactQuill
+                                                theme="snow"
+                                                value={content}
+                                                onChange={setContent}
+                                                className="form-control"
+                                                modules={modules}
+                                            />
+                                            {errors.content && <p className="text-danger">{errors.content.message}</p>}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="card-footer">
@@ -172,3 +192,4 @@ export default function BlogEdit() {
         </div>
     );
 }
+

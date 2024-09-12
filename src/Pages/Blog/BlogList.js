@@ -107,7 +107,6 @@ export default function BlogList() {
                                             <tr>
                                                 <th scope="col">STT</th>
                                                 <th scope="col">Tiêu đề</th>
-                                                <th scope="col">Nội dung</th>
                                                 <th scope="col">Tác giả</th>
                                                 <th scope="col">Hình ảnh</th>
                                                 <th scope="col">Thao tác</th>
@@ -133,7 +132,6 @@ export default function BlogList() {
                                                 <tr key={item.id}>
                                                 <td>{(blogState.currentPage - 1) * blogState.pageSize + index + 1}</td>
                                                     <td>{item.title}</td>
-                                                    <td>{item.content}</td>
                                                     <td>{item.author}</td>
                                                     <td>
                                                         <img className="img-fluid rounded" src={item.poster || '../Assets/Images/default.jpg'} alt="poster" width={70} />
