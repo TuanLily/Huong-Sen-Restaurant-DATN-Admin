@@ -9,6 +9,7 @@ import Login from './Pages/Authentication/Login';
 import Otp from './Pages/Authentication/Otp';
 import Forgot from './Pages/Authentication/Forgot';
 import ProtectedRoute from './Components/ProtectedRoute';
+import Redirect from './Components/Redirect';
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
           {/* Admin Routes */}
           <Route path="/" element={<Navigate to="/dashboard" />} />
           
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Redirect><Login /></Redirect>} />
           <Route path="/otp" element={<Otp />} />
           <Route path="/forgot" element={<Forgot />} />
 

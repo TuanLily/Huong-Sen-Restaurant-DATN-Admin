@@ -104,13 +104,13 @@ export default function MenuBar() {
             {/* Quản Lý Sản Phẩm */}
 
             {(hasPermission('Xem sản phẩm') || hasPermission('Xem danh mục sản phẩm') || hasPermission('Khôi phục sản phẩm')) && (
-              <li className={ `nav-item ${ (hasPermission('Xem danh mục sản phẩm') && (location.pathname.startsWith("/category-product")) || ((hasPermission('Xem sản phẩm') || hasPermission('Khôi phục sản phẩm')) && location.pathname.startsWith("/product"))) ? "active" : "" }` }>
+              <li className={ `nav-item ${ (hasPermission('Xem danh mục sản phẩm') && (location.pathname.startsWith("/category-product")) || ((hasPermission('Xem sản phẩm') || (hasPermission('Khôi phục sản phẩm') && location.pathname.startsWith("/product/tam_xoa"))) && location.pathname.startsWith("/product"))) ? "active" : "" }` }>
                 <NavLink to="#productManagement" className="collapsed" aria-expanded={isProductManagementActive.toString()} data-bs-toggle="collapse">
                   <i className="fa-solid fa-bowl-food"></i>
                   <p>Quản Lý Sản Phẩm</p>
                   <span className="caret"></span>
                 </NavLink>
-                <div className={ `collapse ${ (hasPermission('Xem danh mục sản phẩm') && (location.pathname.startsWith("/category-product")) || ((hasPermission('Xem sản phẩm') || hasPermission('Khôi phục sản phẩm')) && location.pathname.startsWith("/product"))) ? "show" : "" }` } id="productManagement">
+                <div className={ `collapse ${ (hasPermission('Xem danh mục sản phẩm') && (location.pathname.startsWith("/category-product")) || ((hasPermission('Xem sản phẩm') || (hasPermission('Khôi phục sản phẩm') && location.pathname.startsWith("/product/tam_xoa"))) && location.pathname.startsWith("/product"))) ? "show" : "" }` } id="productManagement">
                   <ul className="nav nav-collapse">
                     {hasPermission('Xem danh mục sản phẩm') && (
                       <li>
