@@ -1,323 +1,267 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchRolePermisson, updateRole } from '../../Actions/RoleActions';
+import { fetchRole2 } from '../../Actions/RoleActions';
+import {
+  addRolePermissions,
+  fetchRolePermissions,
+  deleteRolePermissions,
+} from '../../Actions/RolePermissionsActions'; // Import thêm hàm deleteRolePermissions
+import { fetchPermissions } from '../../Actions/PermissionsActions';
 import { DangerAlert, SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
+import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
-const permissionsData = [
-    {
-        title: 'Quản lý sản phẩm',
-        options: [
-            { id: 'productCreate', label: 'Tạo mới' },
-            { id: 'productEdit', label: 'Chỉnh sửa' },
-            { id: 'productDelete', label: 'Xóa' },
-            { id: 'productView', label: 'Xem' },
-            { id: 'productRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý danh mục',
-        options: [
-            { id: 'categoryCreate', label: 'Tạo mới' },
-            { id: 'categoryEdit', label: 'Chỉnh sửa' },
-            { id: 'categoryDelete', label: 'Xóa' },
-            { id: 'categoryView', label: 'Xem' },
-            { id: 'categoryRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý bài viết',
-        options: [
-            { id: 'articleCreate', label: 'Tạo mới' },
-            { id: 'articleEdit', label: 'Chỉnh sửa' },
-            { id: 'articleDelete', label: 'Xóa' },
-            { id: 'articleView', label: 'Xem' },
-            { id: 'articleRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý vai trò',
-        options: [
-            { id: 'roleCreate', label: 'Tạo mới' },
-            { id: 'roleEdit', label: 'Chỉnh sửa' },
-            { id: 'roleDelete', label: 'Xóa' },
-            { id: 'roleView', label: 'Xem' },
-            { id: 'roleRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý người dùng',
-        options: [
-            { id: 'userCreate', label: 'Tạo mới' },
-            { id: 'userEdit', label: 'Chỉnh sửa' },
-            { id: 'userDelete', label: 'Xóa' },
-            { id: 'userView', label: 'Xem' },
-            { id: 'userRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý khuyến mãi',
-        options: [
-            { id: 'promotionCreate', label: 'Tạo mới' },
-            { id: 'promotionEdit', label: 'Chỉnh sửa' },
-            { id: 'promotionDelete', label: 'Xóa' },
-            { id: 'promotionView', label: 'Xem' },
-            { id: 'promotionRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý nhóm khách hàng',
-        options: [
-            { id: 'ctgCreate', label: 'Tạo mới' },
-            { id: 'ctgEdit', label: 'Chỉnh sửa' },
-            { id: 'ctgDelete', label: 'Xóa' },
-            { id: 'ctgView', label: 'Xem' },
-            { id: 'ctgRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý thứ hạng',
-        options: [
-            { id: 'rankCreate', label: 'Tạo mới' },
-            { id: 'rankEdit', label: 'Chỉnh sửa' },
-            { id: 'rankDelete', label: 'Xóa' },
-            { id: 'rankView', label: 'Xem' },
-            { id: 'rankRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý đơn hàng',
-        options: [
-            { id: 'orderCreate', label: 'Tạo mới' },
-            { id: 'orderEdit', label: 'Chỉnh sửa' },
-            { id: 'orderDelete', label: 'Xóa' },
-            { id: 'orderView', label: 'Xem' },
-            { id: 'orderRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý chi tiết đơn hàng',
-        options: [
-            { id: 'orderdetailsCreate', label: 'Tạo mới' },
-            { id: 'orderdetailsEdit', label: 'Chỉnh sửa' },
-            { id: 'orderdetailsDelete', label: 'Xóa' },
-            { id: 'orderdetailsView', label: 'Xem' },
-            { id: 'orderdetailsRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý thanh toán',
-        options: [
-            { id: 'payCreate', label: 'Tạo mới' },
-            { id: 'payEdit', label: 'Chỉnh sửa' },
-            { id: 'payDelete', label: 'Xóa' },
-            { id: 'payView', label: 'Xem' },
-            { id: 'payRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý bình luận sản phẩm',
-        options: [
-            { id: 'productcommentsDelete', label: 'Xóa' },
-            { id: 'productcommentsView', label: 'Xem' },
-        ]
-    },
-    {
-        title: 'Quản lý bình luận blog',
-        options: [
-            { id: 'blogcommentsDelete', label: 'Xóa' },
-            { id: 'blogcommentsView', label: 'Xem' },
-        ]
-    },
-    {
-        title: 'Quản lý bàn ăn',
-        options: [
-            { id: 'tableCreate', label: 'Tạo mới' },
-            { id: 'tableEdit', label: 'Chỉnh sửa' },
-            { id: 'tableDelete', label: 'Xóa' },
-            { id: 'tableView', label: 'Xem' },
-            { id: 'tableRestore', label: 'Khôi phục' }
-        ]
-    },
-    {
-        title: 'Quản lý đặt bàn',
-        options: [
-            { id: 'ReservationsCreate', label: 'Tạo mới' },
-            { id: 'ReservationsEdit', label: 'Chỉnh sửa' },
-            { id: 'ReservationsDelete', label: 'Xóa' },
-            { id: 'ReservationsView', label: 'Xem' },
-            { id: 'ReservationsRestore', label: 'Khôi phục' }
-        ]
-    },
-];
 export default function RolesEdit() {
-    const { handleSubmit } = useForm();
-    const { id } = useParams();
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const { handleSubmit } = useForm();
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-    const roleState = useSelector((state) => state.role);
-    const [selectedPermissions, setSelectedPermissions] = useState([]);
-    const [selectedRole, setSelectedRole] = useState(null);
-    const [selectedRoleName, setSelectedRoleName] = useState('');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [openSuccess, setOpenSuccess] = useState(false);
-    const [openError, setOpenError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
+  const roleState = useSelector((state) => state.role);
+  const permissionsState = useSelector((state) => state.permissions);
+  const rolePermissionsState = useSelector((state) => state.rolePermissions.allRolePermissions);
 
-    useEffect(() => {
-        dispatch(fetchRolePermisson());
-    }, [dispatch]);
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openError, setOpenError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        if (selectedRole) {
-            dispatch(fetchRolePermisson(selectedRole));
-        }
-    }, [selectedRole, dispatch]);
 
-    useEffect(() => {
-        const role = roleState.role.find((r) => r.id === parseInt(id));
-        if (role) {
-            setSelectedRole(role.id);
-            setSelectedRoleName(role.name);
-            setSelectedPermissions(role.permissions?.split(',') || []);
-        }
-    }, [roleState.role, id]);
+  // Load roles and permissions data
+  useEffect(() => {
+    dispatch(fetchRole2());
+    dispatch(fetchPermissions());
+  }, [dispatch]);
 
-    const handleCheckboxChange = (id) => {
-        setSelectedPermissions((prev) =>
-            prev.includes(id)
-                ? prev.filter((permission) => permission !== id)
-                : [...prev, id]
-        );
+  // Tải quyền vai trò khi vai trò được chọn
+  useEffect(() => {
+    const loadRolePermissions = async () => {
+      if (selectedRole) {
+        setLoading(true);
+        await dispatch(fetchRolePermissions(selectedRole));
+        setLoading(false);
+      }
     };
+    loadRolePermissions();
+  }, [dispatch, selectedRole]);
 
-    const handleSelectAll = (group) => {
-        const allSelected = group.options.every((option) =>
-            selectedPermissions.includes(option.id)
-        );
-        setSelectedPermissions((prev) =>
-            allSelected
-                ? prev.filter((permission) => !group.options.some((option) => option.id === permission))
-                : [...prev, ...group.options.map((option) => option.id).filter((id) => !prev.includes(id))]
-        );
-    };
+  // Cập nhật trạng thái khi dữ liệu vai trò thay đổi
+  useEffect(() => {
+    const role = roleState.role.find((r) => r.id === parseInt(id));
+    if (role) {
+      setSelectedRole(role.id);
+    }
+  }, [roleState.role, id]);
 
-    const onSubmit = async () => {
-        const updatedData = {
-            name: selectedRoleName,
-            permissions: selectedPermissions.join(',')
-        };
+  useEffect(() => {
+    if (selectedRole && rolePermissionsState.length > 0) {
+      const rolePermissions = rolePermissionsState.filter(
+        (rp) => rp.role_id === selectedRole
+      );
+      setSelectedPermissions(rolePermissions.map((rp) => rp.permission_id));
+    }
+  }, [rolePermissionsState, selectedRole]);
 
-        try {
-            await dispatch(updateRole(selectedRole, updatedData));
-            setOpenSuccess(true);
-            setTimeout(() => navigate('/role'), 2000);
-        } catch (error) {
-            setErrorMessage(error.response?.data?.error || error.message);
-            setOpenError(true);
-        }
-    };
+  // Chuyển trạng thái chọn của một quyền cụ thể
+  const handleCheckboxChange = (id) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(id)
+        ? prev.filter((permission) => permission !== id)
+        : [...prev, id]
+    );
+  };
 
-    const filteredPermissionsData = permissionsData.filter(group =>
-        group.title.toLowerCase().includes(searchTerm.toLowerCase())
+  // Chọn tất cả quyền trong một nhóm
+  const handleSelectAll = (rolePermissions) => {
+    if (!rolePermissions.options) return;
+
+    const allSelected = rolePermissions.options.every((option) =>
+      selectedPermissions.includes(option.id)
     );
 
-    return (
-        <div className="container">
-            <div className="page-inner">
-                <div className="row">
-                    <form className="col-md-12" onSubmit={handleSubmit(onSubmit)}>
-                        <div className="card">
-                            <div className="card-header">
-                                <div className="card-title">Cập nhật vai trò</div>
-                            </div>
-                            <div className="card-body">
-                                <button className="btn btn-primary mt-3 float-end">Áp dụng</button>
-                                <div className="mb-3 col-md-4">
-                                    <select
-                                        className="form-select"
-                                        onChange={(e) => {
-                                            const selectedId = parseInt(e.target.value);
-                                            const selectedRole = roleState.role.find(role => role.id === selectedId);
-                                            setSelectedRole(selectedId);
-                                            setSelectedRoleName(selectedRole ? selectedRole.name : '');
-                                            // Reset selected permissions based on selected role
-                                            setSelectedPermissions(selectedRole?.permissions?.split(',') || []);
-                                        }}
-                                        value={selectedRole || ''}
-                                    >
-                                        <option value="">Chọn vai trò ...</option>
-                                        {roleState.role.map(role => (
-                                            <option key={role.id} value={role.id}>
-                                                {role.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="mb-3 col-md-4">
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        placeholder="Tìm kiếm nhóm quyền ở đây..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                                <h2 className="text-center my-4">Quản lý phân quyền</h2>
-                                <div className="row row-cols-1 row-cols-md-5">
-                                    {filteredPermissionsData.map((group, index) => (
-                                        <div key={index} className="col mb-4">
-                                            <h4 className="fw-bold fs-6">{group.title}</h4>
-                                            <div className="form-check">
-                                                <input
-                                                    className="form-check-input"
-                                                    type="checkbox"
-                                                    id={`selectAll-${index}`}
-                                                    onChange={() => handleSelectAll(group)}
-                                                    checked={group.options.every((option) =>
-                                                        selectedPermissions.includes(option.id)
-                                                    )}
-                                                />
-                                                <label
-                                                    className="form-check-label"
-                                                    htmlFor={`selectAll-${index}`}
-                                                >
-                                                    Chọn tất cả
-                                                </label>
-                                            </div>
-                                            {group.options.map((option) => (
-                                                <div key={option.id} className="form-check">
-                                                    <input
-                                                        className="form-check-input"
-                                                        type="checkbox"
-                                                        value={option.id}
-                                                        id={option.id}
-                                                        checked={selectedPermissions.includes(option.id)}
-                                                        onChange={() => handleCheckboxChange(option.id)}
-                                                    />
-                                                    <label className="form-check-label" htmlFor={option.id}>
-                                                        {option.label}
-                                                    </label>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                    <SuccessAlert open={openSuccess} onClose={() => setOpenSuccess(false)} message="Cập nhật vai trò thành công!" vertical="top" horizontal="right" />
-                    <DangerAlert
-                        open={openError}
-                        onClose={() => setOpenError(false)}
-                        message={errorMessage}
-                        vertical="top"
-                        horizontal="right"
-                    />
+    setSelectedPermissions((prev) =>
+      allSelected
+        ? prev.filter(
+          (permission) => !rolePermissions.options.some((option) => option.id === permission)
+        )
+        : [
+          ...prev,
+          ...rolePermissions.options
+            .map((option) => option.id)
+            .filter((id) => !prev.includes(id)),
+        ]
+    );
+  };
+
+  // Xử lý khi gửi biểu mẫu
+  const onSubmit = async () => {
+    if (!selectedRole) {
+      setErrorMessage('Vui lòng chọn vai trò.');
+      setOpenError(true);
+      return;
+    }
+
+    if (selectedPermissions.length === 0) {
+      setErrorMessage('Vui lòng chọn quyền hạn.');
+      setOpenError(true);
+      return;
+    }
+
+    try {
+      // Xóa tất cả quyền cũ trước khi thêm quyền mới
+      await dispatch(deleteRolePermissions(selectedRole));
+
+      // Nếu không có permission nào được chọn, gửi dữ liệu trống cho permissions
+      const rolePermissionsData = selectedPermissions.map((permissionId) => ({
+        role_id: selectedRole,
+        permission_id: permissionId,
+      }));
+
+      await dispatch(addRolePermissions(rolePermissionsData));
+      setOpenSuccess(true);
+      setTimeout(() => navigate('/permissions'), 2000);
+    } catch (error) {
+      setErrorMessage(error.response?.data?.error || error.message);
+      setOpenError(true);
+    }
+  };
+
+  // Nhóm quyền theo tiêu đề và lọc chỉ các quyền có ID số
+  const groupPermissionsByTitle = (permissions) => {
+    const groupedPermissions = permissions.reduce((acc, permission) => {
+      if (!acc[permission.title]) {
+        acc[permission.title] = { title: permission.title, options: [] };
+      }
+
+      if (permission.label && !isNaN(permission.id)) {
+        acc[permission.title].options.push(permission);
+      }
+
+      return acc;
+    }, {});
+
+    return Object.values(groupedPermissions);
+  };
+  // Lọc và nhóm dữ liệu quyền hạn
+  const filteredPermissionsData = groupPermissionsByTitle(
+    (permissionsState.permissions || []).filter(group =>
+      group.title.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
+  return (
+    <div className="container">
+      <div className="page-inner">
+        <div className="row">
+          <form className="col-md-12" onSubmit={handleSubmit(onSubmit)}>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Thêm quyền vào vai trò</div>
+              </div>
+              <div className="card-body">
+                <button
+                  type="submit"
+                  className="btn btn-primary mt-3 float-end"
+                >
+                  Áp dụng
+                </button>
+                <div className="mb-3 col-md-4">
+                  <select
+                    className="form-select"
+                    onChange={(e) => {
+                      const selectedId = parseInt(e.target.value);
+                      setSelectedRole(selectedId);
+                    }}
+                    value={selectedRole || ''}
+                  >
+                    <option value="">Chọn vai trò ...</option>
+                    {roleState.role.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+                <div className="mb-3 col-md-4">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Tìm kiếm nhóm quyền ở đây..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                {loading ? (
+                  <CustomSpinner />
+                ) : (
+                  <>
+                    <h2 className="text-center my-4">Quản lý phân quyền</h2>
+                    <div className="row row-cols-1 row-cols-md-5">
+                      {filteredPermissionsData.map((group, index) => (
+                        <div key={index} className="col mb-4">
+                          <h4 className="fw-bold fs-6">{group.title}</h4>
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`selectAll-${index}`}
+                              onChange={() => handleSelectAll(group)}
+                              checked={
+                                group.options &&
+                                group.options.length > 0 &&
+                                group.options.every((option) => selectedPermissions.includes(option.id))
+                              }
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor={`selectAll-${index}`}
+                            >
+                              Chọn tất cả
+                            </label>
+                          </div>
+                          {group.options.map((option) => (
+                            <div key={option.id} className="form-check">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                value={option.id}
+                                id={`option-${option.id}`}
+                                checked={selectedPermissions.includes(option.id)}
+                                onChange={() => handleCheckboxChange(option.id)}
+                              />
+                              <label className="form-check-label" htmlFor={`option-${option.id}`}>
+                                {option.label}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
+          </form>
+          <SuccessAlert
+            open={openSuccess}
+            onClose={() => setOpenSuccess(false)}
+            message="Thêm quyền vào vai trò thành công!"
+            vertical="top"
+            horizontal="right"
+          />
+          <DangerAlert
+            open={openError}
+            onClose={() => setOpenError(false)}
+            message={errorMessage}
+            vertical="top"
+            horizontal="right"
+          />
         </div>
-    );
+      </div>
+    </div>
+  );
 }

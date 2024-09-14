@@ -14,6 +14,7 @@ import commentBlogReducer from "./CommentBlogReducers";
 import userReducer from "./UserReducers";
 import UserChatsReducer from "./UserChatsReducer";
 import getQuyenHanReducer from "./GetQuyenHanReducers";
+import RolePermissionsReducer from "./RolePermissionsReducers";
 
 
 const rootReducer = combineReducers({
@@ -36,6 +37,7 @@ const rootReducer = combineReducers({
     users: userReducer,
     userChats: UserChatsReducer,
     getQuyenHan: getQuyenHanReducer,
+    rolePermissions: RolePermissionsReducer
 });
 
 export default rootReducer;

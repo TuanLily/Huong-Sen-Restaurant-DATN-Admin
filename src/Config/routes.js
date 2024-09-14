@@ -85,7 +85,8 @@ const AdminRoutes = {
     permissionsEdit: 'permissions/edit/:id',
     permissionsDelete: 'permissions/delete',
 
-    rolesPermissions: 'roles-permissions',
+    rolesPermissions: 'roles_permissions',
+    rolesPermissionsAdd: 'roles_permissions/add',
 
     commentProducts: 'comment-products',
     commentProductsDelete: 'comment-products/delete',

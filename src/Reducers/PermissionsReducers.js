@@ -9,7 +9,7 @@ const initialState = {
     allPermissions: [],
     permissions: [],
     currentPage: 1,
-    pageSize: 5,
+    
     loading: false,
     error: '',
     totalCount: 0, 

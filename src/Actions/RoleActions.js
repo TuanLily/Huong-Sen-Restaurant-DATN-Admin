@@ -60,7 +60,7 @@ export const fetchRole = (name = '', page = 1, pageSize = 10) => {
     };
 };
 
-export const fetchRolePermisson = () => {
+export const fetchRole2 = () => {
     return dispatch => {
         dispatch(fetchRoleRequest());
 

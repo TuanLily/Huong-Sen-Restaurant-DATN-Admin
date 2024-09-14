@@ -34,22 +34,15 @@ export const setCurrentPage = (page) => ({
 });
 
 // Fetch Permissions Action
-export const fetchPermissions = (name = '', page = 1, pageSize = 10) => {
+export const fetchPermissions = () => {
     return dispatch => {
         dispatch(fetchPermissionsRequest());
 
         const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.permissions}`);
-
-        if (name) {
-            url.searchParams.append('search', name);
-        }
-        url.searchParams.append('page', page);
-        url.searchParams.append('pageSize', pageSize);
-
         http.get(url.toString())
             .then(response => {
-                const { results, totalCount, totalPages, currentPage } = response.data;
-                dispatch(fetchPermissionsSuccess(results, totalCount, totalPages, currentPage));
+                const { results} = response.data;
+                dispatch(fetchPermissionsSuccess(results));
             })
             .catch(error => {
                 const errorMsg = error.response?.data?.message || error.message;
@@ -57,6 +50,42 @@ export const fetchPermissions = (name = '', page = 1, pageSize = 10) => {
             });
     };
 };
+
+
+export const fetchPermissionsByRole = (roleId, name = '') => {
+    return dispatch => {
+        dispatch(fetchPermissionsRequest());
+
+        // Kiểm tra roleId có hợp lệ không trước khi gọi API
+        if (!roleId) {
+            const errorMsg = 'Role ID is required';
+            dispatch(fetchPermissionsFailure(errorMsg));
+            return;
+        }
+
+        // Tạo URL với roleId
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.permissions}`);
+        url.searchParams.append('role_id', roleId);
+
+        // Nếu có tên tìm kiếm, thêm vào URL
+        if (name) {
+            url.searchParams.append('search', name);
+        }
+
+        // Gọi API để lấy danh sách quyền dựa trên roleId
+        http.get(url.toString())
+            .then(response => {
+                const { results } = response.data; // Chỉ lấy danh sách kết quả
+                dispatch(fetchPermissionsSuccess(results)); // Không cần totalCount, totalPages, currentPage nữa
+            })
+            .catch(error => {
+                const errorMsg = error.response?.data?.message || error.message;
+                dispatch(fetchPermissionsFailure(errorMsg));
+            });
+    };
+};
+
+
 
 // Add Permissions Action
 export const addPermissions = (permissions) => {
