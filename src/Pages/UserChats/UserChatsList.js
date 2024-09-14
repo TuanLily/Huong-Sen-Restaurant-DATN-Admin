@@ -40,6 +40,7 @@ export default function UserChatsList() {
   const typingDocRef = useRef(null);
   const emojiPickerRef = useRef(null);
   const [chatMode, setChatMode] = useState('human'); // 'bot' hoặc 'human'
+  const [endedChats, setEndedChats] = useState({});
 
   const selectedAdminUser = JSON.parse(localStorage.getItem("user_admin"));
 
@@ -241,57 +242,69 @@ export default function UserChatsList() {
       try {
         await addDoc(collection(db, "messages"), {
           chatId: selectedUser.chatId,
-          text: "Cuộc trò chuyện với nhân viên đã kết thúc. Bạn đang chat với bot.",
+          text: "Cuộc trò chuyện đã kết thúc.",
           timestamp: serverTimestamp(),
           role: "system",
           status: "ended"
         });
 
+        setEndedChats(prev => ({
+          ...prev,
+          [selectedUser.chatId]: true
+        }));
+
+        // Chuyển chatMode sang 'bot' khi kết thúc cuộc trò chuyện
         setChatMode('bot');
+
       } catch (error) {
-        console.error("Error ending conversation:", error);
+        console.error("Lỗi khi kết thúc cuộc trò chuyện:", error);
       }
     }
   };
 
+  const resumeConversation = async () => {
+    if (selectedUser) {
+      setEndedChats(prev => ({
+        ...prev,
+        [selectedUser.chatId]: false
+      }));
 
+      // Chuyển chatMode sang 'human' khi tiếp tục cuộc trò chuyện
+      setChatMode('human');
 
-  const switchToHumanChat = async () => {
-    setChatMode('human');
-    await addDoc(collection(db, "messages"), {
-      chatId: selectedUser.chatId,
-      text: "Bạn đã được chuyển sang chat với nhân viên tư vấn.",
-      timestamp: serverTimestamp(),
-      role: "system"
-    });
+      await addDoc(collection(db, "messages"), {
+        chatId: selectedUser.chatId,
+        text: "Cuộc trò chuyện đã được tiếp tục.",
+        timestamp: serverTimestamp(),
+        role: "system",
+        status: "active"
+      });
+    }
   };
 
   const handleSendMessage = async () => {
     if (newMessage.trim() && selectedUser) {
+      if (endedChats[selectedUser.chatId]) {
+        alert("Cuộc trò chuyện đã kết thúc. Vui lòng tiếp tục cuộc trò chuyện để gửi tin nhắn.");
+        return;
+      }
       const messageData = {
         chatId: selectedUser.chatId,
         text: newMessage,
         timestamp: serverTimestamp(),
-        role: chatMode === 'bot' ? 'customer' : 'admin',
-        fullname: chatMode === 'bot' ? selectedUser.fullname : selectedAdminUser.fullname,
-        username: chatMode === 'bot' ? selectedUser.username : selectedAdminUser.username,
-        tel: chatMode === 'bot' ? selectedUser.tel : selectedAdminUser.tel,
+        role: chatMode === 'human' ? 'admin' : 'bot',
+        fullname: selectedAdminUser.fullname,
+        username: selectedAdminUser.username,
+        tel: selectedAdminUser.tel,
         status: "sent"
       };
 
       try {
         await addDoc(collection(db, "messages"), messageData);
-
-        if (chatMode === 'bot') {
-          if (newMessage.toLowerCase().includes("gặp nhân viên")) {
-            await switchToHumanChat();
-          }
-        }
+        setNewMessage("");
       } catch (error) {
-        console.error("Error sending message:", error);
+        console.error("Lỗi khi gửi tin nhắn:", error);
       }
-
-      setNewMessage("");
     }
   };
 
@@ -488,16 +501,16 @@ export default function UserChatsList() {
                           <button
                             className="dropdown-item"
                             onClick={handleEndConversation}
-                            disabled={chatMode === 'bot'}
+                            disabled={endedChats[selectedUser.chatId]}
                           >
                             Kết thúc trò chuyện
                           </button>
                         </li>
-                        {chatMode === 'bot' && (
+                        {endedChats[selectedUser.chatId] && (
                           <li>
                             <button
                               className="dropdown-item"
-                              onClick={switchToHumanChat}
+                              onClick={resumeConversation}
                             >
                               Tiếp tục trò chuyện với khách hàng
                             </button>
@@ -586,7 +599,7 @@ export default function UserChatsList() {
               </div>
               {selectedUser && (
                 <>
-                  {chatMode === 'human' ? (
+                  {!endedChats[selectedUser.chatId] ? (
                     <div className="d-flex align-items-center p-3 border-top bg-light">
                       <input
                         type="text"
@@ -619,7 +632,7 @@ export default function UserChatsList() {
                   ) : (
                     <div className="p-3 border-top bg-light text-center">
                       <p className="mb-0">Cuộc trò chuyện đã kết thúc.</p>
-                      <small className="text-muted">Nhấn vào nút "Tiếp tục trò chuyện với khách hàng" để tiếp tục nhăn tin.</small>
+                      <small className="text-muted">Nhấn vào nút "Tiếp tục trò chuyện với khách hàng" để tiếp tục nhắn tin.</small>
                     </div>
                   )}
                 </>
