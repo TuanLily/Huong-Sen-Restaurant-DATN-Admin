@@ -1,7 +1,36 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Pagination from '@mui/material/Pagination';
 
+import { InputBase, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+
 export default function ReservationList() {
+    const [nameSearch, setNameSearch] = useState('');
+
+    const handleNameSearch = (event) => {
+        setNameSearch(event.target.value);
+    };
+
+    const [emailSearch, setEmailSearch] = useState('');
+
+    const handleEmailSearch = (event) => {
+        console.log (emailSearch);
+        setEmailSearch(event.target.value);
+    };
+
+    const [phoneSearch, setPhoneSearch] = useState('');
+
+    const handlePhoneSearch = (event) => {
+        setPhoneSearch(event.target.value);
+    };
+
+    const [statusSearch, setStatusSearch] = useState('');
+
+    const handleStatusSearch = (event) => {
+        console.log (statusSearch);
+        setStatusSearch(event.target.value);
+    };
+
     const [activeDropdown, setActiveDropdown] = useState(null);
 
     const toggleDropdown = (index) => {
@@ -16,16 +45,16 @@ export default function ReservationList() {
                         <h3 className="fw-bold mb-2">Quản lý đặt bàn</h3>
                         <form className="form-inline d-flex flex-wrap justify-content-between align-items-center">
                             <div className="d-flex flex-wrap align-items-center mb-2">
-                                <input type="text" className="form-control mr-2" style={{ flex: '1 1 200px', height: '38px', minWidth: '150px' }} placeholder="Tên khách hàng" aria-label="Tên khách hàng" />
-                                <input type="email" className="form-control mr-2" style={{ flex: '1 1 200px', height: '38px', minWidth: '150px' }} placeholder="Email" aria-label="Email" />
-                                <input type="text" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Phone" aria-label="Phone" />
-                                <select className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }}>
+                                <input type="text" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Tên khách hàng" aria-label="Email" value={nameSearch} onChange={handleNameSearch} /> 
+                                <input type="email" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Email" aria-label="Email" value={emailSearch} onChange={handleEmailSearch} /> 
+                                <input type="text" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Phone" aria-label="Phone" value={phoneSearch} onChange={handlePhoneSearch}/> 
+                                <select className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} value={statusSearch} onChange={handleStatusSearch}>
                                     <option value="">Trạng thái</option>
                                     <option value="pending">Chưa xác nhận</option>
                                     <option value="paid">Đã thanh toán</option>
                                 </select>
                             </div>
-                            <button type="button" className="btn btn-primary" style={{ height: '38px', borderRadius: '20px' }}>Thêm đặt bàn</button>
+                            <Link to="add" className="btn btn-primary" style={{ height: '38px', borderRadius: '20px' }}>Thêm đặt bàn</Link>
                         </form>
                     </div>
                 </div>
@@ -137,12 +166,12 @@ export default function ReservationList() {
                                                                 <button className="btn btn-info dropdown-toggle" type="button" onClick={() => toggleDropdown(index)} style={{ marginRight: '5px' }}>
                                                                     Hành động
                                                                 </button>
-                                                                <button className="btn" style={{ backgroundColor: '#ff69b4', color: '#fff', marginRight: '5px' }}>
+                                                                <Link to='edit' className="btn" style={{ backgroundColor: '#ff69b4', color: '#fff', marginRight: '5px' }}>
                                                                     <i className="fas fa-edit mr-2"></i>
-                                                                </button>
-                                                                <button className="btn" style={{ backgroundColor: '#28a745', color: '#fff' }}>
+                                                                </Link>
+                                                                <Link to='detail' className="btn" style={{ backgroundColor: '#28a745', color: '#fff' }}>
                                                                     <i className="fas fa-eye mr-2"></i>
-                                                                </button>
+                                                                </Link>
                                                             </div>
                                                             {activeDropdown === index && (
                                                                 <div className="dropdown-menu show" style={{ position: 'absolute', zIndex: 2, right: '10.7%' }}>

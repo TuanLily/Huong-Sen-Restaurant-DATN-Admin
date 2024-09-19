@@ -11,6 +11,8 @@ import Forgot from './Pages/Authentication/Forgot';
 import ProtectedRoute from './Components/ProtectedRoute';
 import Redirect from './Components/Redirect';
 
+import ReservationDetail from './Pages/Reservations/ReservationDetail';
+
 function App() {
   return (
     <Router>
@@ -32,6 +34,8 @@ function App() {
               />
             ))}
           </Route>
+
+          <Route path="reservation/detail" element={<ProtectedRoute element={<ReservationDetail />} requiredPermissions={[]} />} />
 
           {/* 404 Route */}
           <Route path="*" element={<NotFound />} />
