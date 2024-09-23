@@ -15,7 +15,7 @@ import userReducer from "./UserReducers";
 import UserChatsReducer from "./UserChatsReducer";
 import getQuyenHanReducer from "./GetQuyenHanReducers";
 import RolePermissionsReducer from "./RolePermissionsReducers";
-
+import Reservations_t_AdminReducer from "./Reservations_t_AdminReducers";
 
 const rootReducer = combineReducers({
     customer: customerReducer,
@@ -37,7 +37,8 @@ const rootReducer = combineReducers({
     users: userReducer,
     userChats: UserChatsReducer,
     getQuyenHan: getQuyenHanReducer,
-    rolePermissions: RolePermissionsReducer
+    rolePermissions: RolePermissionsReducer,
+    reservations_Admin: Reservations_t_AdminReducer
 });
 
 export default rootReducer;

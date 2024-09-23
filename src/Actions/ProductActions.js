@@ -136,7 +136,7 @@ export const updateProduct = (id, data) => {
         http.patch(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`, data)
             .then((response) => {
                 dispatch(fetchProductSuccess(response.data.data));
-                dispatch(fetchProductNHoatDong()); // Reload danh sách sau khi cập nhật
+                dispatch(fetchProductHoatDong()); // Reload danh sách sau khi cập nhật
             })
             .catch((error) => {
                 dispatch(fetchProductFailure(error.message));

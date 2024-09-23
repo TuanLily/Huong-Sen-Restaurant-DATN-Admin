@@ -43,7 +43,7 @@ const AdminRoutes = {
 
     reservation: 'reservation',
     reservationAdd: 'reservation/add',
-    reservationEdit: 'reservation/edit',
+    reservationEdit: 'reservation/edit/:id',
     reservationDelete: 'reservation/delete',
 
     order: 'order',
