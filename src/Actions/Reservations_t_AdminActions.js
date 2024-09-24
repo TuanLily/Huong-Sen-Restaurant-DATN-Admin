@@ -1,4 +1,3 @@
-
 export const FETCH_RESERVATIONS_REQUEST = 'FETCH_RESERVATIONS_REQUEST';
 export const FETCH_RESERVATIONS_SUCCESS = 'FETCH_RESERVATIONS_SUCCESS';
 export const FETCH_RESERVATIONS_FAILURE = 'FETCH_RESERVATIONS_FAILURE';
@@ -53,6 +52,26 @@ export const fetchReservations = (fullname = '', tel = '', email = '', status = 
         // Thêm tham số phân trang
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
+
+        http.get(url.toString())
+            .then(response => {
+                const { results, totalCount, totalPages, currentPage } = response.data;
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchReservationsSuccess(results, totalCount, totalPages, currentPage));
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchReservationsFailure(errorMsg));
+            });
+    };
+};
+
+// Lấy reservations theo ID
+export const fetchReservationsID = (id) => {
+    return dispatch => {
+        dispatch(fetchReservationsRequest());
+
+        const url = new URL(`${API_ENDPOINT}/${API_DATA.reservations_admin}/${id}`);
 
         http.get(url.toString())
             .then(response => {

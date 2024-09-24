@@ -25,6 +25,7 @@ export default function ProductEdit () {
 
     useEffect(() => {
         dispatch(fetchProductCategory());
+        dispatch(fetchProduct());
     }, [dispatch]);
 
     useEffect(() => {
