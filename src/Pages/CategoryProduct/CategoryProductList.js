@@ -93,7 +93,7 @@ export default function CategoryProductList() {
     const handleConfirm = async () => {
         if (setSelectedProductCategory) {
             try {
-                await dispatch(deleteProductCategory(selectedProductCategory));
+                await dispatch(deleteProductCategory(selectedProductCategory, searchTerm, urlPage, productCategoryState.pageSize));
                 handleClose();
                 setOpenSuccess(true); // Hiển thị thông báo thành công
             } catch (error) {

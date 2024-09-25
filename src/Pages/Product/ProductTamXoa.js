@@ -58,7 +58,7 @@ export default function ProductTamXoa () {
     const handleConfirm = async () => {
         if (setSelectedProduct) {
             try {
-                dispatch(updateStatus(selectedProduct, {status: 1}, 'tam_xoa'));
+                dispatch(updateStatus(selectedProduct, {status: 1}, 'tam_xoa', searchTerm, urlPage, productState.pageSize));
                 handleClose();
                 setOpenSuccess(true); // Hiển thị thông báo thành công
             } catch (error) {

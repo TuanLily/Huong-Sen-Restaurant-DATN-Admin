@@ -116,13 +116,13 @@ export const updateProductCategory = (id, data) => {
     };
 };
 
-export const deleteProductCategory = (id) => {
+export const deleteProductCategory = (id, name = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchProductCategoryRequest());
         http.delete(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`)
             .then(() => {
                 // Sau khi xóa danh muc, gọi lại fetchProductCategory để làm mới danh sách
-                dispatch(fetchProductCategory());
+                dispatch(fetchProductCategory(name, page, pageSize));
             })
             .catch((error) => {
                 const errorMsg = error.message;

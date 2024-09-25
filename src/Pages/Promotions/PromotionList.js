@@ -5,7 +5,7 @@ import { fetchPromotion, deletePromotion, setCurrentPage } from '../../Actions/P
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
-import { SuccessAlert } from '../../Components/Alert/Alert';
+import { SuccessAlert, DangerAlert } from '../../Components/Alert/Alert';
 
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -21,6 +21,7 @@ export default function PromotionList () {
 
     const [open, setOpen] = useState(false);
     const [openSuccess, setOpenSuccess] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(false);
     const [selectedPromotion, setSelectedPromotion] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -46,14 +47,19 @@ export default function PromotionList () {
         setOpenSuccess(false);
     };
 
+    const handleErrorClose = () => {
+        setErrorMessage(false);
+    };
+
     const handleConfirm = async () => {
-        if (setSelectedPromotion) {
+        if (selectedPromotion) {
             try {
-                await dispatch(deletePromotion(selectedPromotion));
+                await dispatch(deletePromotion(selectedPromotion, searchTerm, urlPage, promotionState.pageSize));
                 handleClose();
                 setOpenSuccess(true); // Hiển thị thông báo thành công
             } catch (error) {
-                console.error("Error deleting promotion:", error);
+                handleClose();
+                setErrorMessage(true); // Hiển thị thông báo lỗi
             }
         }
     };
@@ -183,6 +189,7 @@ export default function PromotionList () {
                         </div>
                     </div>
                     <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Xóa khuyến mãi thành công!" />
+                    <DangerAlert open={errorMessage} onClose={handleErrorClose} message={'Xóa mã không thành công!'} /> {/* Hiển thị lỗi */}
                 </div>
             </div>
             <DialogConfirm open={open} onClose={handleClose} onConfirm={handleConfirm} />

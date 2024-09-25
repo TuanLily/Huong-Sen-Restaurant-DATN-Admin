@@ -88,16 +88,16 @@ export const updatePromotions = (id, data) => {
     };
 };
 
-export const deletePromotion = (id) => {
-    return dispatch => {
-        dispatch(fetchPromotionRequest());
-        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.promotion}/${id}`)
-            .then(() => {
-                dispatch(fetchPromotion());
-            })
-            .catch((error) => {
-                const errorMsg = error.message;
-                dispatch(fetchPromotionsFailure(errorMsg));
-            });
+export const deletePromotion = (id, code_name = '', page = 1, pageSize = 10) => {
+    return async dispatch => {
+        try {
+            dispatch(fetchPromotionRequest());
+            await http.delete(`${API_ENDPOINT}/${AdminConfig.routes.promotion}/${id}`);
+            dispatch(fetchPromotion(code_name, page, pageSize));
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || error.message; // Lấy thông báo lỗi từ response hoặc từ error
+            dispatch(fetchPromotionsFailure(errorMsg)); // Dispatch lỗi
+            throw new Error(errorMsg); // Throw lỗi để component có thể bắt và xử lý
+        }
     };
 };

@@ -105,7 +105,7 @@ export default function ReservationList() {
     const handleDelete = async () => {
         if (selectedReservation) {
             try {
-                await dispatch(deleteReservations(selectedReservation));
+                await dispatch(deleteReservations(selectedReservation, nameSearch, phoneSearch, emailSearch, statusSearch, urlPage, reservationState.pageSize));
                 setActiveDropdown(null);
                 handleClose();
                 setOpenSuccess(true); // Hiển thị thông báo thành công
@@ -118,7 +118,7 @@ export default function ReservationList() {
     const handleUpdateStatus = async (id, st) => {
         if (id) {
             try {
-                await dispatch(updateReservations(id , {status: st}));
+                await dispatch(updateReservations(id, {status: st}, nameSearch, phoneSearch, emailSearch, statusSearch, urlPage, reservationState.pageSize));
                 setActiveDropdown(null);
                 handleClose();
                 setOpenSuccess(true); // Hiển thị thông báo thành công
@@ -147,13 +147,14 @@ export default function ReservationList() {
     };
 
     const statusMapping = {
-        1: { text: 'Chờ xác nhận', class: 'badge-warning' },
-        2: { text: 'Chờ thanh toán cọc', class: 'badge-success' },
-        3: { text: 'Đã thanh toán cọc', class: 'badge-info' },
-        0: { text: 'Hủy đơn', class: 'badge-danger' },
-        4: { text: 'Hoàn tất thanh toán', class: 'badge-primary' },
-        5: { text: 'Hoàn thành đơn', class: 'badge-primary' }
+        1: { text: 'Chờ xác nhận', class: 'badge bg-secondary' },    
+        2: { text: 'Chờ thanh toán cọc', class: 'badge bg-dark' },
+        3: { text: 'Đã thanh toán cọc', class: 'badge bg-info' },     
+        0: { text: 'Hủy đơn', class: 'badge bg-danger' },             
+        4: { text: 'Hoàn tất thanh toán', class: 'badge bg-primary' },
+        5: { text: 'Hoàn thành đơn', class: 'badge bg-success' }       
     };
+    
 
     return (
         <div className="container" style={{ overflow: 'visible' }}>
@@ -238,15 +239,16 @@ export default function ReservationList() {
                                                         <td style={{ textAlign: 'center' }}>
                                                             <div className="text-align-center">
                                                                 <div className="d-flex align-items-center justify-content-center">
-                                                                    <button className="btn btn-info dropdown-toggle" type="button" onClick={() => toggleDropdown(index)} style={{ marginRight: '5px' }}>
+                                                                    <button className="btn dropdown-toggle" type="button" onClick={() => toggleDropdown(index)} style={{ marginRight: '5px', backgroundColor: '#4c9fbc', color: '#fff', border: 'none' }}>
                                                                         Hành động
                                                                     </button>
-                                                                    <button onClick={() => handleEdit(item.id)} className="btn" style={{ backgroundColor: '#ff69b4', color: '#fff', marginRight: '5px' }}>
+                                                                    <button onClick={() => handleEdit(item.id)} className="btn" style={{ backgroundColor: '#ff6b6b', color: '#fff', marginRight: '5px', border: 'none' }}>
                                                                         <i className="fas fa-edit mr-2"></i>
                                                                     </button>
-                                                                    <button onClick={() => handleDetail(item.id)} className="btn" style={{ backgroundColor: '#28a745', color: '#fff' }}>
+                                                                    <button onClick={() => handleDetail(item.id)} className="btn" style={{ backgroundColor: '#ffcc5c', color: '#fff', border: 'none' }}>
                                                                         <i className="fas fa-eye mr-2"></i>
                                                                     </button>
+
                                                                 </div>
                                                                 {activeDropdown === index && (
                                                                     <div className="dropdown-menu show" style={{ position: 'absolute', zIndex: 2, right: '10.5%' }}>

@@ -144,15 +144,15 @@ export const updateProduct = (id, data) => {
     };
 };
 
-export const updateStatus = (id, data, start) => {
+export const updateStatus = (id, data, start, name = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchProductRequest());
         http.patch(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`, data)
             .then(() => {
                 if (start == 'list') {
-                    dispatch(fetchProductHoatDong());
+                    dispatch(fetchProductHoatDong(name, page, pageSize));
                 } else {
-                    dispatch(fetchProductNgungHoatDong());
+                    dispatch(fetchProductNgungHoatDong(name, page, pageSize));
                 }
             })
             .catch((error) => {

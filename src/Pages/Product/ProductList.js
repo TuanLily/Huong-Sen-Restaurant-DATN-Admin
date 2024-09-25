@@ -81,7 +81,7 @@ export default function ProductList () {
     const handleConfirm = async () => {
         if (setSelectedProduct) {
             try {
-                await dispatch(updateStatus(selectedProduct, {status: 0}, 'list'));
+                await dispatch(updateStatus(selectedProduct, {status: 0}, 'list', searchTerm, urlPage, productState.pageSize));
                 handleClose();
                 setOpenSuccess(true); // Hiển thị thông báo thành công
             } catch (error) {

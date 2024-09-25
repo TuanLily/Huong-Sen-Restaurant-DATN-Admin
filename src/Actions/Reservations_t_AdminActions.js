@@ -86,13 +86,13 @@ export const fetchReservationsID = (id) => {
     };
 };
 
-// Cập nhật
-export const updateReservations = (id, data) => {
+// Cập nhật trạng thái
+export const updateReservations = (id, data, fullname = '', tel = '', email = '', status = '', page = 1, pageSize = 10) => {
     return (dispatch) => {
         dispatch(fetchReservationsRequest());
         http.patch(`${API_ENDPOINT}/${API_DATA.reservations_admin}/${id}`, data)
             .then((response) => {
-                dispatch(fetchReservations()); // Reload danh sách sau khi cập nhật
+                dispatch(fetchReservations(fullname, tel, email, status, page, pageSize));
             })
             .catch((error) => {
                 dispatch(fetchReservationsFailure(error.message));
@@ -101,12 +101,12 @@ export const updateReservations = (id, data) => {
 };
 
 // Xóa
-export const deleteReservations = (id) => {
+export const deleteReservations = (id, fullname = '', tel = '', email = '', status = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchReservationsRequest());
         http.delete(`${API_ENDPOINT}/${API_DATA.reservations_admin}/${id}`)
             .then(() => {
-                dispatch(fetchReservations());
+                dispatch(fetchReservations(fullname, tel, email, status, page, pageSize));
             })
             .catch((error) => {
                 const errorMsg = error.message;
