@@ -242,7 +242,7 @@ export default function UserChatsList() {
       try {
         await addDoc(collection(db, "messages"), {
           chatId: selectedUser.chatId,
-          text: "Cuộc trò chuyện đã kết thúc.",
+          text: "Cuộc trò chuyện với nhân viên đã kết thúc, bạn đang được chuyển về chat với chatbot.",
           timestamp: serverTimestamp(),
           role: "system",
           status: "ended"
@@ -274,7 +274,7 @@ export default function UserChatsList() {
 
       await addDoc(collection(db, "messages"), {
         chatId: selectedUser.chatId,
-        text: "Cuộc trò chuyện đã được tiếp tục.",
+        text: "Cuộc trò chuyện đã được tiếp nối đến nhân viên tư vấn, bạn vui lòng đợi trong giây lát.",
         timestamp: serverTimestamp(),
         role: "system",
         status: "active"

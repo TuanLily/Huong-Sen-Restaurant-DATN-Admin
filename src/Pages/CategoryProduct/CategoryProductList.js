@@ -14,7 +14,7 @@ import debounce from 'lodash.debounce';
 import { getPermissions } from '../../Actions/GetQuyenHanAction';
 import { jwtDecode as jwt_decode } from 'jwt-decode';
 
-export default function CategoryProductList () {
+export default function CategoryProductList() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const location = useLocation();
@@ -25,9 +25,9 @@ export default function CategoryProductList () {
 
     useEffect(() => {
         if (token) {
-          const decodedToken = jwt_decode(token);
-          const userIdFromToken = decodedToken.id;
-          dispatch(getPermissions(userIdFromToken));  
+            const decodedToken = jwt_decode(token);
+            const userIdFromToken = decodedToken.id;
+            dispatch(getPermissions(userIdFromToken));
         }
         const decodedToken = jwt_decode(token);
         const userIdFromToken = decodedToken.id;
@@ -62,7 +62,7 @@ export default function CategoryProductList () {
 
     useEffect(() => {
         if (!searchTerm) {
-            dispatch(fetchProductCategoryHoatDong('', urlPage, productCategoryState.pageSize));
+            dispatch(fetchProductCategory('', urlPage, productCategoryState.pageSize));
         }
     }, [dispatch, urlPage, productCategoryState.pageSize]);
 
@@ -114,7 +114,7 @@ export default function CategoryProductList () {
     const handlePageChange = (page) => {
         navigate(`?page=${page}`); // Cập nhật URL với page
         dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-        dispatch(fetchProductCategoryHoatDong(searchTerm, page, productCategoryState.pageSize));
+        dispatch(fetchProductCategory(searchTerm, page, productCategoryState.pageSize));
     };
 
     return (
@@ -174,7 +174,7 @@ export default function CategoryProductList () {
                                         <tbody>
                                             {productCategoryState.loading && (
                                                 <tr>
-                                                    <td colSpan="7"><CustomSpinner/></td>
+                                                    <td colSpan="7"><CustomSpinner /></td>
                                                 </tr>
                                             )}
                                             {!productCategoryState.loading && productCategoryState.product_category.length === 0 && (
@@ -189,7 +189,9 @@ export default function CategoryProductList () {
                                                         <td>{stt}</td>
                                                         <td>{item.name}</td>
                                                         <td>
-                                                            {item.status == 1 ? <span className="badge badge-success">Hoạt động</span> : <span className="badge badge-danger">Ngưng hoạt động</span>}
+                                                            {item.status === 1 && <span className="badge badge-success">Hoạt động</span>}
+                                                            {item.status === 3 && <span className="badge badge-warning">Mặc định</span>}
+                                                            {item.status === 2 && <span className="badge badge-danger">Ngưng hoạt động</span>}
                                                         </td>
                                                         <td>
                                                             {item.created_at.substring(0, 10)}
@@ -230,7 +232,7 @@ export default function CategoryProductList () {
                                         count={productCategoryState.totalPages} // Tổng số trang
                                         currentPageSelector={state => state.product_category.currentPage} // Selector để lấy trang hiện tại
                                         fetchAction={(page, pageSize) => fetchProductCategoryHoatDong(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
-                                        onPageChange={handlePageChange} 
+                                        onPageChange={handlePageChange}
                                     />
                                 </div>
                             </div>
