@@ -4,7 +4,6 @@ import {
     FETCH_RESERVATIONDETAIL_FAILURE
 } from '../Actions/GetReservationDetailAction';
 
-
 const initialState = {
     loading: false,
     reservationDetail: [],

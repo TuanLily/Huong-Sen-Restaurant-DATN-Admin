@@ -17,6 +17,7 @@ import getQuyenHanReducer from "./GetQuyenHanReducers";
 import RolePermissionsReducer from "./RolePermissionsReducers";
 import Reservations_t_AdminReducer from "./Reservations_t_AdminReducers";
 import ReservationDetailReducer from "./GetReservationDetailReducers";
+import StatisticalReducer from "./StatisticalReducers";
 
 const rootReducer = combineReducers({
     customer: customerReducer,
@@ -41,6 +42,7 @@ const rootReducer = combineReducers({
     rolePermissions: RolePermissionsReducer,
     reservations_Admin: Reservations_t_AdminReducer,
     reservations_Detail_Admin: ReservationDetailReducer,
+    statistical: StatisticalReducer,
 });
 
 export default rootReducer;

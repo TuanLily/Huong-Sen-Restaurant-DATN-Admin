@@ -229,7 +229,7 @@ export default function ReservationList() {
                                                             Số người: {item.party_size}<br />
                                                             Tổng tiền: {formatCurrency(item.total_amount ? item.total_amount : 0)}<br />
                                                             Số tiền cọc: {item.deposit ? formatCurrency (item.deposit) : '0 VND'}<br/>
-                                                            Số tiền còn lại: {formatCurrency ((item.total_amount && item.deposit) ? item.total_amount - item.deposit : 0)}
+                                                            Số tiền còn lại: {formatCurrency(item.total_amount ? item.deposit ? item.total_amount - item.deposit : item.total_amount : 0)}
                                                         </td>
                                                         <td>
                                                         <span className={`badge ${statusInfo.class}`}>
