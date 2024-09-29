@@ -377,7 +377,7 @@ export default function MenuBar() {
                   </li>
                   <li>
                     <NavLink to="/permissions">
-                      <span className="sub-item">Quản lý quyền hạn</span>
+                      <span className="sub-item">Phân quyền</span>
                     </NavLink>
                   </li>
                 </ul>
@@ -394,7 +394,7 @@ export default function MenuBar() {
                 data-bs-toggle="collapse"
               >
                 <i className="fa-regular fa-message"></i>
-                <p>Quản Lý Chat Khách Hàng</p>
+                <p>Tư vấn với khách hàng</p>
                 <span className="caret"></span>
               </NavLink>
               <div
@@ -404,7 +404,7 @@ export default function MenuBar() {
                 <ul className="nav nav-collapse">
                   <li>
                     <NavLink to="/user-chats">
-                      <span className="sub-item">Chat với khách hàng</span>
+                      <span className="sub-item">Tư vấn với khách hàng</span>
                     </NavLink>
                   </li>
                 </ul>
