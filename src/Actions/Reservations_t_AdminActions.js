@@ -4,6 +4,7 @@ export const FETCH_RESERVATIONS_FAILURE = 'FETCH_RESERVATIONS_FAILURE';
 export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_DATA, API_ENDPOINT } from "../Config/APIs";
+import AdminConfig from '../Config/index';
 import http from "../Utils/Http";
 
 export const fetchReservationsRequest = () => ({
@@ -111,6 +112,38 @@ export const deleteReservations = (id, fullname = '', tel = '', email = '', stat
             .catch((error) => {
                 const errorMsg = error.message;
                 dispatch(fetchReservationsFailure(errorMsg));
+            });
+    };
+};
+
+// Thêm mới đặt bàn
+export const addReservation = (reservations_t_admin) => {
+    return async (dispatch) => {
+        dispatch(fetchReservationsRequest());
+        try {
+            const response = await http.post(`${API_ENDPOINT}/${AdminConfig.routes.reservations_t_admin}`, reservations_t_admin);
+            dispatch(fetchReservationsSuccess(response.data));
+            dispatch(fetchReservations()); // Có thể cần thêm để cập nhật danh sách đơn đặt bàn nếu cần
+        } catch (error) {
+            const errorMsg = error.response?.data?.error || error.message || 'Lỗi không xác định';
+            throw new Error(errorMsg); 
+        }
+    };
+};
+
+
+// Cập nhật đặt bàn
+export const updateReservationOrder = (id, data) => {
+    return dispatch => {
+        dispatch(fetchReservationsRequest()); // Sử dụng action request hiện có
+        http.patch(`${API_ENDPOINT}/${API_DATA.reservations_admin}/${id}`, data)
+            .then(response => {
+                // Sau khi cập nhật thành công, tải lại danh sách đặt bàn
+                dispatch(fetchReservations());
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchReservationsFailure(errorMsg)); // Sử dụng action failure hiện có
             });
     };
 };

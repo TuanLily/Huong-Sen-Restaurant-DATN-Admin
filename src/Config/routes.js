@@ -43,7 +43,7 @@ const AdminRoutes = {
 
     reservation: 'reservation',
     reservationAdd: 'reservation/add',
-    reservationEdit: 'reservation/edit/:id',
+    reservationEdit: 'reservation/edit:id',
     reservationDelete: 'reservation/delete',
 
     order: 'order',
@@ -102,6 +102,10 @@ const AdminRoutes = {
 
     userChats: 'user-chats',
 
+    reservations_t_admin: 'reservations_t_admin',
+    reservations_t_adminAdd: 'reservations_t_admin/add',
+    reservations_t_adminEdit: 'reservations_t_admin/edit:id',
+    reservations_t_adminDelete: 'reservations_t_admin/delete',
 };
 
 export default AdminRoutes;
