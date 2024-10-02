@@ -30,6 +30,7 @@ export default function BlogEdit() {
   const [openSuccess, setOpenSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState(""); // Track Quill content
+  const [author, setAuthor] = useState(""); // Track author
 
   useEffect(() => {
     const fetchBlogData = async () => {
@@ -46,11 +47,11 @@ export default function BlogEdit() {
     const blog = blogState.blog.find((b) => b.id === parseInt(id));
     if (blog) {
       setValue("title", blog.title);
-      setValue("author", blog.author);
       setValue("blog_category_id", blog.blog_category_id);
       setInitialPoster(blog.poster);
       setPoster(blog.poster);
       setContent(blog.content); // Set Quill content
+      setAuthor(blog.author); // Store the author's name
     }
   }, [blogState.blog, id, setValue]);
 
@@ -64,6 +65,7 @@ export default function BlogEdit() {
       ...data,
       poster: poster || initialPoster, // Update poster if there's a new one
       content,
+      author, // Keep the original author
     };
 
     try {
@@ -141,34 +143,17 @@ export default function BlogEdit() {
                       )}
                     </div>
                     <div className="form-group">
-                    
+                      {/* Display author but don't submit it */}
+                      <label htmlFor="author">Tác giả</label>
                       <input
-                        type="hidden"
-                        {...register("author", {
-                          required: "Tác giả là bắt buộc",
-                        })}
+                        type="text"
+                        className="form-control"
+                        id="author"
+                        value={author}
+                        disabled // Disable field to avoid modification
                       />
-                      {errors.author && (
-                        <p className="text-danger">{errors.author.message}</p>
-                      )}
                     </div>
-                    <div className="form-group">
-                      <label htmlFor="poster">Ảnh poster</label>
-                      <br />
-                      <ImageUploadComponent
-                        id="poster"
-                        onImageUpload={handleImageUpload}
-                      />
-                      {initialPoster && (
-                        <div>
-                          <img
-                            src={initialPoster}
-                            alt="Poster"
-                            style={{ maxWidth: "100px", marginTop: "10px" }}
-                          />
-                        </div>
-                      )}
-                    </div>
+                   
                   </div>
                   <div className="col-md-6">
                     <div className="form-group">
@@ -192,6 +177,24 @@ export default function BlogEdit() {
                           {errors.blog_category_id.message}
                         </p>
                       )}
+
+                       <div className="form-group">
+                      <label htmlFor="poster">Ảnh poster</label>
+                      <br />
+                      <ImageUploadComponent
+                        id="poster"
+                        onImageUpload={handleImageUpload}
+                      />
+                      {initialPoster && (
+                        <div>
+                          <img
+                            src={initialPoster}
+                            alt="Poster"
+                            style={{ maxWidth: "100px", marginTop: "10px" }}
+                          />
+                        </div>
+                      )}
+                    </div>
                     </div>
                 
                   </div>
