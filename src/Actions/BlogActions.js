@@ -1,4 +1,3 @@
-
 export const FETCH_BLOG_REQUEST = "FETCH_BLOG_REQUEST";
 export const FETCH_BLOG_SUCCESS = "FETCH_BLOG_SUCCESS";
 export const FETCH_BLOG_FAILURE = "FETCH_BLOG_FAILURE";
@@ -6,9 +5,6 @@ export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from "../Config/index";
 import http from "../Utils/Http";
-
-
-
 
 export const fetchBlogRequest = () => ({
   type: FETCH_BLOG_REQUEST,

@@ -23,9 +23,11 @@ const ProtectedRoute = ({ element, requiredPermissions }) => {
             localStorage.removeItem('expiryTime');
             navigate('/login');
         } else {
-            const decodedToken = jwt_decode(token);
-            const userIdFromToken = decodedToken.id;
-            dispatch(getPermissions(userIdFromToken));
+            if (token && typeof token === "string") {
+                const decodedToken = jwt_decode(token);
+                const userIdFromToken = decodedToken.id;
+                dispatch(getPermissions(userIdFromToken));
+            }
         }
     }, [isAuthenticated, navigate, dispatch]);
 

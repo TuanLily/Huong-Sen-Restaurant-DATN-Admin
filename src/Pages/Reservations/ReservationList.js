@@ -254,8 +254,8 @@ export default function ReservationList() {
                                                                     <div className="dropdown-menu show" style={{ position: 'absolute', zIndex: 2, right: '10.5%' }}>
                                                                         {/* <button onClick={() => handleClickOpen(item.id)} className="dropdown-item">
                                                                             <i className="fas fa-trash mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Xóa
-                                                                        </button> */}
-                                                                        {/* <div className="dropdown-divider"></div> */}
+                                                                        </button>
+                                                                        <div className="dropdown-divider"></div> */}
                                                                         <button onClick={() => handleUpdateStatus(item.id , 2)} className="dropdown-item">
                                                                             <i className="fas fa-times-circle mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Chờ thanh toán cọc
                                                                         </button>

@@ -148,6 +148,7 @@ export default function ReservationDetail() {
                                         )}
                                     </tbody>
                                 </table>
+                                <div className='mt-2'><strong>Ghi chú:</strong> {reservationState.reservation[0].note ? reservationState.reservation[0].note : 'Không có'}</div>
                             </div>
                             
                             {/* Thông tin thanh toán */}
