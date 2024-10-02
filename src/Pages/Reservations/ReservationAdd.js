@@ -313,13 +313,12 @@ export default function ReservationAdd() {
 
                                                     </table>
                                                     <div className="row justify-content-center">
-                                                        {productState.totalPages > 1 && (
-                                                            <CustomPagination
-                                                                page={urlPage}
-                                                                totalPages={productState.totalPages}
-                                                                handleChangePage={handlePageChange}
-                                                            />
-                                                        )}
+                                                        <CustomPagination
+                                                            count={productState.totalPages} // Tổng số trang
+                                                            currentPageSelector={state => state.product.currentPage} // Selector để lấy trang hiện tại
+                                                            fetchAction={(page, pageSize) => fetchProductHoatDong(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
+                                                            onPageChange={handlePageChange}
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
