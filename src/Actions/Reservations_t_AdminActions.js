@@ -67,6 +67,40 @@ export const fetchReservations = (fullname = '', tel = '', email = '', status = 
     };
 };
 
+// Lấy danh sách reatime
+export const fetchRetime = async (fullname = '', tel = '', email = '', status = '', page = 1, pageSize = 10) => {
+    try {
+        const url = new URL(`${API_ENDPOINT}/${API_DATA.reservations_admin}`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (fullname) {
+            url.searchParams.append('searchName', fullname);
+        }
+        if (tel) {
+            url.searchParams.append('searchPhone', tel);
+        }
+        if (email) {
+            url.searchParams.append('searchEmail', email);
+        }
+        if (status) {
+            url.searchParams.append('status', status);
+        }
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        const response = await http.get(url.toString());
+
+        const { results, totalCount, totalPages, currentPage } = response.data;
+
+        // Trả về dữ liệu đã được xử lý
+        return { results, totalCount, totalPages, currentPage };
+    } catch (error) {
+        // Xử lý lỗi và trả về lỗi
+        throw new Error(error.message);
+    }
+};
+
 // Lấy reservations theo ID
 export const fetchReservationsID = (id) => {
     return dispatch => {

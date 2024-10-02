@@ -15,8 +15,6 @@ export default function Dashboard() {
         dispatch(fetchStatistical());
     }, [dispatch]);
 
-    console.log (data);
-
     // Hàm để chuyển đổi dữ liệu theo trạng thái của từng tháng
     const getOrderDataByMonth = () => {
         if (!data || !data.revenueByMonthAndStatus) return [];
@@ -66,7 +64,7 @@ export default function Dashboard() {
 
     const revenueOption = () => {
         if (!data || !data.monthlyRevenue) return {};
-        const revenueData = data.monthlyRevenue ; // Kiểm tra dữ liệu hoặc trả về mảng rỗng
+        const revenueData = data.monthlyRevenue; // Kiểm tra dữ liệu hoặc trả về mảng rỗng
         return {
             tooltip: {
                 trigger: 'axis'
@@ -108,7 +106,7 @@ export default function Dashboard() {
     if (error) {
         return <p>{error}</p>;
     }
-  
+
     return (
         <div className="container">
             <div className="page-inner">
@@ -118,34 +116,37 @@ export default function Dashboard() {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                 </div>
+                
                 <div className="row">
                     <div className="col-md-12">
                         <div className="card card-round">
                             <div className="card-header">
-                                <div className="card-head-row">
+                                <div className="card-head-row d-flex justify-content-between align-items-center">
                                     <div className="card-title">Thống Kê Hóa Đơn</div>
+                                    {/* Dropdown select option nằm ngang tiêu đề */}
+                                    <div className="col-md-4">
+                                        <select
+                                            className="form-select"
+                                            value={selectedMonth || ''}
+                                            onChange={(e) => setSelectedMonth(e.target.value ? parseInt(e.target.value, 10) : null)}
+                                        >
+                                            <option value="">Cả năm</option>
+                                            {[...Array(12).keys()].map(month => (
+                                                <option key={month} value={month + 1}>Tháng {month + 1}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div className="card-body">
                                 <div className="chart-container" style={{ minHeight: "375px" }}>
                                     <ReactEcharts option={orderOption()} style={{ height: '400px', width: '100%' }} />
                                 </div>
-                                <div className="d-flex justify-content-start">
-                                    <button className="btn btn-primary mx-1" onClick={() => setSelectedMonth(null)}>Cả năm</button>
-                                    {[...Array(12).keys()].map(month => (
-                                        <button
-                                            key={month}
-                                            className="btn btn-primary mx-1"
-                                            onClick={() => setSelectedMonth(month + 1)} // Chọn tháng (1-based)
-                                        >
-                                            Tháng {month + 1}
-                                        </button>
-                                    ))}
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <div className="row">
                     <div className="col-md-12">
                         <div className="card card-round">
@@ -165,5 +166,5 @@ export default function Dashboard() {
                 </div>
             </div>
         </div>
-    )
+    );
 }

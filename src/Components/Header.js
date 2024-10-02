@@ -1,8 +1,33 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom';
+import { fetchRetime } from '../Actions/Reservations_t_AdminActions';
 
 export default function Header() {
     const navigate = useNavigate();
+
+    // Khởi tạo state để lưu trữ dữ liệu reservations
+    const [reservations, setReservations] = useState([]);
+
+    useEffect(() => {
+        // Gọi fetchReservations trực tiếp và cập nhật state
+        const fetchData = async () => {
+            try {
+                const { results } = await fetchRetime(); // Gọi API không qua dispatch
+                setReservations(results || []); // Lưu dữ liệu vào state
+            } catch (error) {
+                console.error('Error fetching reservations:', error);
+            }
+        };
+
+        // Lần đầu gọi hàm lấy dữ liệu
+        fetchData();
+
+        // Đặt setInterval để tự động gọi API sau mỗi 5 giây
+        const intervalId = setInterval(fetchData, 5000);
+
+        // Dọn dẹp interval khi component bị unmount
+        return () => clearInterval(intervalId);
+    }, []);
 
     const getUser = () => {
         if (localStorage.getItem ('user_admin')) {
@@ -20,6 +45,15 @@ export default function Header() {
     }
 
     const user_admin = getUser();
+
+    // Lấy 5 đơn đầu tiên từ danh sách
+    const firstFiveReservations = reservations.slice(0, 5);
+
+    // Lọc đơn có trạng thái "Chờ xác nhận" (giả định status = 1) từ 5 đơn đầu tiên
+    let unconfirmedReservations = firstFiveReservations.filter(reservation => reservation.status === 1);
+
+    // Giới hạn hiển thị tối đa 4 đơn
+    unconfirmedReservations = unconfirmedReservations.slice(0, 4);
 
     return (
         <div className="main-header">
@@ -50,140 +84,7 @@ export default function Header() {
                 className="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom"
             >
                 <div className="container-fluid">
-                    <nav
-                        className="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex"
-                    >
-                        <div className="input-group">
-                            <div className="input-group-prepend">
-                                <button type="submit" className="btn btn-search pe-1">
-                                    <i className="fa fa-search search-icon"></i>
-                                </button>
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Search ..."
-                                className="form-control"
-                            />
-                        </div>
-                    </nav>
-
                     <ul className="navbar-nav topbar-nav ms-md-auto align-items-center">
-                        <li
-                            className="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none"
-                        >
-                            <a
-                                className="nav-link dropdown-toggle"
-                                data-bs-toggle="dropdown"
-                                href="#"
-                                role="button"
-                                aria-expanded="false"
-                                aria-haspopup="true"
-                            >
-                                <i className="fa fa-search"></i>
-                            </a>
-                            <ul className="dropdown-menu dropdown-search animated fadeIn">
-                                <form className="navbar-left navbar-form nav-search">
-                                    <div className="input-group">
-                                        <input
-                                            type="text"
-                                            placeholder="Search ..."
-                                            className="form-control"
-                                        />
-                                    </div>
-                                </form>
-                            </ul>
-                        </li>
-                        <li className="nav-item topbar-icon dropdown hidden-caret">
-                            <a
-                                className="nav-link dropdown-toggle"
-                                href="#"
-                                id="messageDropdown"
-                                role="button"
-                                data-bs-toggle="dropdown"
-                                aria-haspopup="true"
-                                aria-expanded="false"
-                            >
-                                <i className="fa fa-envelope"></i>
-                            </a>
-                            <ul
-                                className="dropdown-menu messages-notif-box animated fadeIn"
-                                aria-labelledby="messageDropdown"
-                            >
-                                <li>
-                                    <div
-                                        className="dropdown-title d-flex justify-content-between align-items-center"
-                                    >
-                                        Messages
-                                        <a href="#" className="small">Mark all as read</a>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div className="message-notif-scroll scrollbar-outer">
-                                        <div className="notif-center">
-                                            <a href="#">
-                                                <div className="notif-img">
-                                                    <img
-                                                        src="../Assets/Images/jm_denis.jpg"
-                                                        alt="Img Profile"
-                                                    />
-                                                </div>
-                                                <div className="notif-content">
-                                                    <span className="subject">Jimmy Denis</span>
-                                                    <span className="block"> How are you ? </span>
-                                                    <span className="time">5 minutes ago</span>
-                                                </div>
-                                            </a>
-                                            <a href="#">
-                                                <div className="notif-img">
-                                                    <img
-                                                        src="../Assets/Images/chadengle.jpg"
-                                                        alt="Img Profile"
-                                                    />
-                                                </div>
-                                                <div className="notif-content">
-                                                    <span className="subject">Chad</span>
-                                                    <span className="block"> Ok, Thanks ! </span>
-                                                    <span className="time">12 minutes ago</span>
-                                                </div>
-                                            </a>
-                                            <a href="#">
-                                                <div className="notif-img">
-                                                    <img
-                                                        src="../Assets/Images/mlane.jpg"
-                                                        alt="Img Profile"
-                                                    />
-                                                </div>
-                                                <div className="notif-content">
-                                                    <span className="subject">Jhon Doe</span>
-                                                    <span className="block">
-                                                        Ready for the meeting today...
-                                                    </span>
-                                                    <span className="time">12 minutes ago</span>
-                                                </div>
-                                            </a>
-                                            <a href="#">
-                                                <div className="notif-img">
-                                                    <img
-                                                        src="../Assets/Images/talha.jpg"
-                                                        alt="Img Profile"
-                                                    />
-                                                </div>
-                                                <div className="notif-content">
-                                                    <span className="subject">Talha</span>
-                                                    <span className="block"> Hi, Apa Kabar ? </span>
-                                                    <span className="time">17 minutes ago</span>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li>
-                                    <a className="see-all" href="javascript:void(0);"
-                                    >See all messages<i className="fa fa-angle-right"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
                         <li className="nav-item topbar-icon dropdown hidden-caret">
                             <a
                                 className="nav-link dropdown-toggle"
@@ -195,7 +96,8 @@ export default function Header() {
                                 aria-expanded="false"
                             >
                                 <i className="fa fa-bell"></i>
-                                <span className="notification">4</span>
+                                {/* Số lượng thông báo */}
+                                <span className="notification">{unconfirmedReservations.length}</span>
                             </a>
                             <ul
                                 className="dropdown-menu notif-box animated fadeIn"
@@ -203,142 +105,31 @@ export default function Header() {
                             >
                                 <li>
                                     <div className="dropdown-title">
-                                        You have 4 new notification
+                                        Bạn có {unconfirmedReservations.length} hóa đơn mới chưa xác nhận
                                     </div>
                                 </li>
                                 <li>
                                     <div className="notif-scroll scrollbar-outer">
                                         <div className="notif-center">
-                                            <a href="#">
-                                                <div className="notif-icon notif-primary">
-                                                    <i className="fa fa-user-plus"></i>
+                                            {unconfirmedReservations.map((reservation, index) => (
+                                                <div key={index} style={notifItemStyle}>
+                                                    <div className="notif-content" style={notifContentStyle}>
+                                                        <span className="block" style={notifTitleStyle}>
+                                                            Đơn #{reservation.id} của {reservation.fullname}
+                                                        </span>
+                                                        <span className="time" style={notifTimeStyle}>
+                                                            {new Date(reservation.created_at).toLocaleString()}
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                                <div className="notif-content">
-                                                    <span className="block"> New user registered </span>
-                                                    <span className="time">5 minutes ago</span>
-                                                </div>
-                                            </a>
-                                            <a href="#">
-                                                <div className="notif-icon notif-success">
-                                                    <i className="fa fa-comment"></i>
-                                                </div>
-                                                <div className="notif-content">
-                                                    <span className="block">
-                                                        Rahmad commented on Admin
-                                                    </span>
-                                                    <span className="time">12 minutes ago</span>
-                                                </div>
-                                            </a>
-                                            <a href="#">
-                                                <div className="notif-img">
-                                                    <img
-                                                        src="../Assets/Images/profile2.jpg"
-                                                        alt="Img Profile"
-                                                    />
-                                                </div>
-                                                <div className="notif-content">
-                                                    <span className="block">
-                                                        Reza send messages to you
-                                                    </span>
-                                                    <span className="time">12 minutes ago</span>
-                                                </div>
-                                            </a>
-                                            <a href="#">
-                                                <div className="notif-icon notif-danger">
-                                                    <i className="fa fa-heart"></i>
-                                                </div>
-                                                <div className="notif-content">
-                                                    <span className="block"> Farrah liked Admin </span>
-                                                    <span className="time">17 minutes ago</span>
-                                                </div>
-                                            </a>
+                                            ))}
                                         </div>
                                     </div>
                                 </li>
                                 <li>
-                                    <a className="see-all" href="javascript:void(0);"
-                                    >See all notifications<i className="fa fa-angle-right"></i>
-                                    </a>
+                                    <Link to='/reservation' className="see-all">Danh sách đặt bàn<i className="fa fa-angle-right"></i></Link>
                                 </li>
                             </ul>
-                        </li>
-                        <li className="nav-item topbar-icon dropdown hidden-caret">
-                            <a
-                                className="nav-link"
-                                data-bs-toggle="dropdown"
-                                href="#"
-                                aria-expanded="false"
-                            >
-                                <i className="fas fa-layer-group"></i>
-                            </a>
-                            <div className="dropdown-menu quick-actions animated fadeIn">
-                                <div className="quick-actions-header">
-                                    <span className="title mb-1">Quick Actions</span>
-                                    <span className="subtitle op-7">Shortcuts</span>
-                                </div>
-                                <div className="quick-actions-scroll scrollbar-outer">
-                                    <div className="quick-actions-items">
-                                        <div className="row m-0">
-                                            <a className="col-6 col-md-4 p-0" href="#">
-                                                <div className="quick-actions-item">
-                                                    <div className="avatar-item bg-danger rounded-circle">
-                                                        <i className="far fa-calendar-alt"></i>
-                                                    </div>
-                                                    <span className="text">Calendar</span>
-                                                </div>
-                                            </a>
-                                            <a className="col-6 col-md-4 p-0" href="#">
-                                                <div className="quick-actions-item">
-                                                    <div
-                                                        className="avatar-item bg-warning rounded-circle"
-                                                    >
-                                                        <i className="fas fa-map"></i>
-                                                    </div>
-                                                    <span className="text">Maps</span>
-                                                </div>
-                                            </a>
-                                            <a className="col-6 col-md-4 p-0" href="#">
-                                                <div className="quick-actions-item">
-                                                    <div className="avatar-item bg-info rounded-circle">
-                                                        <i className="fas fa-file-excel"></i>
-                                                    </div>
-                                                    <span className="text">Reports</span>
-                                                </div>
-                                            </a>
-                                            <a className="col-6 col-md-4 p-0" href="#">
-                                                <div className="quick-actions-item">
-                                                    <div
-                                                        className="avatar-item bg-success rounded-circle"
-                                                    >
-                                                        <i className="fas fa-envelope"></i>
-                                                    </div>
-                                                    <span className="text">Emails</span>
-                                                </div>
-                                            </a>
-                                            <a className="col-6 col-md-4 p-0" href="#">
-                                                <div className="quick-actions-item">
-                                                    <div
-                                                        className="avatar-item bg-primary rounded-circle"
-                                                    >
-                                                        <i className="fas fa-file-invoice-dollar"></i>
-                                                    </div>
-                                                    <span className="text">Invoice</span>
-                                                </div>
-                                            </a>
-                                            <a className="col-6 col-md-4 p-0" href="#">
-                                                <div className="quick-actions-item">
-                                                    <div
-                                                        className="avatar-item bg-secondary rounded-circle"
-                                                    >
-                                                        <i className="fas fa-credit-card"></i>
-                                                    </div>
-                                                    <span className="text">Payments</span>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </li>
 
                         <li className="nav-item topbar-user dropdown hidden-caret">
@@ -392,3 +183,28 @@ export default function Header() {
         </div>
     )
 }
+
+const notifItemStyle = {
+    display: 'block',
+    padding: '10px 22px',
+    backgroundColor: '#f9f9f9',
+    marginBottom: '5px',
+    borderRadius: '5px',
+    textDecoration: 'none',
+    color: '#333'
+};
+
+const notifContentStyle = {
+    display: 'flex',
+    flexDirection: 'column'
+};
+
+const notifTitleStyle = {
+    fontSize: '14px',
+    fontWeight: '600'
+};
+
+const notifTimeStyle = {
+    fontSize: '12px',
+    color: '#999'
+};
