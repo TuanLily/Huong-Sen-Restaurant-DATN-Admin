@@ -138,6 +138,7 @@ export default function CommentBlogList() {
                                         <thead className="thead-light">
                                             <tr>
                                                 <th scope="col">STT</th>
+                                                <th scope="col">Bài viết</th>
                                                 <th scope="col">Tên khách hàng</th>
                                                 <th scope="col">Nội dung</th>
                                                 <th scope="col">Ngày tạo</th>
@@ -159,7 +160,8 @@ export default function CommentBlogList() {
                                             {commentBlogState.commentBlog && commentBlogState.commentBlog.map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>{(commentBlogState.currentPage - 1) * commentBlogState.pageSize + index + 1}</td>
-                                                    <td>{getCustomerNameById(item.customer_id)}</td> {/* Display customer name */}
+                                                    <td>{item.blog_id}</td> {/* Display blog name */}
+                                                    <td>{item.user_id}</td> {/* Display customer name */}
                                                     <td>{item.content}</td>
                                                     <td>{format(new Date(item.created_at), 'dd/MM/yyyy HH:mm')}</td>
                                                     <td>{format(new Date(item.updated_at), 'dd/MM/yyyy HH:mm')}</td>
