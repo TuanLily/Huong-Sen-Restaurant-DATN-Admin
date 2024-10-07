@@ -151,11 +151,10 @@ export default function ReservationList() {
         2: { text: 'Chờ thanh toán cọc', class: 'badge bg-dark' },
         3: { text: 'Đã thanh toán cọc', class: 'badge bg-info' },     
         0: { text: 'Hủy đơn', class: 'badge bg-danger' },             
-        4: { text: 'Hoàn tất thanh toán', class: 'badge bg-primary' },
+        4: { text: 'Chờ thanh toán toàn bộ đơn', class: 'badge bg-primary' },
         5: { text: 'Hoàn thành đơn', class: 'badge bg-success' }       
     };
     
-
     return (
         <div className="container" style={{ overflow: 'visible' }}>
             <div className="page-inner">
@@ -166,14 +165,14 @@ export default function ReservationList() {
                             <div className="d-flex flex-wrap align-items-center mb-2">
                                 <input type="text" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Tên khách hàng" aria-label="Email" value={nameSearch} onChange={handleNameSearch} /> 
                                 <input type="email" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Email" aria-label="Email" value={emailSearch} onChange={handleEmailSearch} /> 
-                                <input type="text" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Phone" aria-label="Phone" value={phoneSearch} onChange={handlePhoneSearch}/> 
+                                <input type="text" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Phone" aria-label="Phone" value={phoneSearch} onChange={handlePhoneSearch} /> 
                                 <select className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} value={statusSearch} onChange={handleStatusSearch}>
                                     <option value="">Trạng thái</option>
                                     <option value="0">Đã hủy</option>
                                     <option value="1">Chờ xác nhận</option>
                                     <option value="2">Chờ thanh toán cọc</option>
                                     <option value="3">Đã thanh toán cọc</option>
-                                    <option value="4">Hoàn tất thanh toán</option>
+                                    <option value="4">Chờ thanh toán toàn bộ đơn</option>
                                     <option value="5">Hoàn thành đơn</option>
                                 </select>
                             </div>
@@ -222,7 +221,7 @@ export default function ReservationList() {
                                                             Họ và tên: {item.fullname}<br />
                                                             Email: {item.email}<br />
                                                             Phone: {item.tel}<br />
-                                                            Số bàn: {item.tableName}
+                                                            Số bàn: {item.tableName ? item.tableName : 'Chưa có'}
                                                         </td>
                                                         <td style={{ textAlign: 'left' }}>
                                                             Ngày đặt: {item.created_at.substring(0, 10)}<br />
@@ -251,7 +250,7 @@ export default function ReservationList() {
 
                                                                 </div>
                                                                 {activeDropdown === index && (
-                                                                    <div className="dropdown-menu show" style={{ position: 'absolute', zIndex: 2, right: '10.5%' }}>
+                                                                    <div className="dropdown-menu show" style={{ position: 'absolute', zIndex: 2, right: '5.3%' }}>
                                                                         {/* <button onClick={() => handleClickOpen(item.id)} className="dropdown-item">
                                                                             <i className="fas fa-trash mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Xóa
                                                                         </button>
@@ -269,7 +268,7 @@ export default function ReservationList() {
                                                                         </button>
                                                                         <div className="dropdown-divider"></div>
                                                                         <button onClick={() => handleUpdateStatus(item.id , 4)} className="dropdown-item">
-                                                                            <i className="fas fa-dollar-sign mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Hoàn tất thanh toán
+                                                                            <i className="fas fa-dollar-sign mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Chờ thanh toán toàn bộ đơn
                                                                         </button>
                                                                         <div className="dropdown-divider"></div>
                                                                         <button onClick={() => handleUpdateStatus(item.id , 0)} className="dropdown-item">
