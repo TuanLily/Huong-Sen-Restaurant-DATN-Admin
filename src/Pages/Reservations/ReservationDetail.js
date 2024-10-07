@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { fetchReservationsID } from '../../Actions/Reservations_t_AdminActions';
 import { fetchReservationdetail } from '../../Actions/GetReservationDetailAction';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
@@ -9,8 +9,6 @@ import logo from "../../Assets/Images/huong-sen-logo.png";
 export default function ReservationDetail() {
     const { id } = useParams();
     const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const location = useLocation();
 
     const reservationState = useSelector(state => state.reservations_Admin);
     const reservationDetailState = useSelector(state => state.reservations_Detail_Admin);
@@ -33,7 +31,7 @@ export default function ReservationDetail() {
         2: { text: 'Chờ thanh toán cọc', class: 'badge-success' },
         3: { text: 'Đã thanh toán cọc', class: 'badge-info' },
         0: { text: 'Hủy đơn', class: 'badge-danger' },
-        4: { text: 'Hoàn tất thanh toán', class: 'badge-primary' },
+        4: { text: 'Chờ thanh toán toàn bộ đơn', class: 'badge-primary' },
         5: { text: 'Hoàn thành đơn', class: 'badge-primary' }
     };
 
@@ -112,7 +110,7 @@ export default function ReservationDetail() {
                                 <p><strong>Tên:</strong> {reservationState.reservation[0].fullname}</p>
                                 <p><strong>Phone:</strong> {reservationState.reservation[0].tel}</p>
                                 <p><strong>Email:</strong> {reservationState.reservation[0].email}</p>
-                                <p><strong>Ngày đặt:</strong> {reservationState.reservation[0].reservation_date.substring(0, 10)} | <strong>Số người:</strong> {reservationState.reservation[0].party_size} | <strong>Số bàn:</strong> {reservationState.reservation[0].tableName}</p>
+                                <p><strong>Ngày đặt:</strong> {reservationState.reservation[0].reservation_date.substring(0, 10)} | <strong>Số người:</strong> {reservationState.reservation[0].party_size} | <strong>Số bàn:</strong> {reservationState.reservation[0].tableName ? reservationState.reservation[0].tableName : 'Chưa có'}</p>
                             </div>
                             
                             {/* Chi tiết đơn hàng */}
