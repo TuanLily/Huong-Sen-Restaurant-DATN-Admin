@@ -156,14 +156,19 @@ export const addReservation = (reservations_t_admin) => {
         dispatch(fetchReservationsRequest());
         try {
             const response = await http.post(`${API_ENDPOINT}/${AdminConfig.routes.reservations_t_admin}`, reservations_t_admin);
-            dispatch(fetchReservationsSuccess(response.data));
-            dispatch(fetchReservations()); // Có thể cần thêm để cập nhật danh sách đơn đặt bàn nếu cần
+            dispatch(fetchReservationsSuccess(response.data)); // Gửi dữ liệu trả về
+            dispatch(fetchReservations()); // Cập nhật danh sách đơn đặt bàn nếu cần
+            return response.data; // Trả về response.data để có thể sử dụng nó trong component
         } catch (error) {
             const errorMsg = error.response?.data?.error || error.message || 'Lỗi không xác định';
             throw new Error(errorMsg); 
         }
     };
 };
+
+
+
+
 
 
 // Cập nhật đặt bàn

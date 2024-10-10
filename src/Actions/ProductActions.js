@@ -129,6 +129,42 @@ export const addProduct = (product) => {
     };
 };
 
+export const fetchProductHoatDongReser = (name = '', page = 1, pageSize = 10) => {
+    return dispatch => {
+        dispatch(fetchProductRequest());
+
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.product}/hoat_dong`);
+
+        // Thêm tham số tìm kiếm nếu có
+        if (name) {
+            url.searchParams.append('search', name);
+        }
+
+        // Thêm tham số phân trang
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        http.get(url.toString())
+            .then(response => {
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Lọc sản phẩm có categories_id khác 8 và trạng thái khác 0
+                const filteredResults = results.filter(product => 
+                    product.categories_id !== 8
+                );
+
+                // Dispatch action để cập nhật dữ liệu
+                dispatch(fetchProductSuccess(filteredResults, totalCount, totalPages, currentPage));
+            })
+            .catch(error => {
+                const errorMsg = error.message || 'Đã xảy ra lỗi trong quá trình lấy dữ liệu.';
+                dispatch(fetchProductFailure(errorMsg));
+            });
+    };
+};
+
+
+
 
 export const updateProduct = (id, data) => {
     return (dispatch) => {

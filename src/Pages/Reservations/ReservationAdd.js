@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { InputBase, Paper } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { fetchProductHoatDong } from '../../Actions/ProductActions';
+import { fetchProductHoatDongReser } from '../../Actions/ProductActions';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductCategoryHoatDong } from '../../Actions/ProductCategoryActions';
@@ -9,7 +9,10 @@ import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 import { addReservation } from '../../Actions/Reservations_t_AdminActions';
 import { SuccessAlert, DangerAlert } from "../../Components/Alert/Alert";
-import { useForm } from 'react-hook-form'; // Import useForm
+import { useForm } from 'react-hook-form';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 export default function ReservationAdd() {
     const dispatch = useDispatch();
@@ -18,19 +21,30 @@ export default function ReservationAdd() {
 
     const productState = useSelector(state => state.product);
     const productCategoryState = useSelector(state => state.product_category);
+
+    const [depositAmount, setDepositAmount] = useState(0);
+    const [activeTab, setActiveTab] = useState('category-info');
     const [selectedCategory, setSelectedCategory] = useState(null);
     const query = new URLSearchParams(location.search);
     const urlPage = parseInt(query.get('page')) || 1;
     const [searchTerm, setSearchTerm] = useState('');
     const [quantities, setQuantities] = useState({});
-    const [isOpen, setIsOpen] = useState(false); // Trạng thái cho dropdown danh sách món ăn
+    const [isOpen, setIsOpen] = useState(false);
+    const [openSuccess, setOpenSuccess] = useState(false);
+    const [openError, setOpenError] = useState(false);
+    const [successMessage, setSuccessMessage] = useState(''); // Thêm biến cho thông báo thành công
+    const [errorMessage, setErrorMessage] = useState(''); // Thêm biến cho thông báo thất bại
+    const [isDeposit, setIsDeposit] = useState(false);
+
+    const handleSuccessClose = () => setOpenSuccess(false);
+    const handleErrorClose = () => setOpenError(false);
 
     const {
         register,
         handleSubmit,
         formState: { errors },
         setValue,
-        watch
+        watch,
     } = useForm({
         defaultValues: {
             fullname: '',
@@ -38,58 +52,21 @@ export default function ReservationAdd() {
             tel: '',
             reservation_date: '',
             deposit: 0,
-            partySize: 0,
+            partySize: 1,  
             notes: '',
-            totalAmount: 0 // Đảm bảo totalAmount được khởi tạo
+            totalAmount: 0,
+            status: 2,  
         }
     });
 
     const customerInfo = watch();
 
     useEffect(() => {
-        dispatch(fetchProductHoatDong(searchTerm, urlPage, productState.pageSize));
+        dispatch(fetchProductHoatDongReser(searchTerm, urlPage, productState.pageSize));
         dispatch(fetchProductCategoryHoatDong());
     }, [dispatch, searchTerm, urlPage, productState.pageSize]);
 
     useEffect(() => {
-        const selectedProducts = Object.entries(quantities).map(([id, quantity]) => {
-            const product = productState.product.find(p => p.id === parseInt(id));
-            if (product && quantity > 0) {
-                return {
-                    price: product.price * quantity,
-                };
-            }
-            return null;
-        }).filter(item => item !== null);
-
-        const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
-        const totalAfterDeposit = total - (customerInfo.deposit || 0);
-
-        setValue('totalAmount', totalAfterDeposit > 0 ? totalAfterDeposit : 0);
-    }, [quantities, productState.product, customerInfo.deposit, setValue]);
-
-    const handleSearch = (event) => {
-        setSearchTerm(event.target.value);
-        navigate(`?page=1`);
-    };
-
-    const handlePageChange = (page) => {
-        navigate(`?page=${page}`);
-        dispatch(fetchProductHoatDong(searchTerm, page, productState.pageSize));
-    };
-
-    const handleQuantityChange = (id, value) => {
-        setQuantities({
-            ...quantities,
-            [id]: Math.max(value, 0)
-        });
-    };
-
-    const formatCurrency = (value) => {
-        return `${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
-    };
-
-    const onSubmit = (data) => {
         const selectedProducts = Object.entries(quantities).map(([id, quantity]) => {
             const product = productState.product.find(p => p.id === parseInt(id));
             if (product && quantity > 0) {
@@ -103,22 +80,88 @@ export default function ReservationAdd() {
         }).filter(item => item !== null);
 
         const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
+        const deposit = isDeposit ? total * 0.3 : 0;
+        setValue('deposit', deposit);
+        const totalAfterDeposit = total - deposit;
+        setValue('totalAmount', totalAfterDeposit > 0 ? totalAfterDeposit : 0);
+    }, [quantities, productState.product, setValue, isDeposit]);
 
-
-
-        dispatch(addReservation({
-            ...data,
-            totalAmount: total,
-            products: selectedProducts,
-        }));
-
-        // Điều hướng về trang khác hoặc thực hiện hành động khác nếu cần
-        navigate('/reservations'); // Ví dụ: chuyển hướng đến trang danh sách đặt chỗ
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
+        navigate(`?page=1`);
     };
 
+    const handlePageChange = (page) => {
+        navigate(`?page=${page}`);
+        dispatch(fetchProductHoatDongReser(searchTerm, page, productState.pageSize));
+    };
+
+    const handleQuantityChange = (id, value) => {
+        setQuantities({
+            ...quantities,
+            [id]: Math.max(value, 0)
+        });
+    };
+
+    const formatCurrency = (value) => {
+        return `${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
+    };
+
+    const onSubmit = async (data) => {
+        const selectedProducts = Object.entries(quantities).map(([id, quantity]) => {
+            const product = productState.product.find(p => p.id === parseInt(id));
+            if (product && quantity > 0) {
+                return {
+                    product_id: product.id,
+                    quantity: quantity,
+                    price: product.price * quantity,
+                };
+            }
+            return null;
+        }).filter(item => item !== null);
+    
+        const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
+        const deposit = isDeposit ? total * 0.3 : 0;
+    
+        const requestData = {
+            ...data,
+            partySize: parseInt(data.partySize),
+            totalAmount: total,
+            deposit: deposit,
+            status: parseInt(data.status),
+            products: selectedProducts,
+        };
+    
+        try {
+            await dispatch(addReservation(requestData)); // Chờ đợi action hoàn tất
+            setOpenSuccess(true);
+            setSuccessMessage('Đặt bàn thành công!'); // Thiết lập thông báo thành công
+    
+            // Thêm thời gian chờ 2 giây trước khi chuyển trang
+            setTimeout(() => {
+                navigate('/reservation');
+            }, 2000);
+        } catch (error) {
+            setOpenError(true);
+            setErrorMessage('Đặt bàn thất bại! Vui lòng thử lại sau.');
+        }
+    };
+
+    const handleDepositChange = (event) => {
+        setIsDeposit(event.target.checked);
+        setDepositAmount(event.target.checked ? 30 : 0);
+
+        // Automatically set status to "Chờ thanh toán cọc" (value: 2) if deposit is enabled
+        if (event.target.checked) {
+            setValue('status', 3);
+        } else {
+            setValue('status', 2); // Reset to default status when deposit is unchecked
+        }
+    };
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
+
 
     return (
         <div className="container">
@@ -134,47 +177,29 @@ export default function ReservationAdd() {
                                     <div className="col-md-6">
                                         <div className="form-group">
                                             <label>Tên khách hàng</label>
-                                            <input
-                                                type="text"
-                                                className={`form-control ${errors.fullname ? 'is-invalid' : ''}`}
-                                                {...register('fullname', { required: 'Tên khách hàng là bắt buộc' })}
-                                                placeholder="Nhập tên khách hàng"
-                                            />
+                                            <input type="text" className={`form-control ${errors.fullname ? 'is-invalid' : ''}`}  {...register('fullname', { required: 'Tên khách hàng là bắt buộc' })} placeholder="Nhập tên khách hàng" />
                                             {errors.fullname && <div className="invalid-feedback">{errors.fullname.message}</div>}
                                         </div>
                                         <div className="form-group">
                                             <label>Email</label>
-                                            <input
-                                                type="email"
-                                                className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                                                {...register('email', { required: 'Email là bắt buộc' })}
-                                                placeholder="Nhập email"
+                                            <input type="email" className={`form-control ${errors.email ? 'is-invalid' : ''}`} {...register('email', { required: 'Email là bắt buộc' })} placeholder="Nhập email"
                                             />
                                             {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
                                         </div>
                                         <div className="form-group">
                                             <label>Số lượng người</label>
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                {...register('partySize')}
-                                                placeholder="Nhập số lượng người"
-                                            />
+                                            <input type="number" className="form-control" {...register('partySize')} placeholder="Nhập số lượng người" defaultValue={1}/>
                                         </div>
-
                                         <div className="form-group">
-                                            <label>Đã đặt cọc</label>
-                                            <input type="number" className="form-control" {...register('deposit')} placeholder='0VND' />
+                                            <label>Tổng tiền</label>
+                                            <input type="text" className="form-control" {...register('totalAmount')} readOnly placeholder='0VND' value={formatCurrency(customerInfo.totalAmount)}
+                                            />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
                                         <div className="form-group">
                                             <label>Số điện thoại</label>
-                                            <input
-                                                type="number"
-                                                className={`form-control ${errors.tel ? 'is-invalid' : ''}`}
-                                                {...register('tel', { required: 'Số điện thoại là bắt buộc' })}
-                                                placeholder="Nhập số điện thoại"
+                                            <input type="number" className={`form-control ${errors.tel ? 'is-invalid' : ''}`} {...register('tel', { required: 'Số điện thoại là bắt buộc' })} placeholder="Nhập số điện thoại"
                                             />
                                             {errors.tel && <div className="invalid-feedback">{errors.tel.message}</div>}
                                         </div>
@@ -182,48 +207,38 @@ export default function ReservationAdd() {
                                             <label>Ngày và giờ đặt</label>
                                             <input
                                                 type="datetime-local"
-                                                className={`form-control ${errors.reservation_date ? 'is-invalid' : ''}`}
-                                                {...register('reservation_date', { required: 'Ngày và giờ đặt là bắt buộc' })}
-                                                min={new Date().toISOString().slice(0, 16)} // Thêm thuộc tính min
+                                                className={`form-control ${errors.reservation_date ? 'is-invalid' : ''}`} {...register('reservation_date', { required: 'Ngày và giờ đặt là bắt buộc' })} min={new Date().toISOString().slice(0, 16)} // Thêm thuộc tính min
                                             />
-
                                         </div>
                                         <div className="form-group">
                                             <label>Trạng thái</label>
                                             <select className="form-select form-control" {...register('status')}>
-                                                <option value={1}>1</option>
-                                                <option value={2}>2</option>
-                                                <option value={3}>3</option>
+                                                <option value={2}>Chờ thanh toán cọc</option>
+                                                <option value={3}>Đã thanh toán cọc</option>
+                                                <option value={4}>Chờ thanh toán toàn bộ đơn</option>
+                                                <option value={5}>Hoàn thành đơn</option>
                                             </select>
                                         </div>
                                         <div className="form-group">
-                                            <label>Tổng tiền</label>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                {...register('totalAmount')}
-                                                readOnly
-                                                placeholder='0VND'
-                                                value={formatCurrency(customerInfo.totalAmount)}
-                                            />
+                                            <label>Đặt cọc</label>
+                                            <FormGroup>
+                                                <FormControlLabel
+                                                    control={<Switch checked={isDeposit} onChange={handleDepositChange} />}
+                                                    label="Đặt cọc 30%"
+                                                />
+                                            </FormGroup>
                                         </div>
                                     </div>
                                     <div className='col-12'>
                                         <div className="form-group">
                                             <label>Ghi chú</label>
-                                            <textarea
-                                                className="form-control"
-                                                {...register('notes')}
-                                                style={{ width: '100%', height: '100px' }}
-                                                placeholder='Nhập ghi chú nếu khách hàng yêu cầu thêm'
-                                            />
+                                            <textarea className="form-control full-width" {...register('notes')} placeholder="Nhập ghi chú"></textarea>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Phần danh sách món ăn */}
+                        </div>
                         <div className="row">
                             <div className='col-md-12'>
                                 <div className="card card-round shadow">
@@ -237,22 +252,35 @@ export default function ReservationAdd() {
                                                 <div className="pb-2 rounded-bottom shadow-sm mb-4">
                                                     <div className="d-flex justify-content-between align-items-center shadow-sm rounded py-2 px-3">
                                                         <ul className="nav">
+                                                            <li className="nav-item">
+                                                                <Link
+                                                                    to="#"
+                                                                    className={`nav-link fw-bolder fs-6 ${selectedCategory === null && activeTab === 'category-info' ? 'active text-primary' : 'text-dark'}`} // 'Tất cả' sẽ được active nếu selectedCategory là null và activeTab là 'updateInfo'
+                                                                    onClick={() => {
+                                                                        setSelectedCategory(null); // Chọn 'Tất cả'
+                                                                        setActiveTab('category-info'); // Cập nhật activeTab
+                                                                    }}
+                                                                >
+                                                                    Tất cả
+                                                                </Link>
+                                                            </li>
                                                             {productCategoryState.product_category && productCategoryState.product_category
                                                                 .filter(category => category.name !== 'Chưa phân loại') // Loại bỏ danh mục "Chưa phân loại"
                                                                 .map(category => (
                                                                     <li className="nav-item" key={category.id}>
                                                                         <Link
                                                                             to="#"
-                                                                            className={`nav-link text-dark fw-bolder fs-6 ${category.id === selectedCategory ? 'active' : ''}`}
-                                                                            onClick={() => setSelectedCategory(category.id)}
+                                                                            className={`nav-link fw-bolder fs-6 ${category.id === selectedCategory && activeTab === 'category-info' ? 'active text-primary' : 'text-dark'}`} // Active cho danh mục được chọn
+                                                                            onClick={() => {
+                                                                                setSelectedCategory(category.id); // Chọn danh mục
+                                                                                setActiveTab('category-info'); // Cập nhật activeTab
+                                                                            }}
                                                                         >
                                                                             {category.name}
                                                                         </Link>
                                                                     </li>
                                                                 ))}
                                                         </ul>
-
-
                                                         <div className="card-tools">
                                                             <Paper
                                                                 component="form"
@@ -290,7 +318,7 @@ export default function ReservationAdd() {
                                                             </tr>}
                                                             {!productState.loading && productState.product && productState.product.length > 0
                                                                 ? productState.product
-                                                                    .filter(product => selectedCategory === null || product.categories_id === selectedCategory) // Lọc sản phẩm theo danh mục
+                                                                    .filter(product => selectedCategory === null || product.categories_id === selectedCategory) // Lọc sản phẩm theo danh mục, hiển thị tất cả nếu selectedCategory là null
                                                                     .map(product => (
                                                                         <tr key={product.id}>
                                                                             <td>{product.name}</td>
@@ -309,31 +337,44 @@ export default function ReservationAdd() {
                                                                     ))
                                                                 : <tr><td colSpan="4" className="text-center">Không có món ăn nào</td></tr>
                                                             }
+
                                                         </tbody>
 
                                                     </table>
-                                                    <div className="row justify-content-center">
+                                                    <div className="row justify-content-center mb-3">
                                                         <CustomPagination
-                                                            count={productState.totalPages} // Tổng số trang
+                                                            count={Math.ceil(
+                                                                productState.product
+                                                                    .filter(product => product.categories_id !== null && product.categories_name !== 'Chưa phân loại')
+                                                                    .length / productState.pageSize
+                                                            )}
                                                             currentPageSelector={state => state.product.currentPage} // Selector để lấy trang hiện tại
-                                                            fetchAction={(page, pageSize) => fetchProductHoatDong(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
+                                                            fetchAction={(page, pageSize) => fetchProductHoatDongReser(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
                                                             onPageChange={handlePageChange}
                                                         />
                                                     </div>
+
                                                 </div>
                                             </div>
+                                            <div className="card-footer">
+                            <button type="submit" className="btn btn-primary px-5">Thêm</button>
+                            <Link to="/reservation" className="btn btn-secondary mx-3 px-5">Hủy</Link>
+                        </div>
                                         </div>
                                     </div>
                                 </div>
+                                
                             </div>
+                            
                         </div>
-
-                        <div className="d-flex justify-content-between mt-3">
-                            <button type="submit" className="btn btn-primary">Lưu</button>
-                        </div>
+                        
                     </form>
                 </div>
             </div>
+            <SuccessAlert open={openSuccess} handleClose={handleSuccessClose} message={successMessage} />
+
+            {/* Error Alert */}
+            <DangerAlert open={openError} handleClose={handleErrorClose} message={errorMessage} />
         </div>
     );
 }

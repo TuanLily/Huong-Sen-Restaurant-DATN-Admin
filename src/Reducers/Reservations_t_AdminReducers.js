@@ -12,7 +12,7 @@ const initialState = {
     loading: false,
     reservation: [],
     error: '',
-    totalCount: 0, 
+    totalCount: 0,
     totalPages: 0
 };
 
@@ -24,14 +24,15 @@ const Reservations_t_AdminReducer = (state = initialState, action) => {
                 loading: true,
             };
         case FETCH_RESERVATIONS_SUCCESS:
+            console.log('Results:', action.payload.results); // Log ra để kiểm tra
             return {
                 ...state,
                 loading: false,
-                allReservation: action.payload.results,
+                allReservation: action.payload.results || [], // Gán giá trị mặc định là mảng rỗng nếu không có
                 totalCount: action.payload.totalCount,
                 totalPages: action.payload.totalPages,
                 currentPage: action.payload.currentPage,
-                reservation: action.payload.results.slice(0, state.pageSize),
+                reservation: Array.isArray(action.payload.results) ? action.payload.results.slice(0, state.pageSize) : [],
             };
         case FETCH_RESERVATIONS_FAILURE:
             return {
