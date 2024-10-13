@@ -13,15 +13,18 @@ export default function TableEdit() {
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   
-  const { table } = useSelector((state) => state.tables); // Giả sử bạn có `table` trong state
+  const tableState = useSelector((state) => state.tables); // Giả sử bạn có `table` trong state
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
-    defaultValues: table
-  });
+  const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm();
 
   useEffect(() => {
-    // Load table data if necessary
-  }, [id]);
+    const table = tableState.tables.find((r) => r.id === parseInt(id));
+        if (table) {
+            setValue('number', table.number);
+            setValue('capacity', table.capacity);
+            setValue('status', table.status);
+        }
+  }, [id, setValue]);
 
   const handleSuccessClose = () => {
     setOpenSuccess(false);
@@ -36,7 +39,9 @@ export default function TableEdit() {
     try {
       await dispatch(updateTable(id, data));
       setOpenSuccess(true);
-      reset();
+      setTimeout(() => {
+        navigate('/tables');
+    }, 2000);
     } catch (error) {
       setErrorMessage(error.message);
       setOpenError(true);
