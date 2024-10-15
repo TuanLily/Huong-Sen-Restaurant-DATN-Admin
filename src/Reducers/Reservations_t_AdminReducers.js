@@ -24,7 +24,6 @@ const Reservations_t_AdminReducer = (state = initialState, action) => {
                 loading: true,
             };
         case FETCH_RESERVATIONS_SUCCESS:
-            console.log('Results:', action.payload.results); // Log ra để kiểm tra
             return {
                 ...state,
                 loading: false,

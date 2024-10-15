@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductCategoryHoatDong } from '../../Actions/ProductCategoryActions';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
-import { addReservation } from '../../Actions/Reservations_t_AdminActions';
+import { addReservation, fetchExistingReservations as fetchExistingReservationsAction } from '../../Actions/Reservations_t_AdminActions';
 import { SuccessAlert, DangerAlert } from "../../Components/Alert/Alert";
 import { useForm } from 'react-hook-form';
 import FormGroup from '@mui/material/FormGroup';
@@ -32,8 +32,8 @@ export default function ReservationAdd() {
     const [isOpen, setIsOpen] = useState(false);
     const [openSuccess, setOpenSuccess] = useState(false);
     const [openError, setOpenError] = useState(false);
-    const [successMessage, setSuccessMessage] = useState(''); // Thêm biến cho thông báo thành công
-    const [errorMessage, setErrorMessage] = useState(''); // Thêm biến cho thông báo thất bại
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const [isDeposit, setIsDeposit] = useState(false);
 
     const handleSuccessClose = () => setOpenSuccess(false);
@@ -52,10 +52,11 @@ export default function ReservationAdd() {
             tel: '',
             reservation_date: '',
             deposit: 0,
-            partySize: 1,  
+            partySize: 1,
             notes: '',
             totalAmount: 0,
-            status: 2,  
+            status: 2,
+            reservation_code: '' // Xóa mã đặt bàn ở đây
         }
     });
 
@@ -107,6 +108,34 @@ export default function ReservationAdd() {
         return `${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
     };
 
+    const generateReservationCode = () => {
+        // Tạo mã đặt bàn ngẫu nhiên
+        const randomNumber = Math.floor(1000 + Math.random() * 9000); // Tạo số ngẫu nhiên từ 1000 đến 9999
+        return `HS${randomNumber}`;
+    };
+
+    const checkReservationCodeExists = async (code) => {
+        try {
+            const existingReservations = await dispatch(fetchExistingReservationsAction());
+            return existingReservations.some(reservation => reservation.reservation_code === code);
+        } catch (error) {
+            console.error("Error checking reservation code:", error);
+            return false; // Hoặc xử lý lỗi theo cách khác tùy thuộc vào nhu cầu của bạn
+        }
+    };
+    const roundMinutes = (date) => {
+        const minutes = Math.ceil(date.getMinutes() / 5) * 5;
+        date.setMinutes(minutes, 0, 0); // Đặt phút thành bội của 5, giây và mili-giây về 0
+        return date;
+    };
+
+    const handleDateChange = (e) => {
+        const inputDate = new Date(e.target.value);
+        const roundedDate = roundMinutes(inputDate);
+        e.target.value = roundedDate.toISOString().slice(0, 16); // Cập nhật giá trị input
+    };
+
+
     const onSubmit = async (data) => {
         const selectedProducts = Object.entries(quantities).map(([id, quantity]) => {
             const product = productState.product.find(p => p.id === parseInt(id));
@@ -119,10 +148,28 @@ export default function ReservationAdd() {
             }
             return null;
         }).filter(item => item !== null);
-    
+
         const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
         const deposit = isDeposit ? total * 0.3 : 0;
-    
+
+        let reservationCode;
+        let codeExists = true;
+        let attempts = 0;
+        const MAX_ATTEMPTS = 10;
+
+        // Tạo mã đặt bàn duy nhất
+        while (codeExists && attempts < MAX_ATTEMPTS) {
+            reservationCode = generateReservationCode();
+            codeExists = await checkReservationCodeExists(reservationCode);
+            attempts++;
+        }
+
+        if (codeExists) {
+            setOpenError(true);
+            setErrorMessage('Không thể tạo mã đặt bàn duy nhất, vui lòng thử lại sau.');
+            return; // Dừng việc thêm đặt bàn
+        }
+
         const requestData = {
             ...data,
             partySize: parseInt(data.partySize),
@@ -130,14 +177,14 @@ export default function ReservationAdd() {
             deposit: deposit,
             status: parseInt(data.status),
             products: selectedProducts,
+            reservation_code: reservationCode, // Gán mã đặt bàn vào requestData
         };
-    
+
         try {
-            await dispatch(addReservation(requestData)); // Chờ đợi action hoàn tất
+            await dispatch(addReservation(requestData));
             setOpenSuccess(true);
-            setSuccessMessage('Đặt bàn thành công!'); // Thiết lập thông báo thành công
-    
-            // Thêm thời gian chờ 2 giây trước khi chuyển trang
+            setSuccessMessage('Đặt bàn thành công!');
+
             setTimeout(() => {
                 navigate('/reservation');
             }, 2000);
@@ -149,18 +196,18 @@ export default function ReservationAdd() {
 
     const handleDepositChange = (event) => {
         setIsDeposit(event.target.checked);
-        setDepositAmount(event.target.checked ? 30 : 0);
-
-        // Automatically set status to "Chờ thanh toán cọc" (value: 2) if deposit is enabled
         if (event.target.checked) {
             setValue('status', 3);
         } else {
-            setValue('status', 2); // Reset to default status when deposit is unchecked
+            setValue('status', 2);
         }
     };
+
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
+
+
 
 
     return (
@@ -188,7 +235,7 @@ export default function ReservationAdd() {
                                         </div>
                                         <div className="form-group">
                                             <label>Số lượng người</label>
-                                            <input type="number" className="form-control" {...register('partySize')} placeholder="Nhập số lượng người" defaultValue={1}/>
+                                            <input type="number" className="form-control" {...register('partySize')} placeholder="Nhập số lượng người" defaultValue={1} />
                                         </div>
                                         <div className="form-group">
                                             <label>Tổng tiền</label>
@@ -207,8 +254,16 @@ export default function ReservationAdd() {
                                             <label>Ngày và giờ đặt</label>
                                             <input
                                                 type="datetime-local"
-                                                className={`form-control ${errors.reservation_date ? 'is-invalid' : ''}`} {...register('reservation_date', { required: 'Ngày và giờ đặt là bắt buộc' })} min={new Date().toISOString().slice(0, 16)} // Thêm thuộc tính min
+                                                className={`form-control ${errors.reservation_date ? 'is-invalid' : ''}`}
+                                                {...register('reservation_date', {
+                                                    required: 'Ngày và giờ đặt là bắt buộc'
+                                                })}
+                                                min={new Date().toISOString().slice(0, 16)} // Thiết lập giá trị min là thời gian hiện tại
+                                                onChange={handleDateChange} // Thêm sự kiện onChange
                                             />
+                                            {errors.reservation_date && (
+                                                <div className="invalid-feedback">{errors.reservation_date.message}</div>
+                                            )}
                                         </div>
                                         <div className="form-group">
                                             <label>Trạng thái</label>
@@ -357,17 +412,17 @@ export default function ReservationAdd() {
                                                 </div>
                                             </div>
                                             <div className="card-footer">
-                            <button type="submit" className="btn btn-primary px-5">Thêm</button>
-                            <Link to="/reservation" className="btn btn-secondary mx-3 px-5">Hủy</Link>
-                        </div>
+                                                <button type="submit" className="btn btn-primary px-5">Thêm</button>
+                                                <Link to="/reservation" className="btn btn-secondary mx-3 px-5">Hủy</Link>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                             </div>
-                            
+
                         </div>
-                        
+
                     </form>
                 </div>
             </div>
