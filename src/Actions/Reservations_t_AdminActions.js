@@ -150,6 +150,25 @@ export const deleteReservations = (id, fullname = '', tel = '', email = '', stat
     };
 };
 
+export const fetchExistingReservations = () => {
+    return async (dispatch) => {
+        dispatch(fetchReservationsRequest()); // Dispatch action bắt đầu lấy dữ liệu
+
+        try {
+            const response = await http.get(`${API_ENDPOINT}/${AdminConfig.routes.reservations_t_admin}`);
+            const existingCodes = response.data; // Giả sử API trả về danh sách mã đặt chỗ
+            dispatch(fetchReservationsSuccess(existingCodes)); // Dispatch action thành công với dữ liệu
+            return existingCodes; // Trả về danh sách mã đặt chỗ để có thể sử dụng nó trong component
+        } catch (error) {
+            const errorMsg = error.response?.data?.error || error.message || 'Lỗi không xác định';
+            dispatch(fetchReservationsFailure(errorMsg)); // Dispatch action lỗi
+            throw new Error(errorMsg); // Ném lỗi để có thể xử lý ở nơi gọi hàm
+        }
+    };
+};
+
+
+
 // Thêm mới đặt bàn
 export const addReservation = (reservations_t_admin) => {
     return async (dispatch) => {
