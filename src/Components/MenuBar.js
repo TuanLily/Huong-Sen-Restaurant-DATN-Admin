@@ -167,11 +167,11 @@ export default function MenuBar() {
                       <span className="sub-item">Bài viết</span>
                     </NavLink>
                   </li>
-                  <li>
+                  {/* <li>
                     <NavLink to="/blog-lock">
                       <span className="sub-item">Bài viết tạm xóa</span>
                     </NavLink>
-                  </li>
+                  </li> */}
                 </ul>
               </div>
             </li>
@@ -315,7 +315,7 @@ export default function MenuBar() {
             </li>
 
             {/* Quản Lý Bình Luận */}
-            <li
+            {/* <li
               className={`nav-item ${
                 isCommentManagementActive ? "active" : ""
               }`}
@@ -349,7 +349,7 @@ export default function MenuBar() {
                   </li>
                 </ul>
               </div>
-            </li>
+            </li> */}
 
             {/* Quản Lý Quyền */}
             <li

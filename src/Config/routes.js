@@ -91,6 +91,7 @@ const AdminRoutes = {
     commentProducts: 'comment-products',
     commentProductsDelete: 'comment-products/delete',
 
+    commentBlogView: 'comment-blog/:blogId',
     commentBlog: 'comment-blog',
     commentBlogAdd: 'comment-blog/add',
     commentBlogEdit: 'comment-blog/edit/:id',

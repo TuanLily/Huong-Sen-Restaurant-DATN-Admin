@@ -1,8 +1,6 @@
-
 export const FETCH_COMMENTBLOG_REQUEST = 'FETCH_COMMENTBLOG_REQUEST';
 export const FETCH_COMMENTBLOG_SUCCESS = 'FETCH_COMMENTBLOG_SUCCESS';
 export const FETCH_COMMENTBLOG_FAILURE = 'FETCH_COMMENTBLOG_FAILURE';
-export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
@@ -13,13 +11,10 @@ export const fetchCommentBlogRequest = () => ({
     type: FETCH_COMMENTBLOG_REQUEST
 });
 
-export const fetchCommentBlogSuccess = (results, totalCount, totalPages, currentPage) => ({
+export const fetchCommentBlogSuccess = (results) => ({
     type: FETCH_COMMENTBLOG_SUCCESS,
     payload: {
         results,
-        totalCount,
-        totalPages,
-        currentPage
     }
 });
 
@@ -28,44 +23,33 @@ export const fetchCommentBlogFailure = error => ({
     payload: error
 });
 
-export const setCurrentPage = (page) => ({
-    type: SET_CURRENT_PAGE,
-    payload: page
-});
+// Fetch comments by blog_id
+export const fetchCommentBlog = (blog_id) => async (dispatch) => {
+    console.log("Fetching comments");
+    dispatch(fetchCommentBlogRequest());
+    try {
+        const response = await http.get(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}/blog/${blog_id}`);
 
-export const fetchCommentBlog = (content = '', page = 1, pageSize = 10) => {
-    return dispatch => {
-        dispatch(fetchCommentBlogRequest());
-
-        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}`);
-        
-        if (content) {
-            url.searchParams.append('search', content);
-        }
-        url.searchParams.append('page', page);
-        url.searchParams.append('pageSize', pageSize);
-
-        http.get(url.toString())
-            .then(response => {
-                const { results, totalCount, totalPages, currentPage } = response.data;
-                dispatch(fetchCommentBlogSuccess(results, totalCount, totalPages, currentPage));
-            })
-            .catch(error => {
-                const errorMsg = error.response?.data?.message || error.message;
-                dispatch(fetchCommentBlogFailure(errorMsg));
-            });
-    };
+        console.log('API Response:', response.data); // Log dữ liệu từ API
+        const { results } = response.data;
+        dispatch(fetchCommentBlogSuccess(results));
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        const errorMsg = error.response?.data?.message || error.message;
+        dispatch(fetchCommentBlogFailure(errorMsg));
+    }
 };
 
-// Add Permissions Action
+
+
+// Add comment
 export const addCommentBlog = (commentblog) => {
     return dispatch => {
         dispatch(fetchCommentBlogRequest());
         http.post(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}`, commentblog)
             .then((response) => {
-                // Sau khi thêm san pham mới, gọi lại fetchProduct để làm mới danh sách
                 dispatch(fetchCommentBlogSuccess(response.data.data));
-                dispatch(fetchCommentBlog());
+                dispatch(fetchCommentBlog(commentblog.blog_id)); // Refresh the comment list
             })
             .catch(error => {
                 const errorMsg = error.message;
@@ -74,14 +58,13 @@ export const addCommentBlog = (commentblog) => {
     };
 };
 
-
-// Update Permissions Action
+// Update comment
 export const updateCommentBlog = (id, data) => {
     return dispatch => {
         dispatch(fetchCommentBlogRequest());
         http.patch(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}/${id}`, data)
             .then(() => {
-                dispatch(fetchCommentBlog());
+                dispatch(fetchCommentBlog(data.blog_id)); // Refresh comment list
             })
             .catch(error => {
                 const errorMsg = error.response?.data?.message || error.message;
@@ -90,18 +73,18 @@ export const updateCommentBlog = (id, data) => {
     };
 };
 
-// Delete Permissions Action
-export const deleteCommentBlog = (id) => {
+// Delete comment
+export const deleteCommentBlog = (id, blogId) => {
     return dispatch => {
-        dispatch(fetchCommentBlogRequest());
+        dispatch(fetchCommentBlogRequest()); // Dispatch hành động lấy bình luận
         http.delete(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}/${id}`)
             .then(() => {
-                dispatch(fetchCommentBlog()); // Refresh the permissions list
+                console.log("Check blog id: ", blogId)
+                dispatch(fetchCommentBlog(blogId)); // Cập nhật danh sách bình luận
             })
-            .catch(error => {
+            .catch((error) => {
                 const errorMsg = error.response?.data?.message || error.message;
-                dispatch(fetchCommentBlogFailure(errorMsg));
+                dispatch(fetchCommentBlogFailure(errorMsg)); // Dispatch thất bại nếu có lỗi
             });
     };
 };
-

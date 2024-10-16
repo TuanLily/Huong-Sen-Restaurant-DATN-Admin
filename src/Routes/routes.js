@@ -89,6 +89,7 @@ import RolesPermissionsList from '../Pages/RolesPermissions/RolesPermissionsList
 import CommentProductsList from '../Pages/CommentProducts/CommentProductsList';
 import CommentProductsDelete from '../Pages/CommentProducts/CommentProductsDelete';
 
+
 import CommentBlogList from '../Pages/CommentBlog/CommentBlogList';
 import CommentBlogAdd from '../Pages/CommentBlog/CommentBlogAdd';
 import CommentBlogEdit from '../Pages/CommentBlog/CommentBlogEdit';
@@ -188,6 +189,7 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.commentProducts, component: CommentProductsList },
     { path: AdminConfig.routes.commentProductsDelete, component: CommentProductsDelete },
 
+    { path: AdminConfig.routes.commentBlogView, component: CommentBlogList },
     { path: AdminConfig.routes.commentBlog, component: CommentBlogList },
     { path: AdminConfig.routes.commentBlogAdd, component: CommentBlogAdd },
     { path: AdminConfig.routes.commentBlogEdit, component: CommentBlogEdit },
