@@ -37,6 +37,13 @@ export default function ReservationList() {
         return permissions.data && permissions.data.some(permission => permission.name == permissionName);
     };
 
+    const [recodeSearch, setrecodeSearch] = useState('');
+
+    const handlerecodeSearch = (event) => {
+        setrecodeSearch(event.target.value);
+        dispatch(setCurrentPage(1));
+    };
+
     const [nameSearch, setNameSearch] = useState('');
 
     const handleNameSearch = (event) => {
@@ -81,8 +88,8 @@ export default function ReservationList() {
     const [selectedReservation, setSelectedReservation] = useState(null);
 
     useEffect(() => {
-        dispatch(fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , urlPage, reservationState.pageSize));
-    }, [dispatch, urlPage, reservationState.pageSize, nameSearch, phoneSearch, emailSearch, statusSearch]);
+        dispatch(fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , recodeSearch , urlPage, reservationState.pageSize));
+    }, [dispatch, urlPage, reservationState.pageSize, nameSearch, phoneSearch, emailSearch, statusSearch, recodeSearch]);
 
     useEffect(() => {
         navigate(`?page=${reservationState.currentPage}`);
@@ -105,7 +112,7 @@ export default function ReservationList() {
     const handleDelete = async () => {
         if (selectedReservation) {
             try {
-                await dispatch(deleteReservations(selectedReservation, nameSearch, phoneSearch, emailSearch, statusSearch, urlPage, reservationState.pageSize));
+                await dispatch(deleteReservations(selectedReservation, nameSearch, phoneSearch, emailSearch, statusSearch, recodeSearch, urlPage, reservationState.pageSize));
                 setActiveDropdown(null);
                 handleClose();
                 setOpenSuccess(true); // Hiển thị thông báo thành công
@@ -118,7 +125,7 @@ export default function ReservationList() {
     const handleUpdateStatus = async (id, st) => {
         if (id) {
             try {
-                await dispatch(updateReservations(id, {status: st}, nameSearch, phoneSearch, emailSearch, statusSearch, urlPage, reservationState.pageSize));
+                await dispatch(updateReservations(id, {status: st}, nameSearch, phoneSearch, emailSearch, statusSearch, recodeSearch, urlPage, reservationState.pageSize));
                 setActiveDropdown(null);
                 handleClose();
                 setOpenSuccess(true); // Hiển thị thông báo thành công
@@ -143,12 +150,12 @@ export default function ReservationList() {
     const handlePageChange = (page) => {
         navigate(`?page=${page}`); // Cập nhật URL với page
         dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-        dispatch(fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , page, reservationState.pageSize));
+        dispatch(fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , recodeSearch , page , reservationState.pageSize));
     };
 
     const statusMapping = {
-        1: { text: 'Chờ xác nhận', class: 'badge bg-secondary' },    
-        2: { text: 'Chờ thanh toán cọc', class: 'badge bg-dark' },
+        2: { text: 'Hết hạn thanh toán cọc', class: 'badge bg-secondary' },    
+        1: { text: 'Chờ thanh toán cọc', class: 'badge bg-dark' },
         3: { text: 'Đã thanh toán cọc', class: 'badge bg-info' },     
         0: { text: 'Hủy đơn', class: 'badge bg-danger' },             
         4: { text: 'Chờ thanh toán toàn bộ đơn', class: 'badge bg-primary' },
@@ -163,14 +170,15 @@ export default function ReservationList() {
                         <h3 className="fw-bold mb-2">Quản lý đặt bàn</h3>
                         <form className="form-inline d-flex flex-wrap justify-content-between align-items-center">
                             <div className="d-flex flex-wrap align-items-center mb-2">
+                                <input type="text" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Mã hóa đơn" aria-label="Email" value={recodeSearch} onChange={handlerecodeSearch} /> 
                                 <input type="text" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Tên khách hàng" aria-label="Email" value={nameSearch} onChange={handleNameSearch} /> 
                                 <input type="email" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Email" aria-label="Email" value={emailSearch} onChange={handleEmailSearch} /> 
                                 <input type="text" className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} placeholder="Phone" aria-label="Phone" value={phoneSearch} onChange={handlePhoneSearch} /> 
                                 <select className="form-control mr-2" style={{ flex: '1 1 150px', height: '38px', minWidth: '120px' }} value={statusSearch} onChange={handleStatusSearch}>
                                     <option value="">Trạng thái</option>
                                     <option value="0">Đã hủy</option>
-                                    <option value="1">Chờ xác nhận</option>
-                                    <option value="2">Chờ thanh toán cọc</option>
+                                    <option value="1">Chờ thanh toán cọc</option>
+                                    <option value="2">Hết hạn thanh toán cọc</option>
                                     <option value="3">Đã thanh toán cọc</option>
                                     <option value="4">Chờ thanh toán toàn bộ đơn</option>
                                     <option value="5">Hoàn thành đơn</option>
@@ -218,6 +226,7 @@ export default function ReservationList() {
                                                     <tr key={item.id}>
                                                         <td>{stt}</td>
                                                         <td style={{ textAlign: 'left' }}>
+                                                            Mã hóa đơn: {item.reservation_code ? item.reservation_code : 'Chưa rõ'}<br />
                                                             Họ và tên: {item.fullname}<br />
                                                             Email: {item.email}<br />
                                                             Phone: {item.tel}<br />
@@ -255,7 +264,7 @@ export default function ReservationList() {
                                                                             <i className="fas fa-trash mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Xóa
                                                                         </button>
                                                                         <div className="dropdown-divider"></div> */}
-                                                                        <button onClick={() => handleUpdateStatus(item.id , 2)} className="dropdown-item">
+                                                                        <button onClick={() => handleUpdateStatus(item.id , 1)} className="dropdown-item">
                                                                             <i className="fas fa-times-circle mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Chờ thanh toán cọc
                                                                         </button>
                                                                         <div className="dropdown-divider"></div>
@@ -275,8 +284,8 @@ export default function ReservationList() {
                                                                             <i className="fas fa-ban mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Đã Hủy
                                                                         </button>
                                                                         <div className="dropdown-divider"></div>
-                                                                        <button onClick={() => handleUpdateStatus(item.id , 1)} className="dropdown-item">
-                                                                            <i className="fas fa-ban mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Chờ xác nhận
+                                                                        <button onClick={() => handleUpdateStatus(item.id , 2)} className="dropdown-item">
+                                                                            <i className="fas fa-ban mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Hết hạn thanh toán cọc
                                                                         </button>
                                                                     </div>
                                                                 )}
@@ -292,7 +301,7 @@ export default function ReservationList() {
                                     <CustomPagination
                                         count={reservationState.totalPages} // Tổng số trang
                                         currentPageSelector={state => state.reservations_Admin.currentPage} // Selector để lấy trang hiện tại
-                                        fetchAction={(page, pageSize) => fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , page , pageSize)} // Hàm fetch dữ liệu
+                                        fetchAction={(page, pageSize) => fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , recodeSearch , page , pageSize)} // Hàm fetch dữ liệu
                                         onPageChange={handlePageChange} 
                                     />
                                 </div>

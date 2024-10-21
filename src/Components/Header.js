@@ -49,7 +49,7 @@ export default function Header() {
     // Lấy 5 đơn đầu tiên từ danh sách
     const firstFiveReservations = reservations.slice(0, 5);
 
-    // Lọc đơn có trạng thái "Chờ xác nhận" (giả định status = 1) từ 5 đơn đầu tiên
+    // Lọc đơn có trạng thái "Chờ thanh toán cọc" (giả định status = 1) từ 5 đơn đầu tiên
     let unconfirmedReservations = firstFiveReservations.filter(reservation => reservation.status === 1);
 
     // Giới hạn hiển thị tối đa 4 đơn
@@ -105,7 +105,7 @@ export default function Header() {
                             >
                                 <li>
                                     <div className="dropdown-title">
-                                        Bạn có {unconfirmedReservations.length} hóa đơn mới chưa xác nhận
+                                        Bạn có {unconfirmedReservations.length} hóa đơn chưa thanh toán cọc
                                     </div>
                                 </li>
                                 <li>

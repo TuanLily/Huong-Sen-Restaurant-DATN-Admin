@@ -32,7 +32,7 @@ export const setCurrentPage = (page) => ({
 });
 
 // Lấy dữ liệu
-export const fetchReservations = (fullname = '', tel = '', email = '', status = '', page = 1, pageSize = 10) => {
+export const fetchReservations = (fullname = '', tel = '', email = '', status = '', reservation_code = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchReservationsRequest());
         const url = new URL(`${API_ENDPOINT}/${API_DATA.reservations_admin}`);
@@ -50,6 +50,10 @@ export const fetchReservations = (fullname = '', tel = '', email = '', status = 
         if (status) {
             url.searchParams.append('status', status);
         }
+        if (reservation_code) {
+            url.searchParams.append('reservation_code', reservation_code);
+        }
+
         // Thêm tham số phân trang
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
@@ -68,7 +72,7 @@ export const fetchReservations = (fullname = '', tel = '', email = '', status = 
 };
 
 // Lấy danh sách reatime
-export const fetchRetime = async (fullname = '', tel = '', email = '', status = '', page = 1, pageSize = 10) => {
+export const fetchRetime = async (fullname = '', tel = '', email = '', status = '', reservation_code = '', page = 1, pageSize = 10) => {
     try {
         const url = new URL(`${API_ENDPOINT}/${API_DATA.reservations_admin}`);
 
@@ -85,6 +89,10 @@ export const fetchRetime = async (fullname = '', tel = '', email = '', status = 
         if (status) {
             url.searchParams.append('status', status);
         }
+        if (reservation_code) {
+            url.searchParams.append('reservation_code', reservation_code);
+        }
+        
         // Thêm tham số phân trang
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
@@ -122,12 +130,12 @@ export const fetchReservationsID = (id) => {
 };
 
 // Cập nhật trạng thái
-export const updateReservations = (id, data, fullname = '', tel = '', email = '', status = '', page = 1, pageSize = 10) => {
+export const updateReservations = (id, data, fullname = '', tel = '', email = '', status = '', reservation_code = '', page = 1, pageSize = 10) => {
     return (dispatch) => {
         dispatch(fetchReservationsRequest());
         http.patch(`${API_ENDPOINT}/${API_DATA.reservations_admin}/${id}`, data)
             .then((response) => {
-                dispatch(fetchReservations(fullname, tel, email, status, page, pageSize));
+                dispatch(fetchReservations(fullname, tel, email, status, reservation_code, page, pageSize));
             })
             .catch((error) => {
                 dispatch(fetchReservationsFailure(error.message));
@@ -136,12 +144,12 @@ export const updateReservations = (id, data, fullname = '', tel = '', email = ''
 };
 
 // Xóa
-export const deleteReservations = (id, fullname = '', tel = '', email = '', status = '', page = 1, pageSize = 10) => {
+export const deleteReservations = (id, fullname = '', tel = '', email = '', status = '', reservation_code = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchReservationsRequest());
         http.delete(`${API_ENDPOINT}/${API_DATA.reservations_admin}/${id}`)
             .then(() => {
-                dispatch(fetchReservations(fullname, tel, email, status, page, pageSize));
+                dispatch(fetchReservations(fullname, tel, email, status, reservation_code, page, pageSize));
             })
             .catch((error) => {
                 const errorMsg = error.message;
