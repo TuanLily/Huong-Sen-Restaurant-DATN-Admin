@@ -43,7 +43,7 @@ const AdminRoutes = {
 
     reservation: 'reservation',
     reservationAdd: 'reservation/add',
-    reservationEdit: 'reservation/edit:id',
+    reservationEdit: 'reservation/edit/:id',
     reservationDelete: 'reservation/delete',
 
     order: 'order',
@@ -105,7 +105,7 @@ const AdminRoutes = {
 
     reservations_t_admin: 'reservations_t_admin',
     reservations_t_adminAdd: 'reservations_t_admin/add',
-    reservations_t_adminEdit: 'reservations_t_admin/edit:id',
+    reservations_t_adminEdit: 'reservations_t_admin/edit/:id',
     reservations_t_adminDelete: 'reservations_t_admin/delete',
     reservations_t_admin_existing_reservations: 'reservations_t_admin/existing-reservations',
     

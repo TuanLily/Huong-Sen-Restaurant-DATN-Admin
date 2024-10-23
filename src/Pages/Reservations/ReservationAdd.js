@@ -123,17 +123,9 @@ export default function ReservationAdd() {
             return false; // Hoặc xử lý lỗi theo cách khác tùy thuộc vào nhu cầu của bạn
         }
     };
-    const roundMinutes = (date) => {
-        const minutes = Math.ceil(date.getMinutes() / 5) * 5;
-        date.setMinutes(minutes, 0, 0); // Đặt phút thành bội của 5, giây và mili-giây về 0
-        return date;
-    };
+    
 
-    const handleDateChange = (e) => {
-        const inputDate = new Date(e.target.value);
-        const roundedDate = roundMinutes(inputDate);
-        e.target.value = roundedDate.toISOString().slice(0, 16); // Cập nhật giá trị input
-    };
+    
 
 
     const onSubmit = async (data) => {
@@ -259,7 +251,7 @@ export default function ReservationAdd() {
                                                     required: 'Ngày và giờ đặt là bắt buộc'
                                                 })}
                                                 min={new Date().toISOString().slice(0, 16)} // Thiết lập giá trị min là thời gian hiện tại
-                                                onChange={handleDateChange} // Thêm sự kiện onChange
+                                                 // Thêm sự kiện onChange
                                             />
                                             {errors.reservation_date && (
                                                 <div className="invalid-feedback">{errors.reservation_date.message}</div>
@@ -294,6 +286,7 @@ export default function ReservationAdd() {
                             </div>
 
                         </div>
+                        
                         <div className="row">
                             <div className='col-md-12'>
                                 <div className="card card-round shadow">

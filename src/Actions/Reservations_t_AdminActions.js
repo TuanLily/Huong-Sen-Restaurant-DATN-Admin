@@ -193,23 +193,45 @@ export const addReservation = (reservations_t_admin) => {
     };
 };
 
-
-
-
-
-
-// Cập nhật đặt bàn
 export const updateReservationOrder = (id, data) => {
-    return dispatch => {
-        dispatch(fetchReservationsRequest()); // Sử dụng action request hiện có
-        http.patch(`${API_ENDPOINT}/${API_DATA.reservations_admin}/${id}`, data)
-            .then(response => {
-                // Sau khi cập nhật thành công, tải lại danh sách đặt bàn
-                dispatch(fetchReservations());
+    return (dispatch) => {
+        dispatch(fetchReservationsRequest()); // Gọi action để thông báo bắt đầu
+
+        // Kiểm tra id trước khi gửi yêu cầu
+        console.log('Updating reservation with ID:', id); // Log ID nhận được
+
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.reservations_t_admin}/${id}`, data)
+            .then((response) => {
+                dispatch(fetchReservations()); // Tải lại danh sách đặt bàn
             })
-            .catch(error => {
-                const errorMsg = error.message;
-                dispatch(fetchReservationsFailure(errorMsg)); // Sử dụng action failure hiện có
+            .catch((error) => {
+                const errorMsg = error.response?.data?.message || error.message;
+                dispatch(fetchReservationsFailure(errorMsg)); // Gọi action xử lý lỗi
             });
     };
 };
+
+export const deleteReservationDetail = (reservationId, productId) => {
+    return async (dispatch) => {
+        try {
+            dispatch(fetchReservationsRequest());
+
+            // Call the API to delete the product from the reservation details
+            await http.delete(
+                `${API_ENDPOINT}/${AdminConfig.routes.reservations_t_admin}/${reservationId}/${productId}`
+            );
+
+            // Refetch the reservation details to reflect the changes
+            dispatch(fetchReservationdetail(reservationId));
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || error.message;
+            dispatch(fetchReservationsFailure(errorMsg));
+        }
+    };
+};
+
+
+
+
+
+
