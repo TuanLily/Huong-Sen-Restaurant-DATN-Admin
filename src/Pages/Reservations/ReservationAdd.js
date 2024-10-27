@@ -110,7 +110,7 @@ export default function ReservationAdd() {
 
     const generateReservationCode = () => {
         // Tạo mã đặt bàn ngẫu nhiên
-        const randomNumber = Math.floor(1000 + Math.random() * 9000); // Tạo số ngẫu nhiên từ 1000 đến 9999
+        const randomNumber = Math.floor(10000000 + Math.random() * 90000000); // Tạo số ngẫu nhiên từ 1000 đến 9999
         return `HS${randomNumber}`;
     };
 
@@ -140,28 +140,35 @@ export default function ReservationAdd() {
             }
             return null;
         }).filter(item => item !== null);
-
+    
+        // Kiểm tra nếu không có sản phẩm nào được chọn
+        if (selectedProducts.length === 0) {
+            setOpenError(true);
+            setErrorMessage('Vui lòng chọn ít nhất một món để đặt bàn.');
+            return; // Dừng việc thêm đặt bàn
+        }
+    
         const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
         const deposit = isDeposit ? total * 0.3 : 0;
-
+    
         let reservationCode;
         let codeExists = true;
         let attempts = 0;
         const MAX_ATTEMPTS = 10;
-
+    
         // Tạo mã đặt bàn duy nhất
         while (codeExists && attempts < MAX_ATTEMPTS) {
             reservationCode = generateReservationCode();
             codeExists = await checkReservationCodeExists(reservationCode);
             attempts++;
         }
-
+    
         if (codeExists) {
             setOpenError(true);
             setErrorMessage('Không thể tạo mã đặt bàn duy nhất, vui lòng thử lại sau.');
             return; // Dừng việc thêm đặt bàn
         }
-
+    
         const requestData = {
             ...data,
             partySize: parseInt(data.partySize),
@@ -171,12 +178,12 @@ export default function ReservationAdd() {
             products: selectedProducts,
             reservation_code: reservationCode, // Gán mã đặt bàn vào requestData
         };
-
+    
         try {
             await dispatch(addReservation(requestData));
             setOpenSuccess(true);
             setSuccessMessage('Đặt bàn thành công!');
-
+    
             setTimeout(() => {
                 navigate('/reservation');
             }, 2000);
@@ -185,6 +192,7 @@ export default function ReservationAdd() {
             setErrorMessage('Đặt bàn thất bại! Vui lòng thử lại sau.');
         }
     };
+    
 
     const handleDepositChange = (event) => {
         setIsDeposit(event.target.checked);
@@ -221,7 +229,13 @@ export default function ReservationAdd() {
                                         </div>
                                         <div className="form-group">
                                             <label>Email</label>
-                                            <input type="email" className={`form-control ${errors.email ? 'is-invalid' : ''}`} {...register('email', { required: 'Email là bắt buộc' })} placeholder="Nhập email"
+                                            <input type="email" className={`form-control ${errors.email ? 'is-invalid' : ''}`} {...register('email', { 
+                                                required: 'Email là bắt buộc',
+                                                pattern: {
+                                                    value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                                                    message: 'Email không hợp lệ',
+                                                },
+                                             })} placeholder="Nhập email"
                                             />
                                             {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
                                         </div>
@@ -238,7 +252,13 @@ export default function ReservationAdd() {
                                     <div className="col-md-6">
                                         <div className="form-group">
                                             <label>Số điện thoại</label>
-                                            <input type="number" className={`form-control ${errors.tel ? 'is-invalid' : ''}`} {...register('tel', { required: 'Số điện thoại là bắt buộc' })} placeholder="Nhập số điện thoại"
+                                            <input type="number" className={`form-control ${errors.tel ? 'is-invalid' : ''}`} {...register('tel', { 
+                                                required: 'Số điện thoại là bắt buộc',
+                                                pattern: {
+                                                    value: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/,
+                                                    message: 'Số điện thoại không đúng định dạng',
+                                                },
+                                            })} placeholder="Nhập số điện thoại"
                                             />
                                             {errors.tel && <div className="invalid-feedback">{errors.tel.message}</div>}
                                         </div>
@@ -248,7 +268,8 @@ export default function ReservationAdd() {
                                                 type="datetime-local"
                                                 className={`form-control ${errors.reservation_date ? 'is-invalid' : ''}`}
                                                 {...register('reservation_date', {
-                                                    required: 'Ngày và giờ đặt là bắt buộc'
+                                                    required: 'Ngày và giờ đặt là bắt buộc',
+                                                     validate: (value) => new Date(value) >= new Date() || 'Không thể chọn thời gian trong quá khứ'
                                                 })}
                                                 min={new Date().toISOString().slice(0, 16)} // Thiết lập giá trị min là thời gian hiện tại
                                                  // Thêm sự kiện onChange

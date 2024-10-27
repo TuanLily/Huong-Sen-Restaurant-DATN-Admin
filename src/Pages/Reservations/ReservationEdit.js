@@ -148,6 +148,7 @@ export default function ReservationUpdate() {
             await dispatch(deleteReservationDetail(reservationId, productId));
             setOpenSuccess(true);
             setSuccessMessage('Xóa món ăn thành công!');
+            
 
             // Refetch the reservation details to update the UI
             dispatch(fetchReservationdetail(reservationId));
@@ -200,50 +201,58 @@ export default function ReservationUpdate() {
         ? groupReservationsByProduct(reservationDetailState.reservationDetail)
         : [];
 
-    const onSubmit = async (data) => {
-        const selectedProducts = Object.entries(quantities)
-            .map(([id, quantity]) => {
-                const product = productState.product.find(p => p.id === parseInt(id));
-                if (product && quantity > 0) {
-                    return {
-                        product_id: product.id,
-                        quantity: quantity,
-                        price: product.price,
-                    };
-                }
-                return null;
-            })
-            .filter(item => item !== null);
-
-        const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
-        const deposit = isDeposit ? calculateTotalAmount() * 0.3 : 0; // Tính deposit bằng 30% của tổng số tiền
-
-        const requestData = {
-            fullname: data.fullname,
-            email: data.email,
-            tel: data.tel,
-            reservation_date: data.reservation_date,
-            deposit: deposit,
-            party_size: parseInt(data.partySize), // Đảm bảo chỉ gửi `party_size`
-            note: data.notes,
-            products: selectedProducts,
-            total_amount: calculateTotalAmount(), // Tính tổng số tiền
-            status: parseInt(data.status),
-            id: reservationId,
+        const onSubmit = async (data) => {
+            // Kiểm tra xem có sản phẩm nào được chọn từ số lượng hoặc trong chi tiết đặt bàn
+            const selectedProducts = Object.entries(quantities)
+                .map(([id, quantity]) => {
+                    const product = productState.product.find(p => p.id === parseInt(id));
+                    if (product && quantity > 0) {
+                        return {
+                            product_id: product.id,
+                            quantity: quantity,
+                            price: product.price,
+                        };
+                    }
+                    return null;
+                })
+                .filter(item => item !== null);
+        
+            // Bắt lỗi nếu không có sản phẩm nào được chọn từ cả hai nguồn
+            if (selectedProducts.length === 0 && groupedReservationDetails.length === 0) {
+                setOpenError(true);
+                setErrorMessage('Phải có ít nhất 1 sản phẩm được chọn.');
+                return; // Dừng thực hiện nếu không có sản phẩm nào
+            }
+        
+            const total = selectedProducts.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const deposit = isDeposit ? total * 0.3 : 0; // Tính tiền đặt cọc
+        
+            const requestData = {
+                fullname: data.fullname,
+                email: data.email,
+                tel: data.tel,
+                reservation_date: data.reservation_date,
+                deposit: deposit,
+                party_size: parseInt(data.partySize),
+                note: data.notes,
+                products: selectedProducts,
+                total_amount: calculateTotalAmount(),
+                status: parseInt(data.status),
+                id: reservationId,
+            };
+        
+            try {
+                await dispatch(updateReservationOrder(reservationId, requestData));
+                setOpenSuccess(true);
+                setSuccessMessage('Cập nhật đặt bàn thành công!');
+                setTimeout(() => navigate('/reservation'), 2000);
+            } catch (error) {
+                setOpenError(true);
+                setErrorMessage('Cập nhật thất bại! Vui lòng kiểm tra lại.');
+            }
         };
-
-        try {
-            await dispatch(updateReservationOrder(reservationId, requestData));
-            setTimeout(() => {
-                navigate('/reservation');
-            }, 2000);
-            setOpenSuccess(true);
-            setSuccessMessage('Cập nhật đặt bàn thành công!');
-        } catch (error) {
-            setOpenError(true);
-            setErrorMessage('Cập nhật thất bại! Vui lòng kiểm tra lại.');
-        }
-    };
+        
+        
 
     const handleDepositChange = (event) => {
         setIsDeposit(event.target.checked);
@@ -280,7 +289,12 @@ export default function ReservationUpdate() {
                                             <input
                                                 type="email"
                                                 className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                                                {...register('email', { required: 'Email là bắt buộc' })}
+                                                {...register('email', { 
+                                                    required: 'Email là bắt buộc',
+                                                    pattern: {
+                                                        value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                                                        message: 'Email không hợp lệ',
+                                                    }, })}
                                                 placeholder="Nhập email"
                                             />
                                             {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
@@ -313,7 +327,13 @@ export default function ReservationUpdate() {
                                             <input
                                                 type="number"
                                                 className={`form-control ${errors.tel ? 'is-invalid' : ''}`}
-                                                {...register('tel', { required: 'Số điện thoại là bắt buộc' })}
+                                                {...register('tel', { 
+                                                    required: 'Số điện thoại là bắt buộc',
+                                                    pattern: {
+                                                        value: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/,
+                                                        message: 'Số điện thoại không đúng định dạng',
+                                                    },
+                                                })}
                                                 placeholder="Nhập số điện thoại"
                                             />
                                             {errors.tel && <div className="invalid-feedback">{errors.tel.message}</div>}
