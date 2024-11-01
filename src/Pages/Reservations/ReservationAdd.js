@@ -34,7 +34,9 @@ export default function ReservationAdd() {
     const [openError, setOpenError] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const [isDeposit, setIsDeposit] = useState(false);
+    
+    // Set initial state for deposit to true and status to 3
+    const [isDeposit, setIsDeposit] = useState(true);
 
     const handleSuccessClose = () => setOpenSuccess(false);
     const handleErrorClose = () => setOpenError(false);
@@ -55,8 +57,8 @@ export default function ReservationAdd() {
             partySize: 1,
             notes: '',
             totalAmount: 0,
-            status: 2,
-            reservation_code: '' // Xóa mã đặt bàn ở đây
+            status: 3, // Default to "đã đặt cọc"
+            reservation_code: '',
         }
     });
 
@@ -109,8 +111,7 @@ export default function ReservationAdd() {
     };
 
     const generateReservationCode = () => {
-        // Tạo mã đặt bàn ngẫu nhiên
-        const randomNumber = Math.floor(10000000 + Math.random() * 90000000); // Tạo số ngẫu nhiên từ 1000 đến 9999
+        const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
         return `HS${randomNumber}`;
     };
 
@@ -120,13 +121,9 @@ export default function ReservationAdd() {
             return existingReservations.some(reservation => reservation.reservation_code === code);
         } catch (error) {
             console.error("Error checking reservation code:", error);
-            return false; // Hoặc xử lý lỗi theo cách khác tùy thuộc vào nhu cầu của bạn
+            return false;
         }
     };
-    
-
-    
-
 
     const onSubmit = async (data) => {
         const selectedProducts = Object.entries(quantities).map(([id, quantity]) => {
@@ -135,40 +132,38 @@ export default function ReservationAdd() {
                 return {
                     product_id: product.id,
                     quantity: quantity,
-                    price: product.price * quantity,
+                    price: product.price ,
                 };
             }
             return null;
         }).filter(item => item !== null);
-    
-        // Kiểm tra nếu không có sản phẩm nào được chọn
+
         if (selectedProducts.length === 0) {
             setOpenError(true);
             setErrorMessage('Vui lòng chọn ít nhất một món để đặt bàn.');
-            return; // Dừng việc thêm đặt bàn
+            return;
         }
-    
+
         const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
         const deposit = isDeposit ? total * 0.3 : 0;
-    
+
         let reservationCode;
         let codeExists = true;
         let attempts = 0;
         const MAX_ATTEMPTS = 10;
-    
-        // Tạo mã đặt bàn duy nhất
+
         while (codeExists && attempts < MAX_ATTEMPTS) {
             reservationCode = generateReservationCode();
             codeExists = await checkReservationCodeExists(reservationCode);
             attempts++;
         }
-    
+
         if (codeExists) {
             setOpenError(true);
             setErrorMessage('Không thể tạo mã đặt bàn duy nhất, vui lòng thử lại sau.');
-            return; // Dừng việc thêm đặt bàn
+            return;
         }
-    
+
         const requestData = {
             ...data,
             partySize: parseInt(data.partySize),
@@ -176,14 +171,14 @@ export default function ReservationAdd() {
             deposit: deposit,
             status: parseInt(data.status),
             products: selectedProducts,
-            reservation_code: reservationCode, // Gán mã đặt bàn vào requestData
+            reservation_code: reservationCode,
         };
-    
+
         try {
             await dispatch(addReservation(requestData));
             setOpenSuccess(true);
             setSuccessMessage('Đặt bàn thành công!');
-    
+
             setTimeout(() => {
                 navigate('/reservation');
             }, 2000);
@@ -192,21 +187,13 @@ export default function ReservationAdd() {
             setErrorMessage('Đặt bàn thất bại! Vui lòng thử lại sau.');
         }
     };
-    
 
     const handleDepositChange = (event) => {
         setIsDeposit(event.target.checked);
-        if (event.target.checked) {
-            setValue('status', 3);
-        } else {
-            setValue('status', 2);
-        }
+        setValue('status', event.target.checked ? 3 : 2);
     };
 
-    const toggleDropdown = () => {
-        setIsOpen(!isOpen);
-    };
-
+    const toggleDropdown = () => setIsOpen(!isOpen);
 
 
 

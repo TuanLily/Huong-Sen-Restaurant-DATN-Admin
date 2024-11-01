@@ -31,7 +31,6 @@ export default function ReservationUpdate() {
     const reservationDetailState = useSelector(state => state.reservations_Detail_Admin);
     const reservationState = useSelector(state => state.reservations_Admin);
 
-    const [depositAmount, setDepositAmount] = useState(0);
     const [activeTab, setActiveTab] = useState('category-info');
     const [selectedCategory, setSelectedCategory] = useState(null);
     const query = new URLSearchParams(location.search);
@@ -60,7 +59,7 @@ export default function ReservationUpdate() {
             email: '',
             tel: '',
             reservation_date: '',
-            deposit: 0,
+            deposit: 0,  // Đặt cọc mặc định là 0, sẽ tính toán sau
             partySize: 1,
             notes: '',
             totalAmount: 0,
@@ -84,10 +83,10 @@ export default function ReservationUpdate() {
                 setValue('fullname', reservation.fullname || '');
                 setValue('email', reservation.email || '');
                 setValue('tel', reservation.tel || '');
-                
+
                 // Chuyển đổi reservation_date sang giờ Việt Nam
                 const reservationDate = reservation.reservation_date ? new Date(reservation.reservation_date) : null;
-    
+
                 if (reservationDate) {
                     // Đặt múi giờ cho giờ Việt Nam
                     const options = { 
@@ -104,7 +103,7 @@ export default function ReservationUpdate() {
                 } else {
                     setValue('reservation_date', '');
                 }
-                
+
                 setValue('partySize', reservation.party_size || 1);
                 setValue('notes', reservation.notes || '');
                 setValue('totalAmount', reservation.totalAmount || 0);
@@ -113,8 +112,6 @@ export default function ReservationUpdate() {
             }
         }
     }, [reservationState.reservation, setValue, reservationId]);
-    
-    
 
     const calculateTotalAmount = () => {
         const totalFoodAmount = groupedReservationDetails.reduce((total, item) => total + item.totalPrice, 0);
@@ -135,20 +132,17 @@ export default function ReservationUpdate() {
         }).filter(item => item !== null);
 
         const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
-        const deposit = isDeposit ? total * 0.3 : 0; // Tính deposit theo tổng sản phẩm được chọn
+        const deposit = total * 0.3;  // Đặt cọc mặc định là 30%
         setValue('deposit', deposit);
         const totalAfterDeposit = total - deposit;
         setValue('totalAmount', totalAfterDeposit > 0 ? totalAfterDeposit : 0);
-    }, [quantities, productState.product, setValue, isDeposit]);
-
-    
+    }, [quantities, productState.product, setValue]);
 
     const handleDeleteProduct = async (productId) => {
         try {
             await dispatch(deleteReservationDetail(reservationId, productId));
             setOpenSuccess(true);
             setSuccessMessage('Xóa món ăn thành công!');
-            
 
             // Refetch the reservation details to update the UI
             dispatch(fetchReservationdetail(reservationId));
@@ -201,63 +195,60 @@ export default function ReservationUpdate() {
         ? groupReservationsByProduct(reservationDetailState.reservationDetail)
         : [];
 
-        const onSubmit = async (data) => {
-            // Kiểm tra xem có sản phẩm nào được chọn từ số lượng hoặc trong chi tiết đặt bàn
-            const selectedProducts = Object.entries(quantities)
-                .map(([id, quantity]) => {
-                    const product = productState.product.find(p => p.id === parseInt(id));
-                    if (product && quantity > 0) {
-                        return {
-                            product_id: product.id,
-                            quantity: quantity,
-                            price: product.price,
-                        };
-                    }
-                    return null;
-                })
-                .filter(item => item !== null);
-        
-            // Bắt lỗi nếu không có sản phẩm nào được chọn từ cả hai nguồn
-            if (selectedProducts.length === 0 && groupedReservationDetails.length === 0) {
-                setOpenError(true);
-                setErrorMessage('Phải có ít nhất 1 sản phẩm được chọn.');
-                return; // Dừng thực hiện nếu không có sản phẩm nào
-            }
-        
-            const total = selectedProducts.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const deposit = isDeposit ? total * 0.3 : 0; // Tính tiền đặt cọc
-        
-            const requestData = {
-                fullname: data.fullname,
-                email: data.email,
-                tel: data.tel,
-                reservation_date: data.reservation_date,
-                deposit: deposit,
-                party_size: parseInt(data.partySize),
-                note: data.notes,
-                products: selectedProducts,
-                total_amount: calculateTotalAmount(),
-                status: parseInt(data.status),
-                id: reservationId,
-            };
-        
-            try {
-                await dispatch(updateReservationOrder(reservationId, requestData));
-                setOpenSuccess(true);
-                setSuccessMessage('Cập nhật đặt bàn thành công!');
-                setTimeout(() => navigate('/reservation'), 2000);
-            } catch (error) {
-                setOpenError(true);
-                setErrorMessage('Cập nhật thất bại! Vui lòng kiểm tra lại.');
-            }
-        };
-        
-        
+    const onSubmit = async (data) => {
+        // Kiểm tra xem có sản phẩm nào được chọn từ số lượng hoặc trong chi tiết đặt bàn
+        const selectedProducts = Object.entries(quantities)
+            .map(([id, quantity]) => {
+                const product = productState.product.find(p => p.id === parseInt(id));
+                if (product && quantity > 0) {
+                    return {
+                        product_id: product.id,
+                        quantity: quantity,
+                        price: product.price,
+                    };
+                }
+                return null;
+            })
+            .filter(item => item !== null);
 
-    const handleDepositChange = (event) => {
-        setIsDeposit(event.target.checked);
-        setValue('status', event.target.checked ? 3 : 2);
+        // Bắt lỗi nếu không có sản phẩm nào được chọn từ cả hai nguồn
+        if (selectedProducts.length === 0 && groupedReservationDetails.length === 0) {
+            setOpenError(true);
+            setErrorMessage('Phải có ít nhất 1 sản phẩm được chọn.');
+            return; // Dừng thực hiện nếu không có sản phẩm nào
+        }
+
+        const total = selectedProducts.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const deposit = total * 0.3; // Tính tiền đặt cọc
+
+        const requestData = {
+            fullname: data.fullname,
+            email: data.email,
+            tel: data.tel,
+            reservation_date: data.reservation_date,
+            deposit: deposit,
+            party_size: parseInt(data.partySize),
+            note: data.notes,
+            products: selectedProducts,
+            total_amount: calculateTotalAmount(),
+            status: parseInt(data.status),
+            id: reservationId,
+        };
+
+        try {
+            await dispatch(updateReservationOrder(reservationId, requestData));
+            setOpenSuccess(true);
+            setSuccessMessage('Cập nhật đặt bàn thành công!');
+            setTimeout(() => {
+                navigate('/reservation');
+            }, 2000); // Redirect sau khi thành công
+        } catch (error) {
+            setOpenError(true);
+            setErrorMessage('Cập nhật đặt bàn thất bại! Vui lòng thử lại.');
+        }
     };
+
+    
 
     const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -369,20 +360,7 @@ export default function ReservationUpdate() {
                                                 <option value={5}>Hoàn thành đơn</option>
                                             </select>
                                         </div>
-                                        <div className="form-group">
-                                            <label>Đặt cọc</label>
-                                            <FormGroup>
-                                                <FormControlLabel
-                                                    control={
-                                                        <Switch
-                                                            checked={isDeposit}
-                                                            onChange={handleDepositChange}
-                                                        />
-                                                    }
-                                                    label="Đặt cọc 30%"
-                                                />
-                                            </FormGroup>
-                                        </div>
+                                        
                                     </div>
                                     <div className='col-12'>
                                         <div className="form-group">

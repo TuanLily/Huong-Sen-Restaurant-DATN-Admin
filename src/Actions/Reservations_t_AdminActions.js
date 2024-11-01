@@ -200,7 +200,7 @@ export const updateReservationOrder = (id, data) => {
         // Kiểm tra id trước khi gửi yêu cầu
         console.log('Updating reservation with ID:', id); // Log ID nhận được
 
-        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.reservations_t_admin}/${id}`, data)
+        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.reservations_t_admin}/reservation_ad/${id}`, data)
             .then((response) => {
                 dispatch(fetchReservations()); // Tải lại danh sách đặt bàn
             })
