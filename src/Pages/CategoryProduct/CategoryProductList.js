@@ -191,7 +191,7 @@ export default function CategoryProductList() {
                                                         <td>
                                                             {item.status === 1 && <span className="badge badge-success">Hoạt động</span>}
                                                             {item.status === 3 && <span className="badge badge-warning">Mặc định</span>}
-                                                            {item.status === 2 && <span className="badge badge-danger">Ngưng hoạt động</span>}
+                                                            {item.status === 0 && <span className="badge badge-danger">Ngưng hoạt động</span>}
                                                         </td>
                                                         <td>
                                                             {item.created_at.substring(0, 10)}
