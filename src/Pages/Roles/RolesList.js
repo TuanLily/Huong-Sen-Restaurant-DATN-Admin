@@ -14,6 +14,9 @@ import { DangerAlert } from "../../Components/Alert/Alert"; // Import DangerAler
 import { InputBase, Paper } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
+import { getPermissions } from '../../Actions/GetQuyenHanAction';
+import { jwtDecode as jwt_decode } from 'jwt-decode';
+
 export default function RolesList() {
   const dispatch = useDispatch();
   const roleState = useSelector((state) => state.role);
@@ -21,6 +24,25 @@ export default function RolesList() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const urlPage = parseInt(query.get("page")) || 1;
+
+  const token = localStorage.getItem('token');
+    const getQuyenHanState = useSelector(state => state.getQuyenHan);
+    const permissions = getQuyenHanState.getQuyenHan || [];
+
+    useEffect(() => {
+        if (token) {
+          const decodedToken = jwt_decode(token);
+          const userIdFromToken = decodedToken.id;
+          dispatch(getPermissions(userIdFromToken));  
+        }
+        const decodedToken = jwt_decode(token);
+        const userIdFromToken = decodedToken.id;
+        dispatch(getPermissions(userIdFromToken));
+    }, [navigate, dispatch, token]);
+
+    const hasPermission = (permissionName) => {
+        return permissions.data && permissions.data.some(permission => permission.name == permissionName);
+    };
 
   const [open, setOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
@@ -87,9 +109,11 @@ export default function RolesList() {
             <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
           </div>
           <div className="ms-md-auto py-2 py-md-0">
-            <Link to="/role/add" className="btn btn-primary btn-round">
-              Thêm vai trò
-            </Link>
+            {hasPermission('Thêm vai trò') && (
+              <Link to="/role/add" className="btn btn-primary btn-round">
+                Thêm vai trò
+              </Link>
+            )}
             <DialogConfirm />
           </div>
         </div>
@@ -180,20 +204,24 @@ export default function RolesList() {
                                 <span>...</span>
                               ) : (
                                 <div className="btn-group mt-3" role="group">
-                                  <button
-                                    type="button"
-                                    className="btn btn-outline-success"
-                                    onClick={() => handleEdit(item.id)}
-                                  >
-                                    Sửa
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn btn-outline-danger"
-                                    onClick={() => handleClickOpen(item.id)}
-                                  >
-                                    <span className="text-danger">Xóa</span>
-                                  </button>
+                                  {hasPermission('Sửa vai trò') && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-outline-success"
+                                      onClick={() => handleEdit(item.id)}
+                                    >
+                                      Sửa
+                                    </button>
+                                  )}
+                                  {hasPermission('Xóa vai trò') && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-outline-danger"
+                                      onClick={() => handleClickOpen(item.id)}
+                                    >
+                                      <span className="text-danger">Xóa</span>
+                                    </button>
+                                  )}
                                 </div>
                               )}
                             </td>

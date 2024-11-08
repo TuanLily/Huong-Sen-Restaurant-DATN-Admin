@@ -6,6 +6,7 @@ import { fetchProductCategory } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import CheckboxSelection from '../../Components/CheckboxSelection';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 
 import { InputBase, Paper } from '@mui/material';
@@ -90,6 +91,21 @@ export default function ProductList () {
         }
     };
 
+    const handleDeleteProducts = async (selectedProductIds) => {
+        for (let productId of selectedProductIds) {
+            await dispatch(updateStatus(productId, {status: 0}, 'list', searchTerm, urlPage, productState.pageSize));
+        }
+        setOpenSuccess(true); // Hiển thị thông báo thành công
+    };
+
+    const {
+        selectedItems,
+        handleSelectItem,
+        handleSelectAll,
+        handleDeleteSelected,
+        allSelected
+    } = CheckboxSelection(productState.product, handleDeleteProducts);
+
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
     };
@@ -118,6 +134,11 @@ export default function ProductList () {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
+                        {hasPermission('Xóa sản phẩm') && (
+                            <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
+                                Xóa mục đã chọn
+                            </button>
+                        )}
                         {hasPermission('Khôi phục sản phẩm') && (<Link to="/product/tam_xoa" className="btn btn-label-info btn-round me-2">Sản phẩm tạm xóa</Link>)}
                         {hasPermission('Thêm sản phẩm') && (<Link to="/product/add" className="btn btn-primary btn-round">Thêm sản phẩm</Link>)}
                         <DialogConfirm />
@@ -156,6 +177,13 @@ export default function ProductList () {
                                     <table className="table align-items-center mb-0">
                                         <thead className="thead-light">
                                             <tr>
+                                                <th>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={allSelected}
+                                                        onChange={handleSelectAll}
+                                                    />
+                                                </th>
                                                 <th scope="col">STT</th>
                                                 <th style={{ width: '10%' }} scope="col">Hình ảnh</th>
                                                 <th scope="col">Tên sản phẩm</th>
@@ -180,6 +208,13 @@ export default function ProductList () {
                                                 const stt = (productState.currentPage - 1) * productState.pageSize + index + 1;
                                                 return (
                                                     <tr key={item.id}>
+                                                        <td>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedItems.includes(item.id)}
+                                                                onChange={() => handleSelectItem(item.id)}
+                                                            />
+                                                        </td>
                                                         <td>{stt}</td>
                                                         <td>
                                                             <img className="img-fluid rounded w-100" src={item.image || '../Assets/Images/default.jpg'} alt="Image"/>

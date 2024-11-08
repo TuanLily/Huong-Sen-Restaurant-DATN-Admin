@@ -5,6 +5,7 @@ import { fetchProductCategoryHoatDong, fetchProductCategory, deleteProductCatego
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import CheckboxSelection from '../../Components/CheckboxSelection';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 
 import { InputBase, Paper } from '@mui/material';
@@ -102,6 +103,21 @@ export default function CategoryProductList() {
         }
     };
 
+    const handleDeleteProductsCategory = async (selectedProductIds) => {
+        for (let Id of selectedProductIds) {
+            await dispatch(deleteProductCategory(Id, searchTerm, urlPage, productCategoryState.pageSize));
+        }
+        setOpenSuccess(true); // Hiển thị thông báo thành công
+    };
+
+    const {
+        selectedItems,
+        handleSelectItem,
+        handleSelectAll,
+        handleDeleteSelected,
+        allSelected
+    } = CheckboxSelection(productCategoryState.product_category, handleDeleteProductsCategory);
+
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
     };
@@ -126,6 +142,11 @@ export default function CategoryProductList() {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
+                        {hasPermission('Xóa danh mục sản phẩm') && (
+                            <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
+                                Xóa mục đã chọn
+                            </button>
+                        )}
                         {hasPermission('Thêm danh mục sản phẩm') && (<Link to="/category-product/add" className="btn btn-primary btn-round">Thêm danh mục</Link>)}
                         <DialogConfirm />
                     </div>
@@ -163,6 +184,13 @@ export default function CategoryProductList() {
                                     <table className="table align-items-center mb-0">
                                         <thead className="thead-light">
                                             <tr>
+                                                <th>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={allSelected}
+                                                        onChange={handleSelectAll}
+                                                    />
+                                                </th>
                                                 <th scope="col">STT</th>
                                                 <th scope="col">Tên danh mục</th>
                                                 <th scope="col">Trạng thái</th>
@@ -186,6 +214,17 @@ export default function CategoryProductList() {
                                                 const stt = (productCategoryState.currentPage - 1) * productCategoryState.pageSize + index + 1;
                                                 return (
                                                     <tr key={item.id}>
+                                                        <td>
+                                                            {item.name === 'Chưa phân loại' ? (
+                                                                "-"
+                                                            ) : (
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={selectedItems.includes(item.id)}
+                                                                    onChange={() => handleSelectItem(item.id)}
+                                                                />
+                                                            )}
+                                                        </td>
                                                         <td>{stt}</td>
                                                         <td>{item.name}</td>
                                                         <td>

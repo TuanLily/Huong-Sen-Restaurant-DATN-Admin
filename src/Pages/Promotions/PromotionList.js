@@ -5,15 +5,38 @@ import { fetchPromotion, deletePromotion, setCurrentPage } from '../../Actions/P
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import CheckboxSelection from '../../Components/CheckboxSelection';
 import { SuccessAlert, DangerAlert } from '../../Components/Alert/Alert';
 
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
+import { getPermissions } from '../../Actions/GetQuyenHanAction';
+import { jwtDecode as jwt_decode } from 'jwt-decode';
+
 export default function PromotionList () {
     const dispatch = useDispatch();
     const promotionState = useSelector(state => state.promotion);
     const navigate = useNavigate();
+
+    const token = localStorage.getItem('token');
+    const getQuyenHanState = useSelector(state => state.getQuyenHan);
+    const permissions = getQuyenHanState.getQuyenHan || [];
+
+    useEffect(() => {
+        if (token) {
+          const decodedToken = jwt_decode(token);
+          const userIdFromToken = decodedToken.id;
+          dispatch(getPermissions(userIdFromToken));  
+        }
+        const decodedToken = jwt_decode(token);
+        const userIdFromToken = decodedToken.id;
+        dispatch(getPermissions(userIdFromToken));
+    }, [navigate, dispatch, token]);
+
+    const hasPermission = (permissionName) => {
+        return permissions.data && permissions.data.some(permission => permission.name == permissionName);
+    };
 
     const location = useLocation();
     const query = new URLSearchParams(location.search);
@@ -64,6 +87,31 @@ export default function PromotionList () {
         }
     };
 
+    const handleDeletePromotion = async (selectedProductIds) => {
+        let i = true;
+        for (let Id of selectedProductIds) {
+            try {
+                await dispatch(deletePromotion(Id, searchTerm, urlPage, promotionState.pageSize));
+                i = true;
+            } catch (error) {
+                i = false;
+            }
+        }
+        if (i == true) {
+            setOpenSuccess(true);
+        } else {
+            setErrorMessage(true);
+        }
+    };
+
+    const {
+        selectedItems,
+        handleSelectItem,
+        handleSelectAll,
+        handleDeleteSelected,
+        allSelected
+    } = CheckboxSelection(promotionState.promotion, handleDeletePromotion);
+
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
     };
@@ -88,7 +136,14 @@ export default function PromotionList () {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
-                        <Link to="/promotions/add" className="btn btn-primary btn-round">Thêm khuyến mãi</Link>
+                        {hasPermission('Xóa mã khuyến mãi') && (
+                            <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
+                                Xóa mục đã chọn
+                            </button>
+                        )}
+                        {hasPermission('Thêm mã khuyến mãi') && (
+                            <Link to="/promotions/add" className="btn btn-primary btn-round">Thêm khuyến mãi</Link>
+                        )}
                         <DialogConfirm />
                     </div>
                 </div>
@@ -125,6 +180,13 @@ export default function PromotionList () {
                                     <table className="table align-items-center mb-0">
                                         <thead className="thead-light">
                                             <tr>
+                                                <th>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={allSelected}
+                                                        onChange={handleSelectAll}
+                                                    />
+                                                </th>
                                                 <th scope="col">STT</th>
                                                 <th scope="col">Mã khuyến mãi</th>
                                                 <th scope="col">Phần trăm giảm</th>
@@ -149,6 +211,13 @@ export default function PromotionList () {
                                                 const stt = (promotionState.currentPage - 1) * promotionState.pageSize + index + 1;
                                                 return (
                                                     <tr key={item.id}>
+                                                        <td>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedItems.includes(item.id)}
+                                                                onChange={() => handleSelectItem(item.id)}
+                                                            />
+                                                        </td>
                                                         <td>{stt}</td>
                                                         <td>{item.code_name}</td>
                                                         <td>
@@ -163,12 +232,16 @@ export default function PromotionList () {
                                                         </td>
                                                         <td>
                                                             <div className="btn-group mt-3" role="group">
-                                                                <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
-                                                                    Sửa
-                                                                </button>
-                                                                <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
-                                                                    Xóa
-                                                                </button>
+                                                                {hasPermission('Sửa mã khuyến mãi') && (
+                                                                    <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
+                                                                        Sửa
+                                                                    </button>
+                                                                )}
+                                                                {hasPermission('Xóa mã khuyến mãi') && (
+                                                                    <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                                                        Xóa
+                                                                    </button>
+                                                                )}
                                                             </div>
                                                         </td>
                                                     </tr>

@@ -13,6 +13,9 @@ import { InputBase, Paper } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import debounce from "lodash.debounce";
 
+import { getPermissions } from '../../Actions/GetQuyenHanAction';
+import { jwtDecode as jwt_decode } from 'jwt-decode';
+
 export default function CategoryBlogList() {
   const dispatch = useDispatch();
   const categoryBlogState = useSelector((state) => state.categories);
@@ -20,6 +23,25 @@ export default function CategoryBlogList() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const urlPage = parseInt(query.get("page")) || 1;
+
+  const token = localStorage.getItem('token');
+  const getQuyenHanState = useSelector(state => state.getQuyenHan);
+  const permissions = getQuyenHanState.getQuyenHan || [];
+
+  useEffect(() => {
+      if (token) {
+        const decodedToken = jwt_decode(token);
+        const userIdFromToken = decodedToken.id;
+        dispatch(getPermissions(userIdFromToken));  
+      }
+      const decodedToken = jwt_decode(token);
+      const userIdFromToken = decodedToken.id;
+      dispatch(getPermissions(userIdFromToken));
+  }, [navigate, dispatch, token]);
+
+  const hasPermission = (permissionName) => {
+      return permissions.data && permissions.data.some(permission => permission.name == permissionName);
+  };
 
   const [open, setOpen] = useState(false);
   const [selectedCategoryBlog, setSelectedCategoryBlog] = useState(null);
@@ -94,9 +116,11 @@ export default function CategoryBlogList() {
             <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
           </div>
           <div className="ms-md-auto py-2 py-md-0">
-            <Link to="/category-blog/add" className="btn btn-primary btn-round">
-              Thêm danh mục
-            </Link>
+            {hasPermission('Thêm danh mục bài viết') && (
+              <Link to="/category-blog/add" className="btn btn-primary btn-round">
+                Thêm danh mục
+              </Link>
+            )}
           </div>
         </div>
         <div className="row">
@@ -180,20 +204,24 @@ export default function CategoryBlogList() {
                             <td>
                               {item.name !== "Undefined" && (
                                 <div className="btn-group mt-3" role="group">
-                                  <button
-                                    type="button"
-                                    className="btn btn-outline-success"
-                                    onClick={() => handleEdit(item.id)}
-                                  >
-                                    <span className="text-success">Sửa</span>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn btn-outline-danger"
-                                    onClick={() => handleClickOpen(item.id)}
-                                  >
-                                    <span className="text-danger">Xóa</span>
-                                  </button>
+                                  {hasPermission ('Sửa danh mục bài viết') && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-outline-success"
+                                      onClick={() => handleEdit(item.id)}
+                                    >
+                                      <span className="text-success">Sửa</span>
+                                    </button>
+                                  )}
+                                  {hasPermission ('Xóa danh mục bài viết') && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-outline-danger"
+                                      onClick={() => handleClickOpen(item.id)}
+                                    >
+                                      <span className="text-danger">Xóa</span>
+                                    </button>
+                                  )}
                                 </div>
                               )}
                               {item.name === "Undefined" && (

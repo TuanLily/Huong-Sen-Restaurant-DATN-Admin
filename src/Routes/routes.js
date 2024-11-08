@@ -5,24 +5,16 @@ import Acount from '../Pages/Authentication/Acount';
 import ProductList from '../Pages/Product/ProductList';
 import ProductAdd from '../Pages/Product/ProductAdd';
 import ProductEdit from '../Pages/Product/ProductEdit';
-import ProductDelete from '../Pages/Product/ProductDelete';
 import ProductTamXoa from '../Pages/Product/ProductTamXoa';
 
 import CategoryProduct from '../Pages/CategoryProduct/CategoryProductList';
 import categoryProductAdd from '../Pages/CategoryProduct/CategoryProductAdd';
 import categoryProductEdit from '../Pages/CategoryProduct/CategoryProductEdit';
-import categoryProductDelete from '../Pages/CategoryProduct/CategoryProductDelete';
-
-import CustomerList from '../Pages/Customer/CustomerList';
-import CustomerAdd from '../Pages/Customer/CustomerAdd';
-import CustomerEdit from '../Pages/Customer/CustomerEdit';
-import CustomerDelete from '../Pages/Customer/CustomerDelete';
 
 import CategoryBlogList from '../Pages/CategoryBlog/CategoryBlogList';
 import CategoryBlogAdd from '../Pages/CategoryBlog/CategoryBlogAdd';
 import CategoryBlogEdit from '../Pages/CategoryBlog/CategoryBlogEdit';
 import CategoryBlogDelete from '../Pages/CategoryBlog/CategoryBlogDelete';
-
 
 import TableList from '../Pages/Tables/TableList';
 import TableAdd from '../Pages/Tables/TableAdd';
@@ -68,27 +60,12 @@ import RolesAdd from '../Pages/Roles/RolesAdd';
 import RolesEdit from '../Pages/Roles/RolesEdit';
 import RolesDelete from '../Pages/Roles/RolesDelete';
 
-import EmployeeList from '../Pages/Employee/EmployeeList';
-import EmployeeAdd from '../Pages/Employee/EmployeeAdd';
-import EmployeeEdit from '../Pages/Employee/EmployeeEdit';
-import EmployeeDelete from '../Pages/Employee/EmployeeDelete';
-
 import BlogList from '../Pages/Blog/BlogList';
 import BlogAdd from '../Pages/Blog/BlogAdd';
 import BlogEdit from '../Pages/Blog/BlogEdit';
 import BlogDelete from '../Pages/Blog/BlogDelete';
 
-
 import PermissionsList from '../Pages/Permissions/PermissionsList';
-import PermissionsAdd from '../Pages/Permissions/PermissionsAdd';
-import PermissionsEdit from '../Pages/Permissions/PermissionsEdit';
-import PermissionsDelete from '../Pages/Permissions/PermissionsDelete';
-
-import RolesPermissionsList from '../Pages/RolesPermissions/RolesPermissionsList';
-
-import CommentProductsList from '../Pages/CommentProducts/CommentProductsList';
-import CommentProductsDelete from '../Pages/CommentProducts/CommentProductsDelete';
-
 
 import CommentBlogList from '../Pages/CommentBlog/CommentBlogList';
 import CommentBlogAdd from '../Pages/CommentBlog/CommentBlogAdd';
@@ -104,7 +81,7 @@ import UserChatsList from '../Pages/UserChats/UserChatsList';
 const publicAdminRoutes = [
     // *Admin routes
     { path: AdminConfig.routes.acount, component: Acount },
-    { path: AdminConfig.routes.dashboard, component: Dashboard },
+    { path: AdminConfig.routes.dashboard, component: Dashboard},
 
     { path: AdminConfig.routes.product, component: ProductList, permissions: ['Xem sản phẩm'] },
     { path: AdminConfig.routes.productAdd, component: ProductAdd, permissions: ['Thêm sản phẩm'] },
@@ -115,34 +92,24 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.categoryProductAdd, component: categoryProductAdd, permissions: ['Thêm danh mục sản phẩm'] },
     { path: AdminConfig.routes.categoryProductEdit, component: categoryProductEdit, permissions: ['Sửa danh mục sản phẩm'] },
 
-    { path: AdminConfig.routes.customer, component: CustomerList },
-    { path: AdminConfig.routes.customerAdd, component: CustomerAdd },
-    { path: AdminConfig.routes.customerEdit, component: CustomerEdit },
-    { path: AdminConfig.routes.customerDelete, component: CustomerDelete },
-
-    { path: AdminConfig.routes.employee, component: EmployeeList },
-    { path: AdminConfig.routes.employeeAdd, component: EmployeeAdd },
-    { path: AdminConfig.routes.employeeEdit, component: EmployeeEdit },
-    { path: AdminConfig.routes.employeeDelete, component: EmployeeDelete },
-
-    { path: AdminConfig.routes.blog, component: BlogList },
-    { path: AdminConfig.routes.blogAdd, component: BlogAdd },
-    { path: AdminConfig.routes.blogEdit, component: BlogEdit },
+    { path: AdminConfig.routes.blog, component: BlogList, permissions: ['Xem bài viết'] },
+    { path: AdminConfig.routes.blogAdd, component: BlogAdd, permissions: ['Thêm bài viết'] },
+    { path: AdminConfig.routes.blogEdit, component: BlogEdit, permissions: ['Sửa bài viết'] },
     { path: AdminConfig.routes.blogDelete, component: BlogDelete },
 
-    { path: AdminConfig.routes.categoryBlog, component: CategoryBlogList },
-    { path: AdminConfig.routes.categoryBlogAdd, component: CategoryBlogAdd },
-    { path: AdminConfig.routes.categoryBlogEdit, component: CategoryBlogEdit },
+    { path: AdminConfig.routes.categoryBlog, component: CategoryBlogList, permissions: ['Xem danh mục bài viết'] },
+    { path: AdminConfig.routes.categoryBlogAdd, component: CategoryBlogAdd, permissions: ['Thêm danh mục bài viết'] },
+    { path: AdminConfig.routes.categoryBlogEdit, component: CategoryBlogEdit, permissions: ['Sửa danh mục bài viết'] },
     { path: AdminConfig.routes.categoryBlogDelete, component: CategoryBlogDelete },
 
-    { path: AdminConfig.routes.table, component: TableList },
+    { path: AdminConfig.routes.table, component: TableList, permissions: ['Xem bàn ăn'] },
     { path: AdminConfig.routes.tableAdd, component: TableAdd },
     { path: AdminConfig.routes.tableEdit, component: TableEdit },
     { path: AdminConfig.routes.tableDelete, component: TableDelete },
 
-    { path: AdminConfig.routes.reservation, component: ReservationList },
-    { path: AdminConfig.routes.reservationAdd, component: ReservationAdd },
-    { path: AdminConfig.routes.reservationEdit, component: ReservationEdit },
+    { path: AdminConfig.routes.reservation, component: ReservationList, permissions: ['Xem đặt bàn'] },
+    { path: AdminConfig.routes.reservationAdd, component: ReservationAdd, permissions: ['Thêm đặt bàn'] },
+    { path: AdminConfig.routes.reservationEdit, component: ReservationEdit, permissions: ['Sửa đặt bàn'] },
     { path: AdminConfig.routes.reservationDelete, component: ReservationDelete },
 
     { path: AdminConfig.routes.order, component: OrderList },
@@ -154,9 +121,9 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.orderDetailAdd, component: OrderDetailAdd },
     { path: AdminConfig.routes.orderDetailDelete, component: OrderDetailDelete },
 
-    { path: AdminConfig.routes.promotion, component: PromotionList },
-    { path: AdminConfig.routes.promotionAdd, component: PromotionAdd },
-    { path: AdminConfig.routes.promotionEdit, component: PromotionEdit },
+    { path: AdminConfig.routes.promotion, component: PromotionList, permissions: ['Xem mã khuyến mãi'] },
+    { path: AdminConfig.routes.promotionAdd, component: PromotionAdd, permissions: ['Thêm mã khuyến mãi'] },
+    { path: AdminConfig.routes.promotionEdit, component: PromotionEdit, permissions: ['Sửa mã khuyến mãi'] },
     { path: AdminConfig.routes.promotionDelete, component: PromotionDelete },
 
     { path: AdminConfig.routes.payMethod, component: PayMethodList },
@@ -174,23 +141,15 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.placesEdit, component: PlacesEdit },
     { path: AdminConfig.routes.placesDelete, component: PlacesDelete },
 
-    { path: AdminConfig.routes.role, component: RolesList },
-    { path: AdminConfig.routes.roleAdd, component: RolesAdd },
-    { path: AdminConfig.routes.roleEdit, component: RolesEdit },
+    { path: AdminConfig.routes.role, component: RolesList, permissions: ['Xem vai trò'] },
+    { path: AdminConfig.routes.roleAdd, component: RolesAdd, permissions: ['Thêm vai trò'] },
+    { path: AdminConfig.routes.roleEdit, component: RolesEdit, permissions: ['Sửa vai trò'] },
     { path: AdminConfig.routes.roleDelete, component: RolesDelete },
 
-    { path: AdminConfig.routes.permissions, component: PermissionsList },
-    { path: AdminConfig.routes.permissionsAdd, component: PermissionsAdd },
-    { path: AdminConfig.routes.permissionsEdit, component: PermissionsEdit },
-    { path: AdminConfig.routes.permissionsDelete, component: PermissionsDelete },
+    { path: AdminConfig.routes.permissions, component: PermissionsList, permissions: ['Phân quyền'] },
 
-    { path: AdminConfig.routes.rolesPermissions, component: RolesPermissionsList },
-
-    { path: AdminConfig.routes.commentProducts, component: CommentProductsList },
-    { path: AdminConfig.routes.commentProductsDelete, component: CommentProductsDelete },
-
-    { path: AdminConfig.routes.commentBlogView, component: CommentBlogList },
-    { path: AdminConfig.routes.commentBlog, component: CommentBlogList },
+    { path: AdminConfig.routes.commentBlogView, component: CommentBlogList, permissions: ['Xem bình luận bài viết']},
+    { path: AdminConfig.routes.commentBlog, component: CommentBlogList, permissions: ['Xem bình luận bài viết'] },
     { path: AdminConfig.routes.commentBlogAdd, component: CommentBlogAdd },
     { path: AdminConfig.routes.commentBlogEdit, component: CommentBlogEdit },
     { path: AdminConfig.routes.commentBlogDelete, component: CommentBlogDelete },

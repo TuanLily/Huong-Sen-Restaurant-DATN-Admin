@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { fetchStatistical } from '../Actions/StatisticalActions';
 import ReactEcharts from 'echarts-for-react';
 import CustomSpinner from '../Components/Spinner/CustomSpinner';
@@ -9,8 +10,33 @@ import { fetchUsers } from '../Actions/UsersAction';
 import { fetchBlog } from '../Actions/BlogActions';
 import { fetchProductCategory } from '../Actions/ProductCategoryActions';
 
+import { getPermissions } from '../Actions/GetQuyenHanAction';
+import { jwtDecode as jwt_decode } from 'jwt-decode';
+
+import logo from "../Assets/Images/huong-sen-logo.png";
+
 export default function Dashboard() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const token = localStorage.getItem('token');
+    const getQuyenHanState = useSelector(state => state.getQuyenHan);
+    const permissions = getQuyenHanState.getQuyenHan || [];
+
+    useEffect(() => {
+        if (token) {
+          const decodedToken = jwt_decode(token);
+          const userIdFromToken = decodedToken.id;
+          dispatch(getPermissions(userIdFromToken));  
+        }
+        const decodedToken = jwt_decode(token);
+        const userIdFromToken = decodedToken.id;
+        dispatch(getPermissions(userIdFromToken));
+    }, [navigate, dispatch, token]);
+
+    const hasPermission = (permissionName) => {
+        return permissions.data && permissions.data.some(permission => permission.name == permissionName);
+    };
 
     const { loading, data, error } = useSelector(state => state.statistical);
 
@@ -120,6 +146,20 @@ export default function Dashboard() {
     if (error) {
         return <p>{error}</p>;
     }
+
+    if (!hasPermission('Xem thống kê')) {
+        return (
+            <div className='d-flex vh-100 justify-content-center align-items-center bg-light'>
+                <div className="invoice-header text-center">
+                    <img style={{width: '100px'}} src={logo} alt="navbar brand" />
+                    <h2>Nhà Hàng Hương Sen</h2>
+                    <p>Địa chỉ: Tầng 8, Số 2 Tôn Thất Tùng, Đống Đa - Hà Nội</p>
+                    <p>Điện thoại: 190030060 | Email: support@elise.vn</p>
+                </div>
+            </div>
+        );
+    }
+
 
     return (
         <div className="container">

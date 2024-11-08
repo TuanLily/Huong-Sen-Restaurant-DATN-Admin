@@ -35,7 +35,7 @@ function App() {
             ))}
           </Route>
 
-          <Route path="reservation/detail/:id" element={<ProtectedRoute element={<ReservationDetail />} requiredPermissions={[]} />} />
+          <Route path="reservation/detail/:id" element={<ProtectedRoute element={<ReservationDetail />} requiredPermissions={["Xem chi tiết đặt bàn"]} />} />
 
           {/* 404 Route */}
           <Route path="*" element={<NotFound />} />

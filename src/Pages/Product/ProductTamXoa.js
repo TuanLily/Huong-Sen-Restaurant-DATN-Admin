@@ -6,6 +6,7 @@ import { fetchProductCategory } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/DialogKhoiPhuc';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
+import CheckboxSelection from '../../Components/CheckboxSelection';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 
 import { InputBase, Paper } from '@mui/material';
@@ -25,6 +26,21 @@ export default function ProductTamXoa () {
     const [openSuccess, setOpenSuccess] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+
+    const handleStatusProducts = async (selectedProductIds) => {
+        for (let productId of selectedProductIds) {
+            await dispatch(updateStatus(productId, {status: 1}, 'tam_xoa', searchTerm, urlPage, productState.pageSize));
+        }
+        setOpenSuccess(true); // Hiển thị thông báo thành công
+    };
+
+    const {
+        selectedItems,
+        handleSelectItem,
+        handleSelectAll,
+        handleDeleteSelected,
+        allSelected
+    } = CheckboxSelection(productState.product, handleStatusProducts);
 
     useEffect(() => {
         dispatch(fetchProductNgungHoatDong(searchTerm, urlPage, productState.pageSize));
@@ -91,6 +107,9 @@ export default function ProductTamXoa () {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
+                        <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
+                            Khôi phục mục đã chọn
+                        </button>
                         <DialogConfirm />
                     </div>
                 </div>
@@ -127,6 +146,13 @@ export default function ProductTamXoa () {
                                     <table className="table align-items-center mb-0">
                                         <thead className="thead-light">
                                             <tr>
+                                                <th>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={allSelected}
+                                                        onChange={handleSelectAll}
+                                                    />
+                                                </th>
                                                 <th scope="col">STT</th>
                                                 <th style={{ width: '10%' }} scope="col">Hình ảnh</th>
                                                 <th scope="col">Tên sản phẩm</th>
@@ -151,6 +177,13 @@ export default function ProductTamXoa () {
                                                 const stt = (productState.currentPage - 1) * productState.pageSize + index + 1;
                                                 return (
                                                     <tr key={item.id}>
+                                                        <td>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedItems.includes(item.id)}
+                                                                onChange={() => handleSelectItem(item.id)}
+                                                            />
+                                                        </td>
                                                         <td>{stt}</td>
                                                         <td>
                                                             <img className="img-fluid rounded w-100" src={item.image || '../Assets/Images/default.jpg'} alt="Image"/>

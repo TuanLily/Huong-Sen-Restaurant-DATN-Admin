@@ -12,12 +12,35 @@ import { InputBase, Paper } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import debounce from "lodash.debounce";
 
+import { getPermissions } from '../../Actions/GetQuyenHanAction';
+import { jwtDecode as jwt_decode } from 'jwt-decode';
+
 export default function CommentBlogList() {
   const { blogId } = useParams();
   const dispatch = useDispatch();
   const commentBlogState = useSelector((state) => state.commentBlog);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
+
+  const token = localStorage.getItem('token');
+  const getQuyenHanState = useSelector(state => state.getQuyenHan);
+  const permissions = getQuyenHanState.getQuyenHan || [];
+
+  useEffect(() => {
+      if (token) {
+        const decodedToken = jwt_decode(token);
+        const userIdFromToken = decodedToken.id;
+        dispatch(getPermissions(userIdFromToken));  
+      }
+      const decodedToken = jwt_decode(token);
+      const userIdFromToken = decodedToken.id;
+      dispatch(getPermissions(userIdFromToken));
+  }, [navigate, dispatch, token]);
+
+  const hasPermission = (permissionName) => {
+      return permissions.data && permissions.data.some(permission => permission.name == permissionName);
+  };
+  
   // const query = new URLSearchParams(location.search);
   const [open, setOpen] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState(null);
@@ -103,13 +126,15 @@ export default function CommentBlogList() {
                           )}
                         </td>
                         <td>
-                          <button
-                            type="button"
-                            className="btn btn-outline-danger"
-                            onClick={() => handleClickOpen(item.id)} // Mở dialog và lưu commentId
-                          >
-                            Xóa
-                          </button>
+                          {hasPermission('Xóa bình luận bài viết') && (
+                            <button
+                              type="button"
+                              className="btn btn-outline-danger"
+                              onClick={() => handleClickOpen(item.id)} // Mở dialog và lưu commentId
+                            >
+                              Xóa
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

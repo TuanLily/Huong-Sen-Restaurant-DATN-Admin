@@ -184,7 +184,9 @@ export default function ReservationList() {
                                     <option value="5">Hoàn thành đơn</option>
                                 </select>
                             </div>
-                            <Link to="add" className="btn btn-primary" style={{ height: '38px', borderRadius: '20px' }}>Thêm đặt bàn</Link>
+                            {hasPermission('Thêm đặt bàn') && (
+                                <Link to="add" className="btn btn-primary" style={{ height: '38px', borderRadius: '20px' }}>Thêm đặt bàn</Link>
+                            )}
                         </form>
                     </div>
                 </div>
@@ -247,16 +249,21 @@ export default function ReservationList() {
                                                         <td style={{ textAlign: 'center' }}>
                                                             <div className="text-align-center">
                                                                 <div className="d-flex align-items-center justify-content-center">
+                                                                {hasPermission('Sửa đặt bàn') && (
                                                                     <button className="btn dropdown-toggle" type="button" onClick={() => toggleDropdown(index)} style={{ marginRight: '5px', backgroundColor: '#4c9fbc', color: '#fff', border: 'none' }}>
                                                                         Hành động
                                                                     </button>
+                                                                )}
+                                                                {hasPermission('Sửa đặt bàn') && (
                                                                     <button onClick={() => handleEdit(item.id)} className="btn" style={{ backgroundColor: '#ff6b6b', color: '#fff', marginRight: '5px', border: 'none' }}>
                                                                         <i className="fas fa-edit mr-2"></i>
                                                                     </button>
+                                                                )}
+                                                                {hasPermission('Xem chi tiết đặt bàn') && (
                                                                     <button onClick={() => handleDetail(item.id)} className="btn" style={{ backgroundColor: '#ffcc5c', color: '#fff', border: 'none' }}>
                                                                         <i className="fas fa-eye mr-2"></i>
                                                                     </button>
-
+                                                                )}
                                                                 </div>
                                                                 {activeDropdown === index && (
                                                                     <div className="dropdown-menu show" style={{ position: 'absolute', zIndex: 2, right: '5.3%' }}>

@@ -26,11 +26,9 @@ export const fetchStatistical = () => {
         dispatch(fetchStatisticalRequest());
         http.get(`${API_ENDPOINT}${API_DATA.statistical}`)
             .then(response => {
-                console.log ('hahahahah');
                 dispatch(fetchStatisticalSuccess(response.data)); // Lưu dữ liệu vào Redux
             })
             .catch(error => {
-                console.log ('lolololololo');
                 dispatch(fetchStatisticalFailure(error.message)); // Nếu lỗi, lưu thông báo lỗi
             });
     };
