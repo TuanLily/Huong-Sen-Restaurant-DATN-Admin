@@ -9,6 +9,8 @@ import {
 } from "../../Actions/BlogsCategoriesActions";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
+import { SuccessAlert } from '../../Components/Alert/Alert';
+import CheckboxSelection from '../../Components/CheckboxSelection';
 import { InputBase, Paper } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import debounce from "lodash.debounce";
@@ -43,7 +45,8 @@ export default function CategoryBlogList() {
       return permissions.data && permissions.data.some(permission => permission.name == permissionName);
   };
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
+  const [openSuccess, setOpenSuccess] = useState(false);;
   const [selectedCategoryBlog, setSelectedCategoryBlog] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -85,12 +88,36 @@ export default function CategoryBlogList() {
     setSelectedCategoryBlog(null);
   };
 
-  const handleConfirm = () => {
+  const handleSuccessClose = () => {
+    setOpenSuccess(false);
+};
+
+  const handleConfirm = async () => {
     if (selectedCategoryBlog) {
-      dispatch(deleteCategoryBlog(selectedCategoryBlog));
-      handleClose();
+      try {
+        await dispatch(deleteCategoryBlog(selectedCategoryBlog));
+        handleClose();
+        setOpenSuccess(true); // Hiển thị thông báo thành công
+      } catch (error) {
+        console.error("Error deleting product:", error);
+    }
     }
   };
+
+  const handleDeletes = async (selectedIds) => {
+    for (let Id of selectedIds) {
+      await dispatch(deleteCategoryBlog(Id));
+    }
+    setOpenSuccess(true); // Hiển thị thông báo thành công
+  };
+
+  const {
+    selectedItems,
+    handleSelectItem,
+    handleSelectAll,
+    handleDeleteSelected,
+    allSelected
+  } = CheckboxSelection(categoryBlogState.categories, handleDeletes);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -116,6 +143,11 @@ export default function CategoryBlogList() {
             <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
           </div>
           <div className="ms-md-auto py-2 py-md-0">
+            {hasPermission('Xóa danh mục bài viết') && (
+                <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
+                    Xóa mục đã chọn
+                </button>
+            )}
             {hasPermission('Thêm danh mục bài viết') && (
               <Link to="/category-blog/add" className="btn btn-primary btn-round">
                 Thêm danh mục
@@ -156,6 +188,13 @@ export default function CategoryBlogList() {
                   <table className="table align-items-center mb-0">
                     <thead className="thead-light">
                       <tr>
+                        <th>
+                          <input
+                              type="checkbox"
+                              checked={allSelected}
+                              onChange={handleSelectAll}
+                          />
+                        </th>
                         <th scope="col">STT</th>
                         <th scope="col">Tên danh mục</th>
                         <th scope="col">Trạng thái</th>
@@ -183,6 +222,17 @@ export default function CategoryBlogList() {
                       {categoryBlogState.categories &&
                         categoryBlogState.categories.map((item, index) => (
                           <tr key={item.id}>
+                            <td>
+                              {item.name == 'Undefined' ? (
+                                "-"
+                              ) : (
+                                <input
+                                    type="checkbox"
+                                    checked={selectedItems.includes(item.id)}
+                                    onChange={() => handleSelectItem(item.id)}
+                                />
+                              )}
+                            </td>
                             <td>
                               {(categoryBlogState.currentPage - 1) *
                                 categoryBlogState.pageSize +
@@ -252,6 +302,7 @@ export default function CategoryBlogList() {
               </div>
             </div>
           </div>
+          <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Xóa danh mục thành công!" />
         </div>
       </div>
       <DialogConfirm
