@@ -6,6 +6,8 @@ import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import { SuccessAlert } from '../../Components/Alert/Alert';
+import CheckboxSelection from '../../Components/CheckboxSelection';
 
 import { getPermissions } from '../../Actions/GetQuyenHanAction';
 import { jwtDecode as jwt_decode } from 'jwt-decode';
@@ -39,6 +41,7 @@ export default function BlogList() {
     };
 
     const [open, setOpen] = useState(false);
+    const [openSuccess, setOpenSuccess] = useState(false);
     const [selectedBlog, setSelectedBlog] = useState(null);
     const [searchTerm, setSearchTerm] = useState(''); 
 
@@ -60,12 +63,32 @@ export default function BlogList() {
         setSelectedBlog(null);
     };
 
+    const handleSuccessClose = () => {
+        setOpenSuccess(false);
+    };
+
     const handleConfirm = () => {
         if (selectedBlog) {
             dispatch(deleteBlog(selectedBlog));
+            setOpenSuccess(true); // Hiển thị thông báo thành công
             handleClose();
         }
     };
+
+    const handleDeleteBlogs = async (selectedIds) => {
+        for (let Id of selectedIds) {
+            await dispatch(deleteBlog(Id));
+        }
+        setOpenSuccess(true); // Hiển thị thông báo thành công
+    };
+
+    const {
+        selectedItems,
+        handleSelectItem,
+        handleSelectAll,
+        handleDeleteSelected,
+        allSelected
+    } = CheckboxSelection(blogState.blog, handleDeleteBlogs);
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
@@ -97,6 +120,11 @@ export default function BlogList() {
                         <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
                     <div className="ms-md-auto py-2 py-md-0">
+                        {hasPermission('Xóa bài viết') && (
+                            <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
+                                Xóa mục đã chọn
+                            </button>
+                        )}
                         {hasPermission('Thêm bài viết') && (
                             <Link to="/blogs/add" className="btn btn-primary btn-round">Thêm bài viết</Link>
                         )}
@@ -135,6 +163,13 @@ export default function BlogList() {
                                     <table className="table align-items-center mb-0">
                                         <thead className="thead-light">
                                             <tr>
+                                                <th>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={allSelected}
+                                                        onChange={handleSelectAll}
+                                                    />
+                                                </th>
                                                 <th scope="col">STT</th>
                                                 <th scope="col">Tiêu đề</th>
                                                 <th scope="col">Tác giả</th>
@@ -160,6 +195,13 @@ export default function BlogList() {
                                             )}
                                             {blogState.blog && blogState.blog.map((item, index) => (
                                                 <tr key={item.id}>
+                                                    <td>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedItems.includes(item.id)}
+                                                            onChange={() => handleSelectItem(item.id)}
+                                                        />
+                                                    </td>
                                                     <td>{(blogState.currentPage - 1) * blogState.pageSize + index + 1}</td>
                                                     <td>{item.title}</td>
                                                     <td>{item.author}</td>
@@ -195,6 +237,7 @@ export default function BlogList() {
                             </div>
                         </div>
                     </div>
+                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Xóa bài viết thành công!" />
                 </div>
             </div>
             <DialogConfirm
