@@ -25,6 +25,7 @@ export default function UserAdd() {
     const [loading, setLoading] = useState(false);
 
     const password = watch('password');
+    const userType = watch('user_type'); 
 
     const handleImageUpload = (fileNames) => {
         if (fileNames.length > 0) {
@@ -241,7 +242,8 @@ export default function UserAdd() {
                                                 className="form-control"
                                                 id="role_id"
                                                 {...register('role_id', {
-                                                    valueAsNumber: true
+                                                    valueAsNumber: true,
+                                                    disabled: userType === "Khách Hàng",
                                                 })}
                                             >
                                                 <option value="" selected>Chọn vai trò cho nhân viên</option>

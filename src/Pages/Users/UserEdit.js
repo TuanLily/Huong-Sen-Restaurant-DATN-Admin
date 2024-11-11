@@ -9,7 +9,7 @@ import { fetchRole } from '../../Actions/RoleActions';
 import { fetchUserById, updateUser } from '../../Actions/UsersAction';
 
 export default function UserEdit() {
-    const { register, handleSubmit, setValue, clearErrors, formState: { errors }, reset, setError } = useForm();
+    const { register, handleSubmit, setValue, clearErrors, formState: { errors }, reset, setError, watch } = useForm();
 
     const { id } = useParams();
     const dispatch = useDispatch();
@@ -27,6 +27,7 @@ export default function UserEdit() {
     const [openSuccess, setOpenSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    const userType = watch('user_type'); 
 
 
     useEffect(() => {
@@ -210,7 +211,8 @@ export default function UserEdit() {
                                                 className="form-control"
                                                 id="role_id"
                                                 {...register('role_id', {
-                                                    valueAsNumber: true
+                                                    valueAsNumber: true,
+                                                    disabled: userType === "Khách Hàng",
                                                 })}
                                             >
                                                 <option value="" selected>Chọn vai trò cho nhân viên</option>
