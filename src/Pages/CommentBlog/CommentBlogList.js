@@ -8,39 +8,42 @@ import {
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 import { format } from "date-fns";
-import { InputBase, Paper } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import debounce from "lodash.debounce";
+import { SuccessAlert } from "../../Components/Alert/Alert";
+import CheckboxSelection from "../../Components/CheckboxSelection";
 
-import { getPermissions } from '../../Actions/GetQuyenHanAction';
-import { jwtDecode as jwt_decode } from 'jwt-decode';
+import { getPermissions } from "../../Actions/GetQuyenHanAction";
+import { jwtDecode as jwt_decode } from "jwt-decode";
 
 export default function CommentBlogList() {
   const { blogId } = useParams();
   const dispatch = useDispatch();
+  const [openSuccess, setOpenSuccess] = useState(false);
   const commentBlogState = useSelector((state) => state.commentBlog);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const token = localStorage.getItem('token');
-  const getQuyenHanState = useSelector(state => state.getQuyenHan);
+  const token = localStorage.getItem("token");
+  const getQuyenHanState = useSelector((state) => state.getQuyenHan);
   const permissions = getQuyenHanState.getQuyenHan || [];
 
   useEffect(() => {
-      if (token) {
-        const decodedToken = jwt_decode(token);
-        const userIdFromToken = decodedToken.id;
-        dispatch(getPermissions(userIdFromToken));  
-      }
+    if (token) {
       const decodedToken = jwt_decode(token);
       const userIdFromToken = decodedToken.id;
       dispatch(getPermissions(userIdFromToken));
+    }
+    const decodedToken = jwt_decode(token);
+    const userIdFromToken = decodedToken.id;
+    dispatch(getPermissions(userIdFromToken));
   }, [navigate, dispatch, token]);
 
   const hasPermission = (permissionName) => {
-      return permissions.data && permissions.data.some(permission => permission.name == permissionName);
+    return (
+      permissions.data &&
+      permissions.data.some((permission) => permission.name == permissionName)
+    );
   };
-  
+
   // const query = new URLSearchParams(location.search);
   const [open, setOpen] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState(null);
@@ -51,7 +54,6 @@ export default function CommentBlogList() {
       dispatch(fetchCommentBlog(blogId));
     }
   }, [dispatch, blogId]);
-
 
   const handleClickOpen = (commentId) => {
     setSelectedCommentId(commentId); // Lưu commentId khi mở dialog
@@ -64,20 +66,52 @@ export default function CommentBlogList() {
     setSelectedCommentId(null); // Reset lại commentId
   };
 
+  const handleSuccessClose = () => {
+    setOpenSuccess(false);
+  };
+
   // Xác nhận xóa bình luận
   const handleConfirm = () => {
     if (selectedCommentId && blogId) {
       dispatch(deleteCommentBlog(selectedCommentId, blogId)); // Xóa comment với blogId và commentId
+      setOpenSuccess(true);
       handleClose();
     }
   };
 
+  const handleDeleteCommentBlogs = async (selectedIds) => {
+    for (let Id of selectedIds) {
+      await dispatch(deleteCommentBlog(Id, blogId));
+    }
+    setOpenSuccess(true); // Hiển thị thông báo thành công
+  };
+
+  const {
+    selectedItems,
+    handleSelectItem,
+    handleSelectAll,
+    handleDeleteSelected,
+    allSelected,
+  } = CheckboxSelection(commentBlogState.commentBlog, handleDeleteCommentBlogs);
+
   return (
     <div className="container">
       <div className="page-inner">
-        <h3 className="fw-bold mb-3">
-          Quản lý bình luận blog cho bài viết #{blogId}
-        </h3>
+      <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+                    <div>
+                        <h3 className="fw-bold mb-3">Quản lý bình luận bài viết cho bài viết #{blogId}</h3>
+                        <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
+                    </div>
+                    <div className="ms-md-auto py-2 py-md-0">
+                        {hasPermission('Xóa bài viết') && (
+                            <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
+                                Xóa mục đã chọn
+                            </button>
+                        )}
+                    </div>
+                </div>
+      
+
         <div className="card card-round">
           <div className="card-header">
             <div className="card-title">Danh sách bình luận</div>
@@ -87,6 +121,13 @@ export default function CommentBlogList() {
               <table className="table align-items-center mb-0">
                 <thead className="thead-light">
                   <tr>
+                    <th>
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
                     <th scope="col">STT</th>
                     <th scope="col">Nội dung</th>
                     <th scope="col">Ngày tạo</th>
@@ -111,6 +152,13 @@ export default function CommentBlogList() {
                   {!commentBlogState.loading &&
                     commentBlogState.commentBlog.map((item, index) => (
                       <tr key={item.id}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedItems.includes(item.id)}
+                            onChange={() => handleSelectItem(item.id)}
+                          />
+                        </td>
                         <td>{index + 1}</td>
                         <td>{item.content}</td>
                         <td>
@@ -126,7 +174,7 @@ export default function CommentBlogList() {
                           )}
                         </td>
                         <td>
-                          {hasPermission('Xóa bình luận bài viết') && (
+                          {hasPermission("Xóa bình luận bài viết") && (
                             <button
                               type="button"
                               className="btn btn-outline-danger"
@@ -142,9 +190,14 @@ export default function CommentBlogList() {
               </table>
             </div>
           </div>
+          <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Xóa bình luận thành công!" />
         </div>
       </div>
-      <DialogConfirm open={open} onClose={handleClose} onConfirm={handleConfirm} />
+      <DialogConfirm
+        open={open}
+        onClose={handleClose}
+        onConfirm={handleConfirm}
+      />
     </div>
   );
 }
