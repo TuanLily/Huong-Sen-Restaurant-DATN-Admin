@@ -130,16 +130,19 @@ export const updateUser = (id, data) => {
 export const deleteUsers = (id) => {
     return dispatch => {
         dispatch(fetchUserRequest());
-        http.delete(`${API_ENDPOINT}/${AdminConfig.routes.users}/${id}`)
-            .then(() => {
-                dispatch(fetchUsers()); // Cập nhật danh sách nhân viên sau khi xóa
+        return http.delete(`${API_ENDPOINT}/${AdminConfig.routes.users}/${id}`)
+            .then((response) => {
+                dispatch(fetchUsers()); // Cập nhật danh sách sau khi xóa
+                return response.data; // Trả về dữ liệu thành công
             })
             .catch(error => {
-                const errorMsg = error.message;
+                const errorMsg = error.response?.data?.error || "Đã xảy ra lỗi khi xóa tài khoản";
                 dispatch(fetchUserFailure(errorMsg));
+                throw new Error(errorMsg); // Ném lỗi ra ngoài để bắt
             });
     };
 };
+
 
 
 // export const checkEmailExists = async (email) => {
