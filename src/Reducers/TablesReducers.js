@@ -9,7 +9,7 @@ const initialState = {
   allTables: [],       // Tất cả dữ liệu bảng
   tables: [],          // Dữ liệu bảng cho trang hiện tại
   currentPage: 1,      // Trang hiện tại
-  pageSize: 5,         // Kích thước trang
+  pageSize: 8,         // Kích thước trang
   loading: false,      // Trạng thái loading
   error: '',           // Lưu trữ lỗi nếu có
   totalCount: 0,       // Tổng số bảng

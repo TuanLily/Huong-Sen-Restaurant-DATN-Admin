@@ -10,6 +10,7 @@ import Otp from './Pages/Authentication/Otp';
 import Forgot from './Pages/Authentication/Forgot';
 import ProtectedRoute from './Components/ProtectedRoute';
 import Redirect from './Components/Redirect';
+import './App.css';
 
 import ReservationDetail from './Pages/Reservations/ReservationDetail';
 

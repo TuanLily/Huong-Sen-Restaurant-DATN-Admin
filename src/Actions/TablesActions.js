@@ -39,7 +39,7 @@ export const setCurrentPage = (page) => ({
 });
 
 // Thunk action creator for fetching tables
-export const fetchTables = (number = "", page = 1, pageSize = 5) => {
+export const fetchTables = (number = "", page = 1, pageSize = 8) => {
   return (dispatch) => {
     dispatch(fetchTableRequest());
 
@@ -58,7 +58,6 @@ export const fetchTables = (number = "", page = 1, pageSize = 5) => {
         dispatch(
           fetchTableSuccess(results, totalCount, totalPages, currentPage)
         );
-        console.log(response.data);
       })
       .catch((error) => {
         const errorMsg = error.response?.data?.error || error.message || "Lỗi không xác định";
