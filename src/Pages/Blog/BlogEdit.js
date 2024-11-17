@@ -223,7 +223,7 @@ export default function BlogEdit() {
                   <button
                     type="button"
                     className="btn btn-danger"
-                    onClick={() => navigate("/blogs")}
+                    onClick={() => navigate("/blogs?page=1")}
                   >
                     Hủy
                   </button>

@@ -239,7 +239,7 @@ export default function ReservationList() {
                                                             Số người: {item.party_size}<br />
                                                             Tổng tiền: {formatCurrency(item.total_amount ? item.total_amount : 0)}<br />
                                                             Số tiền cọc: {item.deposit ? formatCurrency (item.deposit) : '0 VND'}<br/>
-                                                            Số tiền còn lại: {formatCurrency(item.total_amount ? item.deposit ? item.total_amount - item.deposit : item.total_amount : 0)}
+                                                            Số tiền còn lại: {formatCurrency(item.status == 5 ? 0 : item.total_amount ? item.deposit ? item.total_amount - item.deposit : item.total_amount : 0)}
                                                         </td>
                                                         <td>
                                                         <span className={`badge ${statusInfo.class}`}>
@@ -249,12 +249,12 @@ export default function ReservationList() {
                                                         <td style={{ textAlign: 'center' }}>
                                                             <div className="text-align-center">
                                                                 <div className="d-flex align-items-center justify-content-center">
-                                                                {hasPermission('Sửa đặt bàn') && (
+                                                                {(hasPermission('Sửa đặt bàn') && item.status == 1) && (
                                                                     <button className="btn dropdown-toggle" type="button" onClick={() => toggleDropdown(index)} style={{ marginRight: '5px', backgroundColor: '#4c9fbc', color: '#fff', border: 'none' }}>
                                                                         Hành động
                                                                     </button>
                                                                 )}
-                                                                {hasPermission('Sửa đặt bàn') && (
+                                                                {(hasPermission('Sửa đặt bàn') && item.status != 5) && (
                                                                     <button onClick={() => handleEdit(item.id)} className="btn" style={{ backgroundColor: '#ff6b6b', color: '#fff', marginRight: '5px', border: 'none' }}>
                                                                         <i className="fas fa-edit mr-2"></i>
                                                                     </button>
@@ -286,10 +286,10 @@ export default function ReservationList() {
                                                                         <button onClick={() => handleUpdateStatus(item.id , 4)} className="dropdown-item">
                                                                             <i className="fas fa-dollar-sign mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Chờ thanh toán toàn bộ đơn
                                                                         </button>
-                                                                        <div className="dropdown-divider"></div>
+                                                                        {/* <div className="dropdown-divider"></div>
                                                                         <button onClick={() => handleUpdateStatus(item.id , 0)} className="dropdown-item">
                                                                             <i className="fas fa-ban mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Đã Hủy
-                                                                        </button>
+                                                                        </button> */}
                                                                         <div className="dropdown-divider"></div>
                                                                         <button onClick={() => handleUpdateStatus(item.id , 2)} className="dropdown-item">
                                                                             <i className="fas fa-ban mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Hết hạn thanh toán cọc

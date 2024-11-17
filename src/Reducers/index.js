@@ -18,6 +18,7 @@ import RolePermissionsReducer from "./RolePermissionsReducers";
 import Reservations_t_AdminReducer from "./Reservations_t_AdminReducers";
 import ReservationDetailReducer from "./GetReservationDetailReducers";
 import StatisticalReducer from "./StatisticalReducers";
+import revenueTimeReducer from "./RevenueTimeReducers";
 
 const rootReducer = combineReducers({
     customer: customerReducer,
@@ -43,6 +44,7 @@ const rootReducer = combineReducers({
     reservations_Admin: Reservations_t_AdminReducer,
     reservations_Detail_Admin: ReservationDetailReducer,
     statistical: StatisticalReducer,
+    revenueTimeReducer: revenueTimeReducer,
 });
 
 export default rootReducer;

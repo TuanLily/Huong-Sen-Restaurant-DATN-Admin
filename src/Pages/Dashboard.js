@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchStatistical } from '../Actions/StatisticalActions';
+import { fetchRevenue } from '../Actions/RevenueTimeAction';
 import ReactEcharts from 'echarts-for-react';
 import CustomSpinner from '../Components/Spinner/CustomSpinner';
 
@@ -39,8 +40,25 @@ export default function Dashboard() {
     };
 
     const { loading, data, error } = useSelector(state => state.statistical);
+    
+    const revenueTime = useSelector((state) => state.revenueTimeReducer);
+    // Dùng giá trị mặc định nếu dữ liệu chưa có
+    const revenueSummary = revenueTime.data || { totalRevenue: 0, orderCount: 0 };
 
     const [selectedMonth, setSelectedMonth] = useState(null); // State để lưu tháng được chọn, mặc định là null (Cả năm)
+
+    const [startDate, setStartDate] = useState(''); // Ngày bắt đầu
+    const [endDate, setEndDate] = useState(''); // Ngày kết thúc
+
+    const fetchRevenueSummary = () => {
+        if (startDate && endDate) {
+            dispatch(fetchRevenue(startDate, endDate)); // Redux sẽ tự quản lý state
+        }
+    };
+
+    useEffect(() => {
+        fetchRevenueSummary();
+    }, [startDate, endDate]); // Chạy lại khi `startDate` hoặc `endDate` thay đổi    
 
     const productState = useSelector(state => state.product);
     const userState = useSelector(state => state.users);
@@ -143,6 +161,14 @@ export default function Dashboard() {
         );
     }
 
+    if (revenueTime.loading) {
+        return (
+            <section className="d-flex justify-content-center align-items-center" style={{ height: '100vh', backgroundColor: '#EEEEEE' }}>
+                <CustomSpinner />
+            </section>
+        )
+    }
+
     if (error) {
         return <p>{error}</p>;
     }
@@ -159,7 +185,6 @@ export default function Dashboard() {
             </div>
         );
     }
-
 
     return (
         <div className="container">
@@ -227,7 +252,7 @@ export default function Dashboard() {
                                     </div>
                                     <div className="col col-stats ms-3 ms-sm-0">
                                         <div className="numbers">
-                                            <p className="card-category">Số lượng sản phẩm</p>
+                                            <p className="card-category">Số lượng món ăn</p>
                                             <h4 className="card-title">{productState ? productState.allProducts.length : 0}</h4>
                                         </div>
                                     </div>
@@ -293,7 +318,7 @@ export default function Dashboard() {
                         <div className="card card-round">
                             <div className="card-header">
                                 <div className="card-head-row">
-                                    <div className="card-title">Thống Kê Doanh Thu</div>
+                                    <div className="card-title">So Sánh Doanh Thu</div>
                                 </div>
                             </div>
                             <div className="card-body">
@@ -305,6 +330,163 @@ export default function Dashboard() {
                         </div>
                     </div>
                 </div>
+
+                <div className="card card-round">
+                    <div className="card-header">
+                        <div className="card-head-row">
+                            <div className="card-title">Thống Kê Doanh Thu</div>
+                        </div>
+                    </div>
+                    <div className="card-body">
+                        <div className="row">
+                            <div className="col-md-4">
+                                <label>Ngày bắt đầu</label>
+                                <input
+                                    type="date"
+                                    className="form-control"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                />
+                            </div>
+                            <div className="col-md-4">
+                                <label>Ngày kết thúc</label>
+                                <input
+                                    type="date"
+                                    className="form-control"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                />
+                            </div>
+                            <div className="col-md-4 d-flex align-items-end">
+                                <button
+                                    className="btn btn-primary w-100"
+                                    onClick={fetchRevenueSummary}
+                                >
+                                    Thống Kê
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="row mt-4">
+                            <div className="col-md-6">
+                                <div className="card-stats card-round">
+                                    <div className="card-body">
+                                        <div className="row align-items-center">
+                                            <div className="col-icon">
+                                                <div className="icon-big text-center icon-success bubble-shadow-small">
+                                                    <i className="fas fa-dollar-sign"></i>
+                                                </div>
+                                            </div>
+                                            <div className="col col-stats ms-3 ms-sm-0">
+                                                <div className="numbers">
+                                                    <p className="card-category">Tổng Doanh Thu</p>
+                                                    <h4 className="card-title">
+                                                        {revenueSummary.totalRevenue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                                    </h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-md-6">
+                                <div className="card-stats card-round">
+                                    <div className="card-body">
+                                        <div className="row align-items-center">
+                                            <div className="col-icon">
+                                                <div className="icon-big text-center icon-info bubble-shadow-small">
+                                                    <i className="fas fa-shopping-cart"></i>
+                                                </div>
+                                            </div>
+                                            <div className="col col-stats ms-3 ms-sm-0">
+                                                <div className="numbers">
+                                                    <p className="card-category">Số Lượng Đơn Hàng</p>
+                                                    <h4 className="card-title">
+                                                        {revenueSummary.orderCount}
+                                                    </h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/* <div className="row">
+                    <div className="col-md-4">
+                        <label>Ngày bắt đầu</label>
+                        <input
+                            type="date"
+                            className="form-control"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                        />
+                    </div>
+                    <div className="col-md-4">
+                        <label>Ngày kết thúc</label>
+                        <input
+                            type="date"
+                            className="form-control"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                        />
+                    </div>
+                    <div className="col-md-4 d-flex align-items-end">
+                        <button
+                            className="btn btn-primary w-100"
+                            onClick={fetchRevenueSummary}
+                        >
+                            Thống Kê
+                        </button>
+                    </div>
+                </div>
+
+                <div className="row mt-4">
+                    <div className="col-md-6">
+                        <div className="card card-stats card-round">
+                            <div className="card-body">
+                                <div className="row align-items-center">
+                                    <div className="col-icon">
+                                        <div className="icon-big text-center icon-success bubble-shadow-small">
+                                            <i className="fas fa-dollar-sign"></i>
+                                        </div>
+                                    </div>
+                                    <div className="col col-stats ms-3 ms-sm-0">
+                                        <div className="numbers">
+                                            <p className="card-category">Tổng Doanh Thu</p>
+                                            <h4 className="card-title">
+                                                {revenueSummary.totalRevenue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                                            </h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-md-6">
+                        <div className="card card-stats card-round">
+                            <div className="card-body">
+                                <div className="row align-items-center">
+                                    <div className="col-icon">
+                                        <div className="icon-big text-center icon-info bubble-shadow-small">
+                                            <i className="fas fa-shopping-cart"></i>
+                                        </div>
+                                    </div>
+                                    <div className="col col-stats ms-3 ms-sm-0">
+                                        <div className="numbers">
+                                            <p className="card-category">Số Lượng Đơn Hàng</p>
+                                            <h4 className="card-title">
+                                                {revenueSummary.orderCount}
+                                            </h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> */}
+
             </div>
         </div>
     );

@@ -138,7 +138,7 @@ export default function BlogAdd() {
                         onImageUpload={handleImageUpload}
                       />
                     </div>
-                 
+
                     <input
                       type="hidden"
                       {...register("author", {
@@ -203,7 +203,7 @@ export default function BlogAdd() {
                   <button
                     type="button"
                     className="btn btn-danger"
-                    onClick={() => navigate("/customer")}
+                    onClick={() => navigate("/blogs?page=1")}
                   >
                     Hủy
                   </button>

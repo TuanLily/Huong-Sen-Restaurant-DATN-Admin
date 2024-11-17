@@ -21,7 +21,6 @@ export const fetchStatisticalFailure = error => ({
 });
 
 export const fetchStatistical = () => {
-    console.log ('lolololololo');
     return dispatch => {
         dispatch(fetchStatisticalRequest());
         http.get(`${API_ENDPOINT}${API_DATA.statistical}`)
