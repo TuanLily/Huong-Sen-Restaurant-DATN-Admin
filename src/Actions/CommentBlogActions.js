@@ -1,44 +1,67 @@
+// Action Types
 export const FETCH_COMMENTBLOG_REQUEST = 'FETCH_COMMENTBLOG_REQUEST';
 export const FETCH_COMMENTBLOG_SUCCESS = 'FETCH_COMMENTBLOG_SUCCESS';
 export const FETCH_COMMENTBLOG_FAILURE = 'FETCH_COMMENTBLOG_FAILURE';
+export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
 import http from "../Utils/Http";
 
 // Action Creators
+// Action Creators
 export const fetchCommentBlogRequest = () => ({
     type: FETCH_COMMENTBLOG_REQUEST
 });
 
-export const fetchCommentBlogSuccess = (results) => ({
+export const fetchCommentBlogSuccess = (results, totalCount, totalPages, currentPage) => ({
     type: FETCH_COMMENTBLOG_SUCCESS,
     payload: {
         results,
+        totalCount,
+        totalPages,
+        currentPage
     }
 });
 
-export const fetchCommentBlogFailure = error => ({
+export const fetchCommentBlogFailure = (error) => ({
     type: FETCH_COMMENTBLOG_FAILURE,
     payload: error
 });
 
-// Fetch comments by blog_id
-export const fetchCommentBlog = (blog_id) => async (dispatch) => {
-    console.log("Fetching comments");
-    dispatch(fetchCommentBlogRequest());
-    try {
-        const response = await http.get(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}/blog/${blog_id}`);
+export const setCurrentPage = (page) => ({
+    type: SET_CURRENT_PAGE,
+    payload: page
+});
 
-        console.log('API Response:', response.data); // Log dữ liệu từ API
-        const { results } = response.data;
-        dispatch(fetchCommentBlogSuccess(results));
-    } catch (error) {
-        console.error('Error fetching comments:', error);
-        const errorMsg = error.response?.data?.message || error.message;
-        dispatch(fetchCommentBlogFailure(errorMsg));
-    }
+
+export const fetchCommentBlog = (blog_id, page = 1, pageSize = 10) => {
+    return (dispatch) => {
+        // Dispatch action yêu cầu dữ liệu
+        dispatch(fetchCommentBlogRequest());
+
+        // Tạo URL cho API với các tham số phân trang và blog_id
+        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}/blog/${blog_id}`);
+        url.searchParams.append('page', page);
+        url.searchParams.append('pageSize', pageSize);
+
+        // Gọi API
+        http.get(url.toString())
+            .then(response => {
+                const { results, totalCount, totalPages, currentPage } = response.data;
+
+                // Dispatch action để cập nhật dữ liệu vào state
+                dispatch(fetchCommentBlogSuccess(results, totalCount, totalPages, currentPage));
+            })
+            .catch(error => {
+                // Lỗi trong khi gọi API
+                const errorMsg = error.response?.data?.message || error.message;
+                dispatch(fetchCommentBlogFailure(errorMsg));
+            });
+    };
 };
+
+
 
 
 

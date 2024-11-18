@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   deleteCommentBlog,
   fetchCommentBlog,
+  setCurrentPage,
 } from "../../Actions/CommentBlogActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
@@ -13,6 +14,7 @@ import CheckboxSelection from "../../Components/CheckboxSelection";
 
 import { getPermissions } from "../../Actions/GetQuyenHanAction";
 import { jwtDecode as jwt_decode } from "jwt-decode";
+import CustomPagination from "../../Components/Pagination/CustomPagination";
 
 export default function CommentBlogList() {
   const { blogId } = useParams();
@@ -44,16 +46,38 @@ export default function CommentBlogList() {
     );
   };
 
+  const query = new URLSearchParams(location.search);
+  const urlPage = parseInt(query.get("page")) || 1;
+
   // const query = new URLSearchParams(location.search);
   const [open, setOpen] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
 
+  console.log("Check commentBlogState:", commentBlogState)
   useEffect(() => {
     if (blogId) {
-      dispatch(fetchCommentBlog(blogId));
+
+      console.log("Check blogId blogId::, ", blogId)
+
+      // Gọi API khi blogId thay đổi
+      dispatch(fetchCommentBlog(blogId, urlPage, commentBlogState.pageSize));
     }
-  }, [dispatch, blogId]);
+  }, [dispatch, blogId, urlPage, commentBlogState.pageSize]);
+
+  const handlePageChange = (page) => {
+    if (blogId) {
+      // Gọi action fetchCommentBlog trực tiếp khi page thay đổi
+      dispatch(fetchCommentBlog(blogId, page, commentBlogState.pageSize));
+
+      // Cập nhật URL
+      navigate(`?page=${page}`);
+
+      // Cập nhật trang hiện tại trong Redux state
+      dispatch(setCurrentPage(page));
+    }
+  };
+
+
 
   const handleClickOpen = (commentId) => {
     setSelectedCommentId(commentId); // Lưu commentId khi mở dialog
@@ -97,20 +121,20 @@ export default function CommentBlogList() {
   return (
     <div className="container">
       <div className="page-inner">
-      <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-                    <div>
-                        <h3 className="fw-bold mb-3">Quản lý bình luận bài viết cho bài viết #{blogId}</h3>
-                        <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
-                    </div>
-                    <div className="ms-md-auto py-2 py-md-0">
-                        {hasPermission('Xóa bài viết') && (
-                            <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
-                                Xóa mục đã chọn
-                            </button>
-                        )}
-                    </div>
-                </div>
-      
+        <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+          <div>
+            <h3 className="fw-bold mb-3">Quản lý bình luận bài viết cho bài viết #{blogId}</h3>
+            <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
+          </div>
+          <div className="ms-md-auto py-2 py-md-0">
+            {hasPermission('Xóa bài viết') && (
+              <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
+                Xóa mục đã chọn
+              </button>
+            )}
+          </div>
+        </div>
+
 
         <div className="card card-round">
           <div className="card-header">
@@ -188,6 +212,14 @@ export default function CommentBlogList() {
                     ))}
                 </tbody>
               </table>
+            </div>
+            <div className="my-2">
+              <CustomPagination
+                count={commentBlogState.totalPages} // Tổng số trang
+                currentPageSelector={(state) => state.commentBlog.currentPage} // Selector để lấy trang hiện tại
+                fetchAction={(page) => fetchCommentBlog(blogId, page, commentBlogState.pageSize)} // Đảm bảo là một hàm
+                onPageChange={handlePageChange} // Hàm xử lý khi thay đổi trang
+              />
             </div>
           </div>
           <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Xóa bình luận thành công!" />
