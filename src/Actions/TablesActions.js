@@ -66,6 +66,20 @@ export const fetchTables = (number = "", page = 1, pageSize = 8) => {
   };
 };
 
+export const fetchReservationDetails = (tableId) => {
+  return async (dispatch) => {
+    dispatch(fetchTableRequest());
+    try {
+      const response = await http.get(`${API_ENDPOINT}/${AdminConfig.routes.table}/${tableId}/reservations`);
+      return response.data; // Trả về dữ liệu chi tiết đơn đặt bàn
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message || "Đã xảy ra lỗi khi lấy thông tin đặt bàn";
+      dispatch(fetchTableFailure(errorMsg));
+      throw error;
+    }
+  };
+};
+
 export const addTable = (table) => {
   return async (dispatch) => {
     dispatch(fetchTableRequest());

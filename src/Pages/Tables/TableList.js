@@ -5,12 +5,17 @@ import {
   fetchTables,
   deleteTable,
   setCurrentPage,
+  fetchReservationDetails,
 } from "../../Actions/TablesActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { FormControl, InputLabel, Select, MenuItem, TextField } from "@mui/material";
 import { SuccessAlert } from "../../Components/Alert/Alert";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import 'dayjs/locale/vi'; // Import locale tiếng Việt
 
 export default function TableList() {
   const dispatch = useDispatch();
@@ -25,11 +30,17 @@ export default function TableList() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [openSuccess, setOpenSuccess] = useState(false);
   const [capacity, setCapacity] = useState("");
+  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [reservationDetails, setReservationDetails] = useState([]);
+  const [showDetail, setShowDetail] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [errorDetails, setErrorDetails] = useState(null);
 
   // Fetch tables whenever the page or capacity filter changes
   useEffect(() => {
-    dispatch(fetchTables(capacity, urlPage, tableState.pageSize));
-  }, [dispatch, urlPage, tableState.pageSize, capacity]);
+    const formattedDate = selectedDate.format('YYYY-MM-DD');
+    dispatch(fetchTables(capacity, urlPage, tableState.pageSize, formattedDate));
+  }, [dispatch, urlPage, tableState.pageSize, capacity, selectedDate]);
 
   // Update URL when currentPage changes
   useEffect(() => {
@@ -56,7 +67,8 @@ export default function TableList() {
         await dispatch(deleteTable(selectedTable));
         handleClose();
         setOpenSuccess(true);
-        dispatch(fetchTables(capacity, tableState.currentPage, tableState.pageSize))
+        const formattedDate = selectedDate.format('YYYY-MM-DD');
+        dispatch(fetchTables(capacity, tableState.currentPage, tableState.pageSize, formattedDate))
       } catch (error) {
         console.error("Error deleting table:", error);
       }
@@ -75,7 +87,35 @@ export default function TableList() {
   const handlePageChange = (page) => {
     navigate(`?page=${page}`);
     dispatch(setCurrentPage(page));
-    dispatch(fetchTables(capacity, page, tableState.pageSize));
+    const formattedDate = selectedDate.format('YYYY-MM-DD');
+    dispatch(fetchTables(capacity, page, tableState.pageSize, formattedDate));
+  };
+
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+    dispatch(setCurrentPage(1));
+  };
+
+  const handleViewOrder = async (tableId) => {
+    setLoadingDetails(true);
+    setErrorDetails(null);
+    try {
+      // Gọi API để lấy thông tin chi tiết đơn đặt bàn
+      const details = await dispatch(fetchReservationDetails(tableId));
+
+      // Kiểm tra nếu có dữ liệu và chuyển hướng đến URL chi tiết đơn đặt bàn
+      if (details.data && details.data.length > 0) {
+        // Giả sử bạn muốn lấy ID của đơn đặt bàn đầu tiên
+        const reservationId = details.data[0].id; // Hoặc bất kỳ logic nào bạn muốn
+        navigate(`/reservation/detail/${reservationId}`);
+      } else {
+        setErrorDetails("Không tìm thấy thông tin đặt bàn.");
+      }
+    } catch (error) {
+      setErrorDetails("Không thể lấy thông tin đặt bàn.");
+    } finally {
+      setLoadingDetails(false);
+    }
   };
 
   return (
@@ -111,6 +151,23 @@ export default function TableList() {
           </FormControl>
         </div>
 
+        <div className="my-3">
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
+            <DatePicker
+              label="Chọn ngày"
+              value={selectedDate}
+              onChange={handleDateChange}
+              format="DD/MM/YYYY"
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: { width: 160 }
+                }
+              }}
+            />
+          </LocalizationProvider>
+        </div>
+
         <div className="row">
           {tableState.loading ? (
             <CustomSpinner />
@@ -127,9 +184,8 @@ export default function TableList() {
                       </div>
                     )}
                     <div
-                      className={`table-number ${
-                        item.status === 1 ? "bg-warning" : "bg-second"
-                      }`}
+                      className={`table-number ${item.status === 1 ? "bg-info" : "bg-warning"
+                        }`}
                     >
                       {item.number}
                     </div>
@@ -138,9 +194,18 @@ export default function TableList() {
                       {item.status === 1 ? "Bàn trống" : "Đang phục vụ"}
                     </p>
                     <div className="btn-group" role="group">
+                      {item.status === 0 && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-info"
+                          onClick={() => handleViewOrder(item.id)}
+                        >
+                          Xem đơn
+                        </button>
+                      )}
                       <button
                         type="button"
-                        className="btn btn-outline-success"
+                        className="btn btn-outline-success ms-2"
                         onClick={() => handleEdit(item.id)}
                       >
                         Sửa
