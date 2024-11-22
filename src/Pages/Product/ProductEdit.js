@@ -54,9 +54,11 @@ export default function ProductEdit () {
 
     const onSubmit = async (data) => {
         setLoading(true);
+        const { product_code, ...dataWithoutProductCode } = data;
+        
         const updatedData = {
-            ...data,
-            image: image || initialImage // Cập nhật image nếu có ảnh mới
+            ...dataWithoutProductCode,
+            image: image || initialImage
         };
 
         try {
@@ -66,11 +68,11 @@ export default function ProductEdit () {
 
             setTimeout(() => {
                 navigate('/product');
-            }, 2000); // Điều hướng sau 2 giây để người dùng có thể xem thông báo
+            }, 2000);
         } catch (error) {
             console.error('Error updating product:', error);
         } finally {
-            setLoading(false); // Dừng spinner khi hoàn tất gửi form
+            setLoading(false);
         }
     };
 
@@ -108,8 +110,15 @@ export default function ProductEdit () {
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="code">Mã hiệu sản phẩm</label>
-                                            <input type="text" className="form-control" id="product_code" placeholder="Nhập mã hiệu sản phẩm" {...register('product_code', { required: 'Vui lòng điền mã hiệu!' , validate: value => {const exists = productState.product.some (p => p.product_code == value && p.id !== parseInt(id)) ; return !exists || 'Mã hiệu sản phẩm đã tồn tại!' } })}/>
-                                            {errors.product_code && <div className="text-danger">{errors.product_code.message}</div>}
+                                            <input 
+                                                type="text" 
+                                                className="form-control" 
+                                                id="product_code" 
+                                                readOnly
+                                                disabled
+                                                style={{ backgroundColor: '#e9ecef' }}
+                                                {...register('product_code')}
+                                            />
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="price">Giá niêm yết</label>

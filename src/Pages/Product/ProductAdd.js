@@ -26,6 +26,16 @@ export default function ProductAdd () {
     const [image, setImage] = useState('');
     const [openSuccess, setOpenSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [randomCode, setRandomCode] = useState(generateRandomCode());
+
+    function generateRandomCode() {
+        return `HS${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+
+    const regenerateCode = (e) => {
+        e.preventDefault();
+        setRandomCode(generateRandomCode());
+    };
 
     const handleImageUpload = (fileNames) => {
         if (fileNames.length > 0) {
@@ -93,7 +103,29 @@ export default function ProductAdd () {
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="code">Mã hiệu sản phẩm</label>
-                                            <input type="text" className="form-control" id="product_code" placeholder="Nhập mã hiệu sản phẩm" {...register('product_code', { required: 'Vui lòng điền mã hiệu!' , validate: value => {const exists = productState.product.some (p => p.product_code == value) ; return !exists || 'Mã hiệu sản phẩm đã tồn tại!' } })}/>
+                                            <div className="input-group">
+                                                <input 
+                                                    type="text" 
+                                                    className="form-control" 
+                                                    id="product_code" 
+                                                    value={randomCode}
+                                                    readOnly
+                                                    {...register('product_code', { 
+                                                        required: 'Vui lòng điền mã hiệu!',
+                                                        validate: value => {
+                                                            const exists = productState.product.some(p => p.product_code === value);
+                                                            return !exists || 'Mã hiệu sản phẩm đã tồn tại!';
+                                                        }
+                                                    })}
+                                                />
+                                                <button 
+                                                    className="btn btn-outline-secondary" 
+                                                    type="button"
+                                                    onClick={regenerateCode}
+                                                >
+                                                    <i className="fas fa-sync-alt"></i>
+                                                </button>
+                                            </div>
                                             {errors.product_code && <div className="text-danger">{errors.product_code.message}</div>}
                                         </div>
                                         <div className="form-group">
@@ -128,8 +160,7 @@ export default function ProductAdd () {
                                         </div>
                                         <div className="form-group">
                                             <label>Trạng thái</label>
-                                            <select className="form-select" id="status" {...register('status', { required: 'Vui lòng chọn trạng thái!' })}>
-                                                <option value="">---</option>
+                                            <select className="form-select" id="status" defaultValue="1" {...register('status')}>
                                                 <option value='1'>Đang kinh doanh</option>
                                                 <option value='0'>Tạm ngưng bán</option>
                                             </select>
