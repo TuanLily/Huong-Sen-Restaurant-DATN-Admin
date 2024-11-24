@@ -34,7 +34,7 @@ export default function ReservationAdd() {
     const [openError, setOpenError] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    
+
     // Set initial state for deposit to true and status to 3
     const [isDeposit, setIsDeposit] = useState(true);
 
@@ -132,7 +132,7 @@ export default function ReservationAdd() {
                 return {
                     product_id: product.id,
                     quantity: quantity,
-                    price: product.price ,
+                    price: product.price,
                 };
             }
             return null;
@@ -183,10 +183,15 @@ export default function ReservationAdd() {
                 navigate('/reservation');
             }, 2000);
         } catch (error) {
+
+            // Xử lý thông báo lỗi "Không có bàn phù hợp"
             setOpenError(true);
-            setErrorMessage('Đặt bàn thất bại! Vui lòng thử lại sau.');
+            setErrorMessage("Không có bàn phù hợp với số lượng người. Vui lòng thử lại.");
+
         }
     };
+
+
 
     const handleDepositChange = (event) => {
         setIsDeposit(event.target.checked);
@@ -216,20 +221,32 @@ export default function ReservationAdd() {
                                         </div>
                                         <div className="form-group">
                                             <label>Email</label>
-                                            <input type="email" className={`form-control ${errors.email ? 'is-invalid' : ''}`} {...register('email', { 
+                                            <input type="email" className={`form-control ${errors.email ? 'is-invalid' : ''}`} {...register('email', {
                                                 required: 'Email là bắt buộc',
                                                 pattern: {
                                                     value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
                                                     message: 'Email không hợp lệ',
                                                 },
-                                             })} placeholder="Nhập email"
+                                            })} placeholder="Nhập email"
                                             />
                                             {errors.email && <div className="invalid-feedback">{errors.email.message}</div>}
                                         </div>
                                         <div className="form-group">
                                             <label>Số lượng người</label>
-                                            <input type="number" className="form-control" {...register('partySize')} placeholder="Nhập số lượng người" defaultValue={1} />
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                {...register('partySize', {
+                                                    required: "Vui lòng nhập số lượng người",
+                                                    min: { value: 1, message: "Số lượng người tối thiểu là 1" },
+                                                    max: { value: 8, message: "Số lượng người tối đa là 8" }
+                                                })}
+                                                placeholder="Nhập số lượng người"
+                                                defaultValue={1}
+                                            />
+                                            {errors.partySize && <small className="text-danger">{errors.partySize.message}</small>}
                                         </div>
+
                                         <div className="form-group">
                                             <label>Tổng tiền</label>
                                             <input type="text" className="form-control" {...register('totalAmount')} readOnly placeholder='0VND' value={formatCurrency(customerInfo.totalAmount)}
@@ -239,7 +256,7 @@ export default function ReservationAdd() {
                                     <div className="col-md-6">
                                         <div className="form-group">
                                             <label>Số điện thoại</label>
-                                            <input type="number" className={`form-control ${errors.tel ? 'is-invalid' : ''}`} {...register('tel', { 
+                                            <input type="number" className={`form-control ${errors.tel ? 'is-invalid' : ''}`} {...register('tel', {
                                                 required: 'Số điện thoại là bắt buộc',
                                                 pattern: {
                                                     value: /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/,
@@ -256,10 +273,10 @@ export default function ReservationAdd() {
                                                 className={`form-control ${errors.reservation_date ? 'is-invalid' : ''}`}
                                                 {...register('reservation_date', {
                                                     required: 'Ngày và giờ đặt là bắt buộc',
-                                                     validate: (value) => new Date(value) >= new Date() || 'Không thể chọn thời gian trong quá khứ'
+                                                    validate: (value) => new Date(value) >= new Date() || 'Không thể chọn thời gian trong quá khứ'
                                                 })}
                                                 min={new Date().toISOString().slice(0, 16)} // Thiết lập giá trị min là thời gian hiện tại
-                                                 // Thêm sự kiện onChange
+                                            // Thêm sự kiện onChange
                                             />
                                             {errors.reservation_date && (
                                                 <div className="invalid-feedback">{errors.reservation_date.message}</div>
@@ -294,7 +311,7 @@ export default function ReservationAdd() {
                             </div>
 
                         </div>
-                        
+
                         <div className="row">
                             <div className='col-md-12'>
                                 <div className="card card-round shadow">
