@@ -6,6 +6,7 @@ import {
   deleteTable,
   setCurrentPage,
   fetchReservationDetails,
+  fetchTables,
 } from "../../Actions/TablesActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
@@ -39,6 +40,10 @@ export default function TableList() {
     dispatch(fetchListTableFilterByDate(formattedDate, urlPage, tableState.pageSize)); // Gọi hàm để lấy danh sách bàn theo ngày
   }, [dispatch, selectedDate, urlPage]);
 
+  useEffect(() =>{
+    dispatch(fetchTables(capacity, urlPage, tableState.pageSize));
+  }, [dispatch, urlPage, tableState.pageSize, capacity]);
+
   // Update URL when currentPage changes
   useEffect(() => {
     navigate(`?page=${tableState.currentPage}`);
@@ -66,6 +71,7 @@ export default function TableList() {
         setOpenSuccess(true);
         const formattedDate = selectedDate.format('YYYY-MM-DD');
         dispatch(fetchListTableFilterByDate(formattedDate, urlPage, tableState.pageSize)); // Cập nhật lại danh sách bàn sau khi xóa
+        dispatch(fetchTables(capacity, urlPage, tableState.pageSize));
       } catch (error) {
         console.error("Error deleting table:", error);
       }
@@ -86,6 +92,7 @@ export default function TableList() {
     dispatch(setCurrentPage(page));
     const formattedDate = selectedDate.format('YYYY-MM-DD');
     dispatch(fetchListTableFilterByDate(formattedDate, page, 8)); // Cập nhật danh sách bàn theo trang và ngày
+    dispatch(fetchTables(capacity, page, 8));
   };
 
   const handleDateChange = (newDate) => {
