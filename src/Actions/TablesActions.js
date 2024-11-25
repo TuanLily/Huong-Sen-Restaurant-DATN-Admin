@@ -1,4 +1,3 @@
-
 export const FETCH_TABLE_REQUEST = "FETCH_TABLE_REQUEST";
 export const FETCH_TABLE_SUCCESS = "FETCH_TABLE_SUCCESS";
 export const FETCH_TABLE_FAILURE = "FETCH_TABLE_FAILURE";
@@ -66,6 +65,28 @@ export const fetchTables = (number = "", page = 1, pageSize = 8) => {
   };
 };
 
+export const fetchListTableFilterByDate = (date, page = 1, pageSize = 8) => {
+  return async (dispatch) => {
+    dispatch(fetchTableRequest()); // Bắt đầu yêu cầu
+
+    try {
+      const response = await http.get(`${API_ENDPOINT}/${AdminConfig.routes.table}/filter-by-date`, {
+        params: { date, page, pageSize } // Gửi các tham số trong query string
+      });
+
+      const { results, totalCount, totalPages, currentPage } = response.data;
+
+      dispatch(
+        fetchTableSuccess(results, totalCount, totalPages, currentPage)
+      );
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || error.message || "Đã xảy ra lỗi khi lọc bàn theo ngày";
+      dispatch(fetchTableFailure(errorMsg));
+      throw error;
+    }
+  };
+};
+
 export const fetchReservationDetails = (tableId) => {
   return async (dispatch) => {
     dispatch(fetchTableRequest());
@@ -79,6 +100,8 @@ export const fetchReservationDetails = (tableId) => {
     }
   };
 };
+
+
 
 export const addTable = (table) => {
   return async (dispatch) => {

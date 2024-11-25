@@ -96,7 +96,6 @@ export default function TableAdd() {
                         {...register("status", { required: "Trạng thái là bắt buộc" })}
                       >
                         <option value="1">Bàn trống</option>
-                        <option value="0">Có khách</option>
                       </select>
                       {errors.status && <p className="text-danger">{errors.status.message}</p>}
                     </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  fetchTables,
+  fetchListTableFilterByDate,
   deleteTable,
   setCurrentPage,
   fetchReservationDetails,
@@ -10,12 +10,11 @@ import {
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
-import { FormControl, InputLabel, Select, MenuItem, TextField } from "@mui/material";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { SuccessAlert } from "../../Components/Alert/Alert";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import 'dayjs/locale/vi'; // Import locale tiếng Việt
 
 export default function TableList() {
   const dispatch = useDispatch();
@@ -31,16 +30,14 @@ export default function TableList() {
   const [openSuccess, setOpenSuccess] = useState(false);
   const [capacity, setCapacity] = useState("");
   const [selectedDate, setSelectedDate] = useState(dayjs());
-  const [reservationDetails, setReservationDetails] = useState([]);
-  const [showDetail, setShowDetail] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [errorDetails, setErrorDetails] = useState(null);
 
-  // Fetch tables whenever the page or capacity filter changes
+  // Fetch tables whenever the selected date changes
   useEffect(() => {
     const formattedDate = selectedDate.format('YYYY-MM-DD');
-    dispatch(fetchTables(capacity, urlPage, tableState.pageSize, formattedDate));
-  }, [dispatch, urlPage, tableState.pageSize, capacity, selectedDate]);
+    dispatch(fetchListTableFilterByDate(formattedDate, urlPage, tableState.pageSize)); // Gọi hàm để lấy danh sách bàn theo ngày
+  }, [dispatch, selectedDate, urlPage]);
 
   // Update URL when currentPage changes
   useEffect(() => {
@@ -68,7 +65,7 @@ export default function TableList() {
         handleClose();
         setOpenSuccess(true);
         const formattedDate = selectedDate.format('YYYY-MM-DD');
-        dispatch(fetchTables(capacity, tableState.currentPage, tableState.pageSize, formattedDate))
+        dispatch(fetchListTableFilterByDate(formattedDate, urlPage, tableState.pageSize)); // Cập nhật lại danh sách bàn sau khi xóa
       } catch (error) {
         console.error("Error deleting table:", error);
       }
@@ -88,25 +85,21 @@ export default function TableList() {
     navigate(`?page=${page}`);
     dispatch(setCurrentPage(page));
     const formattedDate = selectedDate.format('YYYY-MM-DD');
-    dispatch(fetchTables(capacity, page, tableState.pageSize, formattedDate));
+    dispatch(fetchListTableFilterByDate(formattedDate, page, 8)); // Cập nhật danh sách bàn theo trang và ngày
   };
 
   const handleDateChange = (newDate) => {
     setSelectedDate(newDate);
-    dispatch(setCurrentPage(1));
+    dispatch(setCurrentPage(1)); // Đặt lại trang hiện tại về 1
   };
 
   const handleViewOrder = async (tableId) => {
     setLoadingDetails(true);
     setErrorDetails(null);
     try {
-      // Gọi API để lấy thông tin chi tiết đơn đặt bàn
       const details = await dispatch(fetchReservationDetails(tableId));
-
-      // Kiểm tra nếu có dữ liệu và chuyển hướng đến URL chi tiết đơn đặt bàn
       if (details.data && details.data.length > 0) {
-        // Giả sử bạn muốn lấy ID của đơn đặt bàn đầu tiên
-        const reservationId = details.data[0].id; // Hoặc bất kỳ logic nào bạn muốn
+        const reservationId = details.data[0].id;
         navigate(`/reservation/detail/${reservationId}`);
       } else {
         setErrorDetails("Không tìm thấy thông tin đặt bàn.");
@@ -174,25 +167,32 @@ export default function TableList() {
           ) : tableState.tables.length === 0 ? (
             <div className="text-center">Không tìm thấy bàn ăn</div>
           ) : (
-            tableState.tables.map((item, index) => (
+            tableState.tables.map((item) => (
               <div key={item.id} className="col-md-3 col-sm-6 mb-3">
                 <div className="card text-center">
                   <div className="card-body text-center">
                     {item.status !== 1 && (
                       <div className="status-icon">
-                        <i class="fa-solid fa-circle-check"></i>
+                        <i className="fa-solid fa-circle-check"></i>
                       </div>
                     )}
-                    <div
-                      className={`table-number ${item.status === 1 ? "bg-info" : "bg-warning"
-                        }`}
-                    >
+                    <div className={`table-number ${item.status === 1 ? "bg-info" : "bg-warning"}`}>
                       {item.number}
                     </div>
                     <hr />
                     <p className="table-status">
                       {item.status === 1 ? "Bàn trống" : "Đang phục vụ"}
                     </p>
+                    <p className="table-capacity">
+                      Sức chứa: {item.capacity} người
+                    </p>
+                    {item.reservation_date ? (
+                      <p className="table-reservation-date">
+                        Ngày đặt: {dayjs(item.reservation_date).format('DD/MM/YYYY HH:mm')}
+                      </p>
+                    ) : (
+                      <p className="table-reservation-date">Ngày đặt: Trống</p>
+                    )}
                     <div className="btn-group" role="group">
                       {item.status === 0 && (
                         <button
@@ -242,7 +242,7 @@ export default function TableList() {
             count={tableState.totalPages}
             currentPageSelector={(state) => state.tables.currentPage}
             fetchAction={(page, pageSize) =>
-              fetchTables(capacity, page, pageSize)
+              fetchListTableFilterByDate(selectedDate.format('YYYY-MM-DD'), page, pageSize) // Cập nhật để sử dụng hàm lọc theo ngày
             }
             onPageChange={handlePageChange}
           />
