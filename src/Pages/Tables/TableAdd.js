@@ -7,7 +7,12 @@ import { SuccessAlert, DangerAlert } from "../../Components/Alert/Alert";
 
 export default function TableAdd() {
   const dispatch = useDispatch();
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
   const navigate = useNavigate();
 
   const [openSuccess, setOpenSuccess] = useState(false);
@@ -66,25 +71,33 @@ export default function TableAdd() {
                           min: { value: 0, message: "Số bàn không được âm" },
                         })}
                       />
-                      {errors.number && <p className="text-danger">{errors.number.message}</p>}
+                      {errors.number && (
+                        <p className="text-danger">{errors.number.message}</p>
+                      )}
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-6">
                     <div className="form-group">
                       <label htmlFor="capacity">Số Lượng Người Tối Đa</label>
-                      <input
-                        type="number"
+                      <select
                         className="form-control"
                         id="capacity"
-                        placeholder="Nhập số lượng người tối đa"
                         {...register("capacity", {
                           required: "Số lượng người tối đa là bắt buộc",
-                          valueAsNumber: true,
-                          min: { value: 0, message: "Số lượng người không được âm" },
-                          max: { value: 8, message: "Số lượng người không được quá 8 người" },
+                          validate: (value) =>
+                            [2, 4, 6, 8].includes(Number(value)) ||
+                            "Số lượng người không hợp lệ",
                         })}
-                      />
-                      {errors.capacity && <p className="text-danger">{errors.capacity.message}</p>}
+                      >
+                        <option value="">Chọn số lượng người</option>
+                        <option value="2">2</option>
+                        <option value="4">4</option>
+                        <option value="6">6</option>
+                        <option value="8">8</option>
+                      </select>
+                      {errors.capacity && (
+                        <p className="text-danger">{errors.capacity.message}</p>
+                      )}
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-6">
@@ -93,18 +106,24 @@ export default function TableAdd() {
                       <select
                         id="status"
                         className="form-control"
-                        {...register("status", { required: "Trạng thái là bắt buộc" })}
+                        {...register("status", {
+                          required: "Trạng thái là bắt buộc",
+                        })}
                       >
                         <option value="1">Bàn trống</option>
                       </select>
-                      {errors.status && <p className="text-danger">{errors.status.message}</p>}
+                      {errors.status && (
+                        <p className="text-danger">{errors.status.message}</p>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
               <div className="card-footer">
                 <div className="btn-group mt-3" role="group">
-                  <button type="submit" className="btn btn-success">Gửi</button>
+                  <button type="submit" className="btn btn-success">
+                    Thêm mới
+                  </button>
                   <button
                     type="button"
                     className="btn btn-danger"

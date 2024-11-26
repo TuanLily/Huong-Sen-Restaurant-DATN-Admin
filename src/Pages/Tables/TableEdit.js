@@ -79,19 +79,25 @@ export default function TableEdit() {
                   <div className="col-md-6 col-lg-6">
                     <div className="form-group">
                       <label htmlFor="capacity">Số Lượng Người Tối Đa</label>
-                      <input
-                        type="number"
+                      <select
                         className="form-control"
                         id="capacity"
-                        placeholder="Nhập số lượng người tối đa"
                         {...register("capacity", {
                           required: "Số lượng người tối đa là bắt buộc",
-                          valueAsNumber: true,
-                          min: { value: 0, message: "Số lượng người không được âm" },
-                          max: { value: 8, message: "Số lượng người không được quá 8 người" },
+                          validate: (value) =>
+                            [2, 4, 6, 8].includes(Number(value)) ||
+                            "Số lượng người không hợp lệ",
                         })}
-                      />
-                      {errors.capacity && <p className="text-danger">{errors.capacity.message}</p>}
+                      >
+                        <option value="">Chọn số lượng người</option>
+                        <option value="2">2</option>
+                        <option value="4">4</option>
+                        <option value="6">6</option>
+                        <option value="8">8</option>
+                      </select>
+                      {errors.capacity && (
+                        <p className="text-danger">{errors.capacity.message}</p>
+                      )}
                     </div>
                   </div>
                   <div className="col-md-6 col-lg-6">

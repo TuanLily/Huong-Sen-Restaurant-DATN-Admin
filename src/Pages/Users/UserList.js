@@ -253,7 +253,6 @@ export default function CustomerList() {
                                                 <th scope="col">Tên đầy đủ</th>
                                                 <th scope="col">Email</th>
                                                 <th scope="col">SĐT</th>
-                                                <th scope="col">Địa chỉ</th>
                                                 <th scope="col">Loại người dùng</th>
                                                 <th scope="col">Vai trò (dành cho nhân viên)</th>
                                                 <th scope="col">Trạng thái</th>
@@ -298,7 +297,6 @@ export default function CustomerList() {
                                                         <td>{user.fullname}</td>
                                                         <td>{user.email}</td>
                                                         <td>{user.tel}</td>
-                                                        <td>{user.address}</td>
                                                         <td>
                                                             {user.user_type == "Khách Hàng" ? (
                                                                 <span className="badge badge-secondary">

@@ -230,6 +230,7 @@ export default function UserEdit() {
                                                 placeholder="Nhập lương"
                                                 {...register('salary', {
                                                     valueAsNumber: true,
+                                                    disabled: userType === "Khách Hàng",
                                                     validate: value => {
                                                         if (value === undefined || value === null || value === '') {
                                                             return true; // Không có lỗi nếu không nhập giá trị

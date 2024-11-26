@@ -261,6 +261,7 @@ export default function UserAdd() {
                                                 placeholder="Nhập lương"
                                                 {...register('salary', {
                                                     valueAsNumber: true,
+                                                    disabled: userType === "Khách Hàng",
                                                     validate: value => {
                                                         if (value === undefined || value === '') {
                                                             return true;
