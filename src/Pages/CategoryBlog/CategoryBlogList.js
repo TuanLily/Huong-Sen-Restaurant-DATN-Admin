@@ -223,7 +223,7 @@ export default function CategoryBlogList() {
                         categoryBlogState.categories.map((item, index) => (
                           <tr key={item.id}>
                             <td>
-                              {item.name == 'Undefined' ? (
+                              {item.name == 'Chưa phân loại' ? (
                                 "-"
                               ) : (
                                 <input
@@ -252,7 +252,7 @@ export default function CategoryBlogList() {
                               )}
                             </td>
                             <td>
-                              {item.name !== "Undefined" && (
+                              {item.name !== "Chưa phân loại" && (
                                 <div className="btn-group mt-3" role="group">
                                   {hasPermission ('Sửa danh mục bài viết') && (
                                     <button
@@ -274,7 +274,7 @@ export default function CategoryBlogList() {
                                   )}
                                 </div>
                               )}
-                              {item.name === "Undefined" && (
+                              {item.name === "Chưa phân loại" && (
                                 <button
                                   type="button"
                                   className="btn btn-outline-secondary"
