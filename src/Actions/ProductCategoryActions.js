@@ -85,6 +85,20 @@ export const fetchProductCategoryHoatDong = (name = '', page = 1, pageSize = 10)
             });
     };
 };
+export const fetchListProductCategory = () => {
+    return dispatch => {
+        dispatch(fetchProductCategoryRequest());
+        http.get(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/danh_muc`)
+            .then(response => {
+                const product_category = response.data.results;
+                dispatch(fetchProductCategorySuccess(product_category));
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchProductCategoryFailure(errorMsg));
+            });
+    };
+};
 
 export const addProductCategory = (product) => {
     return dispatch => {

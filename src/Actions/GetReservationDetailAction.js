@@ -33,3 +33,27 @@ export const fetchReservationdetail = (id) => {
             });
     };
 };
+
+export const fetchReservationdetail2 = (id, page = 1, pageSize = 10) => {
+    return (dispatch) => {
+        dispatch(fetchReservationdetailRequest());
+        http.get(
+            `${API_ENDPOINT}/${API_DATA.reservations_admin}/reservation_details/${id}?page=${page}&pageSize=${pageSize}`
+        )
+            .then((response) => {
+                const { results, totalItems, totalPages } = response.data;
+                dispatch(
+                    fetchReservationdetailSuccess({
+                        data: results,
+                        totalItems,
+                        totalPages,
+                        currentPage: page,
+                    })
+                );
+            })
+            .catch((error) => {
+                const errorMsg = error.message;
+                dispatch(fetchReservationdetailFailure(errorMsg));
+            });
+    };
+};

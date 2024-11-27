@@ -58,6 +58,20 @@ export const fetchProduct = (name = '', page = 1, pageSize = 10) => {
             });
     };
 };
+export const fetchMenu = () => {
+    return dispatch => {
+        dispatch(fetchProductRequest());
+        http.get(`${API_ENDPOINT}/${AdminConfig.routes.product}/menu`)
+            .then(response => {
+                const product = response.data.results;
+                dispatch(fetchProductSuccess(product));
+            })
+            .catch(error => {
+                const errorMsg = error.message;
+                dispatch(fetchProductFailure(errorMsg));
+            });
+    };
+};
 
 export const fetchProductHoatDong = (name = '', page = 1, pageSize = 10) => {
     return dispatch => {
