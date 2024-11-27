@@ -153,6 +153,7 @@ export default function CommentBlogList() {
                       />
                     </th>
                     <th scope="col">STT</th>
+                    <th scope="col">Tên người dùng</th>
                     <th scope="col">Nội dung</th>
                     <th scope="col">Ngày tạo</th>
                     <th scope="col">Ngày cập nhật</th>
@@ -184,6 +185,7 @@ export default function CommentBlogList() {
                           />
                         </td>
                         <td>{index + 1}</td>
+                        <td>{item.fullname}</td>
                         <td>{item.content}</td>
                         <td>
                           {format(
