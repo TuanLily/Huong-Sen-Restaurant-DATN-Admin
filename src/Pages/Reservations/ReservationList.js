@@ -235,7 +235,7 @@ export default function ReservationList() {
                                                             Số bàn: {item.tableName ? item.tableName : 'Chưa có'}
                                                         </td>
                                                         <td style={{ textAlign: 'left' }}>
-                                                            Ngày đặt: {item.created_at.substring(0, 10)}<br />
+                                                            Ngày đặt: {item.reservation_date.substring(0, 10)}<br />
                                                             Số người: {item.party_size}<br />
                                                             Tổng tiền: {formatCurrency(item.total_amount ? item.total_amount : 0)}<br />
                                                             Số tiền cọc: {item.deposit ? formatCurrency (item.deposit) : '0 VND'}<br/>
