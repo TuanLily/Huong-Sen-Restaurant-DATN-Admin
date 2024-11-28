@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import {
-  fetchProductHoatDong,
-  deleteProduct,
-  updateStatus,
-  setCurrentPage,
-} from "../../Actions/ProductActions";
+import { fetchProductHoatDong, deleteProduct, updateStatus, setCurrentPage } from "../../Actions/ProductActions";
 import { fetchProductCategory } from "../../Actions/ProductCategoryActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";

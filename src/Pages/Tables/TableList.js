@@ -17,6 +17,9 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
+import { getPermissions } from "../../Actions/GetQuyenHanAction";
+import { jwtDecode as jwt_decode } from "jwt-decode";
+
 export default function TableList() {
   const dispatch = useDispatch();
   const tableState = useSelector((state) => state.tables);
@@ -25,6 +28,28 @@ export default function TableList() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const urlPage = parseInt(query.get("page")) || 1;
+
+  const token = localStorage.getItem("token");
+  const getQuyenHanState = useSelector((state) => state.getQuyenHan);
+  const permissions = getQuyenHanState.getQuyenHan || [];
+
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwt_decode(token);
+      const userIdFromToken = decodedToken.id;
+      dispatch(getPermissions(userIdFromToken));
+    }
+    const decodedToken = jwt_decode(token);
+    const userIdFromToken = decodedToken.id;
+    dispatch(getPermissions(userIdFromToken));
+  }, [navigate, dispatch, token]);
+
+  const hasPermission = (permissionName) => {
+    return (
+      permissions.data &&
+      permissions.data.some((permission) => permission.name == permissionName)
+    );
+  };
 
   const [open, setOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState(null);
@@ -127,9 +152,11 @@ export default function TableList() {
             <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
           </div>
           <div className="ms-md-auto py-2 py-md-0">
-            <Link to="/tables/add" className="btn btn-primary btn-round">
-              Thêm bàn ăn
-            </Link>
+            {(hasPermission('Thêm bàn ăn') && (
+              <Link to="/tables/add" className="btn btn-primary btn-round">
+                Thêm bàn ăn
+              </Link>
+            ))}
           </div>
         </div>
 
@@ -201,7 +228,7 @@ export default function TableList() {
                       <p className="table-reservation-date">Ngày đặt: Trống</p>
                     )}
                     <div className="btn-group" role="group">
-                      {item.status === 0 && (
+                      {(item.status === 0 && hasPermission("Xem chi tiết đặt bàn")) && (
                         <button
                           type="button"
                           className="btn btn-outline-info"
@@ -210,20 +237,24 @@ export default function TableList() {
                           Xem đơn
                         </button>
                       )}
-                      <button
-                        type="button"
-                        className="btn btn-outline-success ms-2"
-                        onClick={() => handleEdit(item.id)}
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-outline-danger ms-2"
-                        onClick={() => handleClickOpen(item.id)}
-                      >
-                        Xóa
-                      </button>
+                      {hasPermission("Sửa bàn ăn") && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-success ms-2"
+                          onClick={() => handleEdit(item.id)}
+                        >
+                          Sửa
+                        </button>
+                      )}
+                      {hasPermission("Xóa bàn ăn") && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger ms-2"
+                          onClick={() => handleClickOpen(item.id)}
+                        >
+                          Xóa
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
