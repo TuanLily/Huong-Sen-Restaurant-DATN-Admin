@@ -9,9 +9,6 @@ import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 import CheckboxSelection from "../../Components/CheckboxSelection";
 import { SuccessAlert } from "../../Components/Alert/Alert";
 
-import { InputBase, Paper } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-
 import { getPermissions } from "../../Actions/GetQuyenHanAction";
 import { jwtDecode as jwt_decode } from "jwt-decode";
 
@@ -51,12 +48,14 @@ export default function ProductList() {
   const [open, setOpen] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchCateID, setsearchCateID] = useState("");
 
   useEffect(() => {
-    dispatch(fetchProductHoatDong(searchTerm, urlPage, productState.pageSize));
+    dispatch(fetchProductHoatDong(searchTerm, searchCateID, urlPage, productState.pageSize));
     dispatch(fetchProductCategory());
-  }, [dispatch, urlPage, productState.pageSize, searchTerm]);
+  }, [dispatch, urlPage, productState.pageSize, searchTerm, searchCateID]);
 
   useEffect(() => {
     navigate(`?page=${productState.currentPage}`);
@@ -93,6 +92,7 @@ export default function ProductList() {
             { status: 0 },
             "list",
             searchTerm,
+            searchCateID,
             urlPage,
             productState.pageSize
           )
@@ -113,6 +113,7 @@ export default function ProductList() {
           { status: 0 },
           "list",
           searchTerm,
+          searchCateID,
           urlPage,
           productState.pageSize
         )
@@ -142,72 +143,85 @@ export default function ProductList() {
     dispatch(setCurrentPage(1));
   };
 
+  const handleSearchCateID = (event) => {
+    setsearchCateID(event.target.value);
+    dispatch(setCurrentPage(1));
+  };
+
   const handlePageChange = (page) => {
     navigate(`?page=${page}`); // Cập nhật URL với page
     dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-    dispatch(fetchProductHoatDong(searchTerm, page, productState.pageSize));
+    dispatch(fetchProductHoatDong(searchTerm, searchCateID, page, productState.pageSize));
   };
 
   return (
     <div className="container">
       <div className="page-inner">
-        <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-          <div>
+        <div className="pt-2 pb-4">
+          <div className="mb-3">
             <h3 className="fw-bold mb-3">Quản lý sản phẩm</h3>
-            <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
           </div>
-          <div className="ms-md-auto py-2 py-md-0">
-            {hasPermission("Xóa sản phẩm") && (
-              <button
-                className="btn btn-danger btn-round me-2"
-                onClick={handleDeleteSelected}
-                disabled={selectedItems.length === 0}
+
+          <div className="d-flex flex-wrap justify-content-between align-items-center">
+            <div className="d-flex align-items-center">
+              <input
+                type="text"
+                className="form-control me-2"
+                style={{ height: '38px', minWidth: '150px' }}
+                placeholder="Tên"
+                aria-label="Tên"
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+              <select
+                className="form-control"
+                style={{ height: '38px', minWidth: '150px' }}
+                value={searchCateID}
+                onChange={handleSearchCateID}
               >
-                Xóa mục đã chọn
-              </button>
-            )}
-            {hasPermission("Khôi phục sản phẩm") && (
-              <Link
-                to="/product/tam_xoa"
-                className="btn btn-label-info btn-round me-2"
-              >
-                Sản phẩm tạm xóa
-              </Link>
-            )}
-            {hasPermission("Thêm sản phẩm") && (
-              <Link to="/product/add" className="btn btn-primary btn-round">
-                Thêm sản phẩm
-              </Link>
-            )}
-            <DialogConfirm />
+                <option value="">Danh mục</option>
+                {productCategoryState && productCategoryState.product_category.map((item, index) => (
+                  <option key={index} value={item.id}>{item.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="d-flex align-items-center flex-wrap">
+              {hasPermission("Xóa sản phẩm") && (
+                <button
+                  className="btn btn-danger me-2 mb-2 mb-md-0"
+                  onClick={handleDeleteSelected}
+                  disabled={selectedItems.length === 0}
+                  style={{ height: '38px' }}
+                >
+                  Xóa mục đã chọn
+                </button>
+              )}
+              {hasPermission("Khôi phục sản phẩm") && (
+                <Link
+                  to="/product/tam_xoa"
+                  className="btn btn-info me-2 mb-2 mb-md-0"
+                  style={{ height: '38px' }}
+                >
+                  Sản phẩm tạm xóa
+                </Link>
+              )}
+              {hasPermission("Thêm sản phẩm") && (
+                <Link to="/product/add" className="btn btn-primary" style={{ height: '38px' }}>
+                  Thêm sản phẩm
+                </Link>
+              )}
+              <DialogConfirm />
+            </div>
           </div>
         </div>
+
         <div className="row">
           <div className="col-md-12">
             <div className="card card-round">
               <div className="card-header">
                 <div className="card-head-row card-tools-still-right">
                   <div className="card-title">Danh sách</div>
-                  <div className="card-tools">
-                    <Paper
-                      component="form"
-                      sx={{
-                        p: "2px 4px",
-                        display: "flex",
-                        alignItems: "center",
-                        width: 320,
-                      }}
-                    >
-                      <SearchIcon />
-                      <InputBase
-                        sx={{ ml: 1, flex: 1 }}
-                        placeholder="Tìm sản phẩm ở đây!"
-                        inputProps={{ "aria-label": "search" }}
-                        value={searchTerm}
-                        onChange={handleSearch} // Thêm xử lý thay đổi từ khóa tìm kiếm
-                      />
-                    </Paper>
-                  </div>
                 </div>
               </div>
               <div className="card-body p-0">
@@ -335,7 +349,7 @@ export default function ProductList() {
                     count={productState.totalPages} // Tổng số trang
                     currentPageSelector={(state) => state.product.currentPage} // Selector để lấy trang hiện tại
                     fetchAction={(page, pageSize) =>
-                      fetchProductHoatDong(searchTerm, page, pageSize)
+                      fetchProductHoatDong(searchTerm, searchCateID, page, pageSize)
                     } // Hàm fetch dữ liệu
                     onPageChange={handlePageChange}
                   />

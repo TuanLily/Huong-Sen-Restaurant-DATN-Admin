@@ -25,11 +25,13 @@ export default function ProductTamXoa () {
     const [open, setOpen] = useState(false);
     const [openSuccess, setOpenSuccess] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchCateID, setsearchCateID] = useState("");
 
     const handleStatusProducts = async (selectedProductIds) => {
         for (let productId of selectedProductIds) {
-            await dispatch(updateStatus(productId, {status: 1}, 'tam_xoa', searchTerm, urlPage, productState.pageSize));
+            await dispatch(updateStatus(productId, {status: 1}, 'tam_xoa', searchTerm, searchCateID, urlPage, productState.pageSize));
         }
         setOpenSuccess(true); // Hiển thị thông báo thành công
     };
@@ -43,9 +45,9 @@ export default function ProductTamXoa () {
     } = CheckboxSelection(productState.product, handleStatusProducts);
 
     useEffect(() => {
-        dispatch(fetchProductNgungHoatDong(searchTerm, urlPage, productState.pageSize));
+        dispatch(fetchProductNgungHoatDong(searchTerm, searchCateID, urlPage, productState.pageSize));
         dispatch(fetchProductCategory());
-    }, [dispatch, urlPage, productState.pageSize, searchTerm]);
+    }, [dispatch, urlPage, productState.pageSize, searchTerm, searchCateID]);
 
     useEffect(() => {
         navigate(`?page=${productState.currentPage}`);
@@ -74,7 +76,7 @@ export default function ProductTamXoa () {
     const handleConfirm = async () => {
         if (setSelectedProduct) {
             try {
-                dispatch(updateStatus(selectedProduct, {status: 1}, 'tam_xoa', searchTerm, urlPage, productState.pageSize));
+                dispatch(updateStatus(selectedProduct, {status: 1}, 'tam_xoa', searchTerm, searchCateID, urlPage, productState.pageSize));
                 handleClose();
                 setOpenSuccess(true); // Hiển thị thông báo thành công
             } catch (error) {
@@ -92,27 +94,58 @@ export default function ProductTamXoa () {
         dispatch(setCurrentPage(1));
     };
 
+    const handleSearchCateID = (event) => {
+        setsearchCateID(event.target.value);
+        dispatch(setCurrentPage(1));
+    };
+
     const handlePageChange = (page) => {
         navigate(`?page=${page}`); // Cập nhật URL với page
         dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-        dispatch(fetchProductNgungHoatDong(searchTerm, page, productState.pageSize));
+        dispatch(fetchProductNgungHoatDong(searchTerm, searchCateID, page, productState.pageSize));
     };
 
     return (
         <div className="container">
             <div className="page-inner">
-                <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-                    <div>
+                <div className="pt-2 pb-4">
+                    <div className="mb-3">
                         <h3 className="fw-bold mb-3">Sản phẩm tạm xóa</h3>
-                        <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
-                    <div className="ms-md-auto py-2 py-md-0">
-                        <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
-                            Khôi phục mục đã chọn
-                        </button>
-                        <DialogConfirm />
+
+                    <div className="d-flex flex-wrap justify-content-between align-items-center">
+                        <div className="d-flex align-items-center">
+                            <input
+                                type="text"
+                                className="form-control me-2"
+                                style={{ height: '38px', minWidth: '150px' }}
+                                placeholder="Tên"
+                                aria-label="Tên"
+                                value={searchTerm}
+                                onChange={handleSearch}
+                            />
+                            <select
+                                className="form-control"
+                                style={{ height: '38px', minWidth: '150px' }}
+                                value={searchCateID}
+                                onChange={handleSearchCateID}
+                            >
+                                <option value="">Danh mục</option>
+                                {productCategoryState && productCategoryState.product_category.map((item, index) => (
+                                <option key={index} value={item.id}>{item.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="d-flex align-items-center flex-wrap">
+                            <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
+                                Khôi phục mục đã chọn
+                            </button>
+                            <DialogConfirm />
+                        </div>
                     </div>
                 </div>
+                
                 <div className="row">
                     <div className="col-md-12">
                         <div className="card card-round">
@@ -222,7 +255,7 @@ export default function ProductTamXoa () {
                                     <CustomPagination
                                         count={productState.totalPages} // Tổng số trang
                                         currentPageSelector={state => state.product.currentPage} // Selector để lấy trang hiện tại
-                                        fetchAction={(page, pageSize) => fetchProductNgungHoatDong(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
+                                        fetchAction={(page, pageSize) => fetchProductNgungHoatDong(searchTerm, searchCateID, page, pageSize)} // Hàm fetch dữ liệu
                                         onPageChange={handlePageChange} 
                                     />
                                 </div>

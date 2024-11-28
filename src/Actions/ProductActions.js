@@ -73,15 +73,19 @@ export const fetchMenu = () => {
     };
 };
 
-export const fetchProductHoatDong = (name = '', page = 1, pageSize = 10) => {
+export const fetchProductHoatDong = (name = '', searchCateID = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchProductRequest());
         const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.product}/hoat_dong`);
 
         // Thêm tham số tìm kiếm nếu có
         if (name) {
-            url.searchParams.append('search', name);
+            url.searchParams.append('searchName', name);
         }
+        if (searchCateID) {
+            url.searchParams.append('searchCateID', searchCateID);
+        }
+
         // Thêm tham số phân trang
         url.searchParams.append('page', page);
         url.searchParams.append('pageSize', pageSize);
@@ -100,14 +104,17 @@ export const fetchProductHoatDong = (name = '', page = 1, pageSize = 10) => {
     };
 };
 
-export const fetchProductNgungHoatDong = (name = '', page = 1, pageSize = 10) => {
+export const fetchProductNgungHoatDong = (name = '', searchCateID = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchProductRequest());
         const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.product}/ngung_hoat_dong`);
 
         // Thêm tham số tìm kiếm nếu có
         if (name) {
-            url.searchParams.append('search', name);
+            url.searchParams.append('searchName', name);
+        }
+        if (searchCateID) {
+            url.searchParams.append('searchCateID', searchCateID);
         }
         // Thêm tham số phân trang
         url.searchParams.append('page', page);
@@ -194,15 +201,15 @@ export const updateProduct = (id, data) => {
     };
 };
 
-export const updateStatus = (id, data, start, name = '', page = 1, pageSize = 10) => {
+export const updateStatus = (id, data, start, name = '', searchCateID = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchProductRequest());
         http.patch(`${API_ENDPOINT}/${AdminConfig.routes.product}/${id}`, data)
             .then(() => {
                 if (start == 'list') {
-                    dispatch(fetchProductHoatDong(name, page, pageSize));
+                    dispatch(fetchProductHoatDong(name, searchCateID, page, pageSize));
                 } else {
-                    dispatch(fetchProductNgungHoatDong(name, page, pageSize));
+                    dispatch(fetchProductNgungHoatDong(name, searchCateID, page, pageSize));
                 }
             })
             .catch((error) => {
