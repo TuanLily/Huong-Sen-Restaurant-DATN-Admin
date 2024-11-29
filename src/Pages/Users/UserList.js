@@ -76,9 +76,9 @@ export default function CustomerList() {
 
     useEffect(() => {
         if (!searchTerm) {
-            dispatch(fetchUsers("", urlPage, userState.pageSize));
+            dispatch(fetchUsers("", urlPage, userState.pageSize)); // Fetch lại dữ liệu khi không tìm kiếm
         }
-    }, [dispatch, urlPage, userState.pageSize]);
+    }, [dispatch, searchTerm, urlPage, userState.pageSize]);
 
     useEffect(() => {
         if (searchTerm) {
@@ -178,10 +178,11 @@ export default function CustomerList() {
 
     //* Hàm để chuyển trang và render dữ liệu đến trang hiện tại
     const handlePageChange = (page) => {
-        navigate(`?page=${page}`); // Cập nhật URL với page
+        navigate(`?page=${page}`); // Cập nhật URL với trang mới
         dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-        dispatch(fetchUsers(searchTerm, page, userState.pageSize));
+        dispatch(fetchUsers(searchTerm, page, userState.pageSize)); // Fetch dữ liệu theo trang mới
     };
+
 
     return (
         <div className="container">
@@ -353,13 +354,13 @@ export default function CustomerList() {
                                 </div>
                                 <div className="my-2">
                                     <CustomPagination
-                                        count={userState.totalPages} // Tổng số trang
-                                        currentPageSelector={(state) => state.customer.currentPage} // Selector để lấy trang hiện tại
-                                        fetchAction={(page, pageSize) =>
-                                            fetchUsers(searchTerm, page, pageSize)
-                                        } // Hàm fetch dữ liệu
-                                        onPageChange={handlePageChange}
+                                        count={userState.totalPages} // Tổng số trang từ state
+                                        onPageChange={handlePageChange} // Hàm chuyển trang
+                                        currentPageSelector={(state) => state.users.currentPage} // Selector lấy currentPage
+                                        pageSizeSelector={(state) => state.users.limit} // Thay pageSizeSelector thành limit
+                                        fetchDataAction={(page, size) => fetchUsers(searchTerm, page)} // Fetch dữ liệu với searchTerm và page
                                     />
+
                                 </div>
                             </div>
                         </div>
