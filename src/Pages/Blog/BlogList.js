@@ -46,9 +46,12 @@ export default function BlogList() {
     const [searchTerm, setSearchTerm] = useState(''); 
 
     useEffect(() => {
-        dispatch(fetchBlog(searchTerm, urlPage, blogState.pageSize)); 
-    }, [dispatch, urlPage, blogState.pageSize, searchTerm]);
+        if (!searchTerm) {
+            dispatch(fetchBlog("", urlPage, blogState.pageSize)); // Fetch lại dữ liệu khi không tìm kiếm
+        }
+    }, [dispatch, searchTerm, urlPage, blogState.pageSize]);
 
+    
     useEffect(() => {
         navigate(`?page=${blogState.currentPage}`);
     }, [blogState.currentPage, navigate]);
@@ -106,10 +109,11 @@ export default function BlogList() {
     };
     
     const handlePageChange = (page) => {
-        navigate(`?page=${page}`); // Update the URL with the new page
-        dispatch(setCurrentPage(page)); // Update the current page in state
-        dispatch(fetchBlog(searchTerm, page, blogState.pageSize));
+        navigate(`?page=${page}`); // Cập nhật URL với trang mới
+        dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
+        dispatch(fetchBlog(searchTerm, page, blogState.pageSize)); // Fetch dữ liệu theo trang mới
     };
+
 
     return (
         <div className="container">
@@ -202,7 +206,7 @@ export default function BlogList() {
                                                             onChange={() => handleSelectItem(item.id)}
                                                         />
                                                     </td>
-                                                    <td>{(blogState.currentPage - 1) * blogState.pageSize + index + 1}</td>
+                                                    <td>{index + 1}</td>
                                                     <td>{item.title}</td>
                                                     <td>{item.author}</td>
                                                     <td>
@@ -227,11 +231,12 @@ export default function BlogList() {
                                     </table> 
                                 </div>
                                 <div className='my-2'>
-                                    <CustomPagination
-                                        count={blogState.totalPages} // Total number of pages
-                                        currentPageSelector={state => state.blog.currentPage} // Selector to get current page
-                                        fetchAction={(page, pageSize) => fetchBlog(searchTerm, page, pageSize)} // Fetch data action
-                                        onPageChange={handlePageChange} 
+                                <CustomPagination
+                                        count={blogState.totalPages} // Tổng số trang từ state
+                                        onPageChange={handlePageChange} // Hàm chuyển trang
+                                        currentPageSelector={(state) => state.blog.currentPage} // Selector lấy currentPage
+                                        pageSizeSelector={(state) => state.blog.limit} // Thay pageSizeSelector thành limit
+                                        fetchDataAction={(page, size) => fetchBlog(searchTerm, page)} // Fetch dữ liệu với searchTerm và page
                                     />
                                 </div>
                             </div>
