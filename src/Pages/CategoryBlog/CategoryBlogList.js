@@ -66,7 +66,7 @@ export default function CategoryBlogList() {
     if (!searchTerm) {
       dispatch(fetchCategoryBlog('', urlPage, categoryBlogState.pageSize));
     }
-  }, [dispatch, urlPage, categoryBlogState.pageSize]);
+  }, [dispatch,searchTerm, urlPage, categoryBlogState.pageSize]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -233,12 +233,7 @@ export default function CategoryBlogList() {
                                 />
                               )}
                             </td>
-                            <td>
-                              {(categoryBlogState.currentPage - 1) *
-                                categoryBlogState.pageSize +
-                                index +
-                                1}
-                            </td>
+                            <td>{index + 1}</td>
                             <td>{item.name}</td>
                             <td>
                               {item.status === 1 ? (
@@ -292,11 +287,11 @@ export default function CategoryBlogList() {
                 <div className="my-2">
                   <CustomPagination
                     count={categoryBlogState.totalPages}
+                    onPageChange={handlePageChange} // Hàm chuyển trang
                     currentPageSelector={(state) => state.categories.currentPage}
-                    fetchAction={(page, pageSize) =>
-                      fetchCategoryBlog(searchTerm, page, pageSize)
-                    }
-                    onPageChange={handlePageChange}
+                    pageSizeSelector={(state) => state.categories.limit} // Thay pageSizeSelector thành limit
+                    fetchDataAction={(page, size) => fetchCategoryBlog(searchTerm, page)} // Fetch dữ liệu với searchTerm và page
+
                   />
                 </div>
               </div>

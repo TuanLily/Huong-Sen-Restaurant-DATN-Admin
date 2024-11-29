@@ -1,8 +1,8 @@
-
 export const FETCH_CATEGORY_BLOG_REQUEST = "FETCH_CATEGORY_BLOG_REQUEST";
 export const FETCH_CATEGORY_BLOG_SUCCESS = "FETCH_CATEGORY_BLOG_SUCCESS";
 export const FETCH_CATEGORY_BLOG_FAILURE = "FETCH_CATEGORY_BLOG_FAILURE";
 export const SET_CURRENT_PAGE = "SET_CURRENT_PAGE";
+export const SET_LIMIT = "SET_LIMIT"; // Thêm hành động SET_LIMIT
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from "../Config/index";
@@ -13,7 +13,7 @@ export const fetchCategoryBlogRequest = () => ({
     type: FETCH_CATEGORY_BLOG_REQUEST,
 });
 
-export const fetchCategoryBlogSuccess = (results, totalCount, totalPages, currentPage) => ({
+export const fetchCategoryBlogSuccess = ({ results, totalCount, totalPages, currentPage }) => ({
     type: FETCH_CATEGORY_BLOG_SUCCESS,
     payload: {
         results,
@@ -33,86 +33,83 @@ export const setCurrentPage = (page) => ({
     payload: page,
 });
 
+export const setLimit = (limit) => ({ // Thêm hành động để thiết lập limit
+    type: SET_LIMIT,
+    payload: limit,
+});
+
 // Thunk action creator for fetching category blogs
-export const fetchCategoryBlog = (name = '', page = 1, pageSize = 5) => {
-    return (dispatch) => {
+export const fetchCategoryBlog = (name = '', page = 1) => {
+    return async (dispatch) => {
         dispatch(fetchCategoryBlogRequest());
 
-        const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}`);
+        // Lấy limit từ localStorage, mặc định là 5 nếu chưa có
+        const limit = parseInt(localStorage.getItem('limit'), 10) || 5;
 
-        // Add search parameter if provided
-        if (name) {
-            url.searchParams.append('search', name);
+        try {
+            const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}`);
+
+            // Add search parameter if provided
+            if (name) {
+                url.searchParams.append('search', name);
+            }
+            // Add pagination parameters
+            url.searchParams.append('page', page);
+            url.searchParams.append('limit', limit);
+
+            const response = await http.get(url.toString());
+            const { results, totalCount, totalPages, currentPage } = response.data;
+
+            // Dispatch success action
+            dispatch(fetchCategoryBlogSuccess({ results, totalCount, totalPages, currentPage }));
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || error.message || "Failed to fetch categories";
+            dispatch(fetchCategoryBlogFailure(errorMsg));
         }
-        // Add pagination parameters
-        url.searchParams.append('page', page);
-        url.searchParams.append('pageSize', pageSize);
-
-        http.get(url.toString())
-            .then(response => {
-                const { results, totalCount, totalPages, currentPage } = response.data;
-
-                // Dispatch action to update the state with the fetched data
-                dispatch(fetchCategoryBlogSuccess(results, totalCount, totalPages, currentPage));
-                console.log(response.data);
-                
-            })
-            .catch(error => {
-                const errorMsg = error.message;
-                dispatch(fetchCategoryBlogFailure(errorMsg));
-            });
     };
 };
 
 // Thunk action creator for adding a category blog
 export const addCategoryBlog = (categoryBlog) => {
-    return (dispatch) => {
+    return async (dispatch) => {
         dispatch(fetchCategoryBlogRequest());
-        http.post(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}`, categoryBlog)
-            .then((response) => {
-                dispatch(fetchCategoryBlogSuccess(response.data.data));
-                dispatch(fetchCategoryBlog()); // Refresh the list after adding
-            })
-            .catch(error => {
-                const errorMsg = error.message;
-                dispatch(fetchCategoryBlogFailure(errorMsg));
-            });
+        try {
+            await http.post(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}`, categoryBlog);
+            // Refresh the list after adding
+            dispatch(fetchCategoryBlog());
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || error.message || "Failed to add category";
+            dispatch(fetchCategoryBlogFailure(errorMsg));
+        }
     };
 };
 
 // Thunk action creator for updating a category blog
 export const updateCategoryBlog = (id, data) => {
-    return (dispatch) => {
+    return async (dispatch) => {
         dispatch(fetchCategoryBlogRequest());
-        http.patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`, data)
-            .then((response) => {
-                dispatch(fetchCategoryBlogSuccess(response.data.data));
-                dispatch(fetchCategoryBlog()); // Refresh the list after updating
-            })
-            .catch(error => {
-                const errorMsg = error.message;
-                dispatch(fetchCategoryBlogFailure(errorMsg));
-            });
+        try {
+            await http.patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`, data);
+            // Refresh the list after updating
+            dispatch(fetchCategoryBlog());
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || error.message || "Failed to update category";
+            dispatch(fetchCategoryBlogFailure(errorMsg));
+        }
     };
 };
 
 // Thunk action creator for soft deleting a category blog
 export const deleteCategoryBlog = (id) => {
-    return (dispatch) => {
+    return async (dispatch) => {
         dispatch(fetchCategoryBlogRequest());
-
-        // Endpoint cho việc xóa tạm
-        const url = `${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`;
-
-        http.delete(url)
-            .then(() => {
-                // Sau khi xóa tạm, gọi lại fetchCategoryBlog để làm mới danh sách
-                dispatch(fetchCategoryBlog()); 
-            })
-            .catch(error => {
-                const errorMsg = error.message;
-                dispatch(fetchCategoryBlogFailure(errorMsg));
-            });
+        try {
+            await http.delete(`${API_ENDPOINT}/${AdminConfig.routes.categoryBlog}/${id}`);
+            // Refresh the list after deleting
+            dispatch(fetchCategoryBlog());
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || error.message || "Failed to delete category";
+            dispatch(fetchCategoryBlogFailure(errorMsg));
+        }
     };
 };
-
