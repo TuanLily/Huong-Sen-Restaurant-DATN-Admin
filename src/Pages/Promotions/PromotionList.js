@@ -218,7 +218,7 @@ export default function PromotionList () {
                                                                 onChange={() => handleSelectItem(item.id)}
                                                             />
                                                         </td>
-                                                        <td>{stt}</td>
+                                                        <td>{index + 1}</td>
                                                         <td>{item.code_name}</td>
                                                         <td>
                                                             <span className="badge badge-success">{item.discount}%</span>
@@ -253,9 +253,10 @@ export default function PromotionList () {
                                 <div className='my-2'>
                                     <CustomPagination
                                         count={promotionState.totalPages} // Tổng số trang
-                                        currentPageSelector={state => state.promotion.currentPage} // Selector để lấy trang hiện tại
-                                        fetchAction={(page, pageSize) => fetchPromotion(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
-                                        onPageChange={handlePageChange} 
+                                        onPageChange={handlePageChange}
+                                        currentPageSelector={(state) => state.promotion.currentPage} // Selector để lấy trang hiện tại
+                                        pageSizeSelector={(state) => state.promotion.limit} // Thay pageSizeSelector thành limit
+                                        fetchDataAction={(page, size) => fetchPromotion(searchTerm, page)}
                                     />
                                 </div>
                             </div>

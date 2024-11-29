@@ -217,7 +217,7 @@ export default function ProductTamXoa () {
                                                                 onChange={() => handleSelectItem(item.id)}
                                                             />
                                                         </td>
-                                                        <td>{stt}</td>
+                                                        <td>{index + 1}</td>
                                                         <td>
                                                             <img className="img-fluid rounded w-100" src={item.image || '../Assets/Images/default.jpg'} alt="Image"/>
                                                         </td>
@@ -252,11 +252,18 @@ export default function ProductTamXoa () {
                                     </table>
                                 </div>
                                 <div className='my-2'>
-                                    <CustomPagination
+                                    {/* <CustomPagination
                                         count={productState.totalPages} // Tổng số trang
                                         currentPageSelector={state => state.product.currentPage} // Selector để lấy trang hiện tại
                                         fetchAction={(page, pageSize) => fetchProductNgungHoatDong(searchTerm, searchCateID, page, pageSize)} // Hàm fetch dữ liệu
                                         onPageChange={handlePageChange} 
+                                    /> */}
+                                    <CustomPagination
+                                        count={productState.totalPages} // Tổng số trang
+                                        onPageChange={handlePageChange}
+                                        currentPageSelector={(state) => state.product.currentPage} // Selector để lấy trang hiện tại
+                                        pageSizeSelector={(state) => state.product.limit} // Thay pageSizeSelector thành limit
+                                        fetchDataAction={(page, size) => fetchProductNgungHoatDong(searchTerm, searchCateID, page)}
                                     />
                                 </div>
                             </div>

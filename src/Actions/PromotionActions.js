@@ -3,6 +3,7 @@ export const FETCH_PROMOTION_REQUEST = 'FETCH_PROMOTION_REQUEST';
 export const FETCH_PROMOTION_SUCCESS = 'FETCH_PROMOTION_SUCCESS';
 export const FETCH_PROMOTION_FAILURE = 'FETCH_PROMOTION_FAILURE';
 export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
+export const SET_LIMIT = 'SET_LIMIT';
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
@@ -32,9 +33,17 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
+export const setLimit = (limit) => ({ 
+    type: SET_LIMIT,
+    payload: limit
+});
+
 export const fetchPromotion = (code_name = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchPromotionRequest());
+
+        const limit = parseInt(localStorage.getItem('limit'), 10) || 5;
+
         const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.promotion}`);
 
         // Thêm tham số tìm kiếm nếu có
@@ -43,7 +52,7 @@ export const fetchPromotion = (code_name = '', page = 1, pageSize = 10) => {
         }
         // Thêm tham số phân trang
         url.searchParams.append('page', page);
-        url.searchParams.append('pageSize', pageSize);
+        url.searchParams.append('limit', limit);
 
         http.get(url.toString())
             .then(response => {

@@ -225,7 +225,7 @@ export default function CategoryProductList() {
                                                                 />
                                                             )}
                                                         </td>
-                                                        <td>{stt}</td>
+                                                        <td>{index + 1}</td>
                                                         <td>{item.name}</td>
                                                         <td>
                                                             {item.status === 1 && <span className="badge badge-success">Hoạt động</span>}
@@ -269,9 +269,10 @@ export default function CategoryProductList() {
                                 <div className='my-2'>
                                     <CustomPagination
                                         count={productCategoryState.totalPages} // Tổng số trang
-                                        currentPageSelector={state => state.product_category.currentPage} // Selector để lấy trang hiện tại
-                                        fetchAction={(page, pageSize) => fetchProductCategoryHoatDong(searchTerm, page, pageSize)} // Hàm fetch dữ liệu
                                         onPageChange={handlePageChange}
+                                        currentPageSelector={(state) => state.product_category.currentPage} // Selector để lấy trang hiện tại
+                                        pageSizeSelector={(state) => state.product_category.limit} // Thay pageSizeSelector thành limit
+                                        fetchDataAction={(page, size) => fetchProductCategoryHoatDong(searchTerm, page)}
                                     />
                                 </div>
                             </div>

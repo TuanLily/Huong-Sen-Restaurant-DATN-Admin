@@ -2,7 +2,7 @@ export const FETCH_PRODUCT_REQUEST = "FETCH_PRODUCT_REQUEST";
 export const FETCH_PRODUCT_SUCCESS = "FETCH_PRODUCT_SUCCESS";
 export const FETCH_PRODUCT_FAILURE = "FETCH_PRODUCT_FAILURE";
 export const SET_CURRENT_PAGE = "SET_CURRENT_PAGE";
-export const SET_LIMIT = 'SET_LIMIT';
+export const SET_LIMIT = "SET_LIMIT";
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from "../Config/index";
@@ -87,60 +87,49 @@ export const fetchMenu = () => {
   };
 };
 
-export const fetchProductHoatDong = (name = "", searchCateID = "", page = 1) => {
-    return async (dispatch) => {
-      dispatch(fetchProductRequest());
-  
-      // Lấy limit từ localStorage, mặc định là 10 nếu chưa có
-      const limit = parseInt(localStorage.getItem("limit"), 10) || 10;
-  
-      try {
-        const url = new URL(
-          `${API_ENDPOINT}/${AdminConfig.routes.product}/hoat_dong`
-        );
-  
-        // Thêm tham số tìm kiếm nếu có
-        if (name) {
-          url.searchParams.append("searchName", name);
-        }
-        if (searchCateID) {
-          url.searchParams.append("searchCateID", searchCateID);
-        }
-  
-        // Thêm tham số phân trang
-        url.searchParams.append("page", page);
-        url.searchParams.append("limit", limit); // Dùng limit thay cho pageSize
-  
-        // Gọi API với http.get
-        const response = await http.get(url.toString());
+export const fetchProductHoatDong = (
+  name = "",
+  searchCateID = "",
+  page = 1,
+  pageSize = 10
+) => {
+  return (dispatch) => {
+    dispatch(fetchProductRequest());
+
+    const limit = parseInt(localStorage.getItem("limit"), 10) || 5;
+
+    const url = new URL(
+      `${API_ENDPOINT}/${AdminConfig.routes.product}/hoat_dong`
+    );
+
+    // Thêm tham số tìm kiếm nếu có
+    if (name) {
+      url.searchParams.append("searchName", name);
+    }
+    if (searchCateID) {
+      url.searchParams.append("searchCateID", searchCateID);
+    }
+
+    // Thêm tham số phân trang
+    url.searchParams.append("page", page);
+    url.searchParams.append("limit", limit);
+
+    http
+      .get(url.toString())
+      .then((response) => {
         const { results, totalCount, totalPages, currentPage } = response.data;
-  
-        // Lọc sản phẩm nếu cần, ví dụ lọc `categories_id !== 8`
-        const filteredResults = results.filter(
-          (product) => product.categories_id !== 8
-        );
-  
+
         // Dispatch action để cập nhật dữ liệu
         dispatch(
-          fetchProductSuccess(
-            filteredResults,
-            totalCount,
-            totalPages,
-            currentPage
-          )
+          fetchProductSuccess(results, totalCount, totalPages, currentPage)
         );
-      } catch (error) {
-        const errorMsg =
-          error.response?.data?.message ||
-          error.message ||
-          "Đã xảy ra lỗi trong quá trình lấy dữ liệu.";
-  
-        // Dispatch action lỗi
+      })
+      .catch((error) => {
+        const errorMsg = error.message;
         dispatch(fetchProductFailure(errorMsg));
-      }
-    };
+      });
   };
-  
+};
 
 export const fetchProductNgungHoatDong = (
   name = "",
@@ -150,6 +139,9 @@ export const fetchProductNgungHoatDong = (
 ) => {
   return (dispatch) => {
     dispatch(fetchProductRequest());
+
+    const limit = parseInt(localStorage.getItem("limit"), 10) || 5;
+
     const url = new URL(
       `${API_ENDPOINT}/${AdminConfig.routes.product}/ngung_hoat_dong`
     );
@@ -163,7 +155,7 @@ export const fetchProductNgungHoatDong = (
     }
     // Thêm tham số phân trang
     url.searchParams.append("page", page);
-    url.searchParams.append("pageSize", pageSize);
+    url.searchParams.append("limit", limit);
 
     http
       .get(url.toString())

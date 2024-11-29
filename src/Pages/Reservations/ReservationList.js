@@ -226,7 +226,7 @@ export default function ReservationList() {
                                                 const statusInfo = statusMapping[item.status] || { text: 'Không xác định', class: 'badge-secondary' };
                                                 return (
                                                     <tr key={item.id}>
-                                                        <td>{stt}</td>
+                                                        <td>{index + 1}</td>
                                                         <td style={{ textAlign: 'left' }}>
                                                             Mã hóa đơn: {item.reservation_code ? item.reservation_code : 'Chưa rõ'}<br />
                                                             Họ và tên: {item.fullname}<br />
@@ -307,9 +307,10 @@ export default function ReservationList() {
                                 <div className='my-2'>
                                     <CustomPagination
                                         count={reservationState.totalPages} // Tổng số trang
-                                        currentPageSelector={state => state.reservations_Admin.currentPage} // Selector để lấy trang hiện tại
-                                        fetchAction={(page, pageSize) => fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , recodeSearch , page , pageSize)} // Hàm fetch dữ liệu
-                                        onPageChange={handlePageChange} 
+                                        onPageChange={handlePageChange}
+                                        currentPageSelector={(state) => state.reservations_Admin.currentPage} // Selector để lấy trang hiện tại
+                                        pageSizeSelector={(state) => state.reservations_Admin.limit} // Thay pageSizeSelector thành limit
+                                        fetchDataAction={(page, size) => fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , recodeSearch , page)}
                                     />
                                 </div>
                             </div>

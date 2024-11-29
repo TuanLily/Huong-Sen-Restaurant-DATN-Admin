@@ -2,6 +2,7 @@ export const FETCH_RESERVATIONS_REQUEST = 'FETCH_RESERVATIONS_REQUEST';
 export const FETCH_RESERVATIONS_SUCCESS = 'FETCH_RESERVATIONS_SUCCESS';
 export const FETCH_RESERVATIONS_FAILURE = 'FETCH_RESERVATIONS_FAILURE';
 export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
+export const SET_LIMIT = 'SET_LIMIT';
 
 import { API_DATA, API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
@@ -31,10 +32,18 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
+export const setLimit = (limit) => ({ 
+    type: SET_LIMIT,
+    payload: limit
+});
+
 // Lấy dữ liệu
 export const fetchReservations = (fullname = '', tel = '', email = '', status = '', reservation_code = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchReservationsRequest());
+
+        const limit = parseInt(localStorage.getItem('limit'), 10) || 5;
+
         const url = new URL(`${API_ENDPOINT}/${API_DATA.reservations_admin}`);
 
         // Thêm tham số tìm kiếm nếu có
@@ -56,7 +65,7 @@ export const fetchReservations = (fullname = '', tel = '', email = '', status = 
 
         // Thêm tham số phân trang
         url.searchParams.append('page', page);
-        url.searchParams.append('pageSize', pageSize);
+        url.searchParams.append('limit', limit);
 
         http.get(url.toString())
             .then(response => {
