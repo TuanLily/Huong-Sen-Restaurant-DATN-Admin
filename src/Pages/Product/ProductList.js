@@ -282,14 +282,13 @@ export default function ProductList() {
                         </tr>
                       )}
                       {!productState.loading &&
-                        productState.product.length === 0 && (
+                        productState.allProducts.length === 0 && (
                           <tr>
                             <td colSpan="7">Không tìm thấy sản phẩm nào!</td>
                           </tr>
                         )}
-                      {productState.product &&
-                        productState.product.map((item, index) => {
-
+                      {productState.allProducts &&
+                        productState.allProducts.map((item, index) => {
                           return (
                             <tr key={item.id}>
                               <td>

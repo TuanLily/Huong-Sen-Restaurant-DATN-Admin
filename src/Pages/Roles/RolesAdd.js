@@ -8,7 +8,6 @@ import { DangerAlert, SuccessAlert } from "../../Components/Alert/Alert";
 export default function RolesAdd() {
     const dispatch = useDispatch();
     const { register, handleSubmit, formState: { errors } } = useForm();
-
     const navigate = useNavigate();
 
     const [openSuccess, setOpenSuccess] = useState(false);
@@ -17,13 +16,19 @@ export default function RolesAdd() {
 
     const onSubmit = async (data) => {
         try {
+            // Gửi yêu cầu thêm vai trò
             await dispatch(addRole(data)); 
             setOpenSuccess(true);
             setTimeout(() => {
                 navigate('/role');
             }, 2000);
         } catch (error) {
-            setErrorMessage(error.message);
+            // Kiểm tra lỗi từ phía server
+            if (error.response && error.response.status === 409) {
+                setErrorMessage("Vai trò đã tồn tại");
+            } else {
+                setErrorMessage(error.message || "Không thể tạo vai trò");
+            }
             setOpenError(true);
         }
     };
@@ -86,7 +91,7 @@ export default function RolesAdd() {
                     <DangerAlert
                         open={openError}
                         onClose={handleErrorClose}
-                        message={errorMessage}
+                        message={"Đã xảy ra lỗi hoặc vai trò đã tồn tại"}
                         vertical="top"
                         horizontal="right"
                     />

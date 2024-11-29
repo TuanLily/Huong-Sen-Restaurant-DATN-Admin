@@ -608,9 +608,9 @@ export default function ReservationUpdate() {
                                 </tr>
                               )}
                               {!productState.loading &&
-                              productState.product &&
-                              productState.product.length > 0 ? (
-                                productState.product
+                              productState.allProducts &&
+                              productState.allProducts.length > 0 ? (
+                                productState.allProducts
                                   .filter(
                                     (product) =>
                                       selectedCategory === null ||

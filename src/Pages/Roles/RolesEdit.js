@@ -100,7 +100,7 @@ export default function RolesEdit() {
                     <DangerAlert
                         open={openError}
                         onClose={handleErrorClose}
-                        message={errorMessage}
+                        message={"Đã xảy ra lỗi hoặc vai trò đã tồn tại"}
                         vertical="top"
                         horizontal="right"
                     />
