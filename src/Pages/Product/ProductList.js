@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { fetchProductHoatDong, deleteProduct, updateStatus, setCurrentPage } from "../../Actions/ProductActions";
+import {
+  fetchProductHoatDong,
+  deleteProduct,
+  updateStatus,
+  setCurrentPage,
+} from "../../Actions/ProductActions";
 import { fetchProductCategory } from "../../Actions/ProductCategoryActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
@@ -53,7 +58,14 @@ export default function ProductList() {
   const [searchCateID, setsearchCateID] = useState("");
 
   useEffect(() => {
-    dispatch(fetchProductHoatDong(searchTerm, searchCateID, urlPage, productState.pageSize));
+    dispatch(
+      fetchProductHoatDong(
+        searchTerm,
+        searchCateID,
+        urlPage,
+        productState.pageSize
+      )
+    );
     dispatch(fetchProductCategory());
   }, [dispatch, urlPage, productState.pageSize, searchTerm, searchCateID]);
 
@@ -151,7 +163,14 @@ export default function ProductList() {
   const handlePageChange = (page) => {
     navigate(`?page=${page}`); // Cập nhật URL với page
     dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-    dispatch(fetchProductHoatDong(searchTerm, searchCateID, page, productState.pageSize));
+    dispatch(
+      fetchProductHoatDong(
+        searchTerm,
+        searchCateID,
+        page,
+        productState.pageSize
+      )
+    );
   };
 
   return (
@@ -167,7 +186,7 @@ export default function ProductList() {
               <input
                 type="text"
                 className="form-control me-2"
-                style={{ height: '38px', minWidth: '150px' }}
+                style={{ height: "38px", minWidth: "150px" }}
                 placeholder="Tên"
                 aria-label="Tên"
                 value={searchTerm}
@@ -175,14 +194,17 @@ export default function ProductList() {
               />
               <select
                 className="form-control"
-                style={{ height: '38px', minWidth: '150px' }}
+                style={{ height: "38px", minWidth: "150px" }}
                 value={searchCateID}
                 onChange={handleSearchCateID}
               >
                 <option value="">Danh mục</option>
-                {productCategoryState && productCategoryState.product_category.map((item, index) => (
-                  <option key={index} value={item.id}>{item.name}</option>
-                ))}
+                {productCategoryState &&
+                  productCategoryState.product_category.map((item, index) => (
+                    <option key={index} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
               </select>
             </div>
 
@@ -192,7 +214,7 @@ export default function ProductList() {
                   className="btn btn-danger me-2 mb-2 mb-md-0"
                   onClick={handleDeleteSelected}
                   disabled={selectedItems.length === 0}
-                  style={{ height: '38px' }}
+                  style={{ height: "38px" }}
                 >
                   Xóa mục đã chọn
                 </button>
@@ -201,13 +223,17 @@ export default function ProductList() {
                 <Link
                   to="/product/tam_xoa"
                   className="btn btn-info me-2 mb-2 mb-md-0"
-                  style={{ height: '38px' }}
+                  style={{ height: "38px" }}
                 >
                   Sản phẩm tạm xóa
                 </Link>
               )}
               {hasPermission("Thêm sản phẩm") && (
-                <Link to="/product/add" className="btn btn-primary" style={{ height: '38px' }}>
+                <Link
+                  to="/product/add"
+                  className="btn btn-primary"
+                  style={{ height: "38px" }}
+                >
                   Thêm sản phẩm
                 </Link>
               )}
@@ -347,11 +373,12 @@ export default function ProductList() {
                 <div className="my-2">
                   <CustomPagination
                     count={productState.totalPages} // Tổng số trang
+                    onPageChange={handlePageChange} // Hàm chuyển trang
                     currentPageSelector={(state) => state.product.currentPage} // Selector để lấy trang hiện tại
-                    fetchAction={(page, pageSize) =>
-                      fetchProductHoatDong(searchTerm, searchCateID, page, pageSize)
-                    } // Hàm fetch dữ liệu
-                    onPageChange={handlePageChange}
+                    pageSizeSelector={(state) => state.product.limit} // Lấy limit thay vì pageSize
+                    fetchDataAction={(page) =>
+                      fetchProductHoatDong(searchTerm, searchCateID, page)
+                    } // Hàm fetch dữ liệu chỉ truyền page (limit đã lấy từ state)
                   />
                 </div>
               </div>

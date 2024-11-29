@@ -529,20 +529,17 @@ export default function ReservationAdd() {
                               )}
                             </tbody>
                           </table>
-                          <div className="row justify-content-center mb-3">
+                          <div className="row justify-content-center mb-3 mx-1">
                             <CustomPagination
-                              count={productState.totalPages}
+                              count={productState.totalPages} // Tổng số trang từ state
+                              onPageChange={handlePageChange} // Hàm chuyển trang
                               currentPageSelector={(state) =>
                                 state.product.currentPage
-                              }
-                              fetchAction={(page, pageSize) =>
-                                fetchProductHoatDongReser(
-                                  searchTerm,
-                                  page,
-                                  pageSize
-                                )
-                              }
-                              onPageChange={handlePageChange}
+                              } // Selector lấy currentPage
+                              pageSizeSelector={(state) => state.product.limit} // Thay pageSizeSelector thành limit
+                              fetchDataAction={(page) =>
+                                fetchProductHoatDongReser(searchTerm, page)
+                              } // Fetch dữ liệu với searchTerm và page
                             />
                           </div>
                         </div>

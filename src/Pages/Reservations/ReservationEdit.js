@@ -378,11 +378,10 @@ export default function ReservationUpdate() {
                       <label>Ngày và giờ đặt</label>
                       <input
                         type="datetime-local"
-                        className={`form-control `} disabled
-                        {...register("reservation_date", {
-                         
-                        })}
-                         // Thiết lập giá trị min là thời gian hiện tại
+                        className={`form-control `}
+                        disabled
+                        {...register("reservation_date", {})}
+                        // Thiết lập giá trị min là thời gian hiện tại
                         // Gọi hàm handleDateChange khi có thay đổi
                       />
                       {errors.reservation_date && (
@@ -506,8 +505,7 @@ export default function ReservationUpdate() {
                     </div>
                   </div>
 
-                  <div className="row justify-content-center mb-3">
-                  </div>
+                  <div className="row justify-content-center mb-3"></div>
                 </div>
               </div>
             </div>
@@ -648,20 +646,17 @@ export default function ReservationUpdate() {
                               )}
                             </tbody>
                           </table>
-                          <div className="row justify-content-center mb-3">
+                          <div className="row justify-content-center mb-3 mx-1">
                             <CustomPagination
-                              count={productState.totalPages}
+                              count={productState.totalPages} // Tổng số trang từ state
+                              onPageChange={handlePageChange} // Hàm chuyển trang
                               currentPageSelector={(state) =>
                                 state.product.currentPage
-                              }
-                              fetchAction={(page, pageSize) =>
-                                fetchProductHoatDongReser(
-                                  searchTerm,
-                                  page,
-                                  pageSize
-                                )
-                              }
-                              onPageChange={handlePageChange}
+                              } // Selector lấy currentPage
+                              pageSizeSelector={(state) => state.product.limit} // Thay pageSizeSelector thành limit
+                              fetchDataAction={(page) =>
+                                fetchProductHoatDongReser(searchTerm, page)
+                              } // Fetch dữ liệu với searchTerm và page
                             />
                           </div>
                         </div>
