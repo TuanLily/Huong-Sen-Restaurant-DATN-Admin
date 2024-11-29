@@ -289,11 +289,7 @@ export default function ProductList() {
                         )}
                       {productState.product &&
                         productState.product.map((item, index) => {
-                          const stt =
-                            (productState.currentPage - 1) *
-                              productState.pageSize +
-                            index +
-                            1;
+
                           return (
                             <tr key={item.id}>
                               <td>
@@ -303,7 +299,7 @@ export default function ProductList() {
                                   onChange={() => handleSelectItem(item.id)}
                                 />
                               </td>
-                              <td>{stt}</td>
+                              <td>{index + 1}</td>
                               <td>
                                 <img
                                   className="img-fluid rounded w-100"

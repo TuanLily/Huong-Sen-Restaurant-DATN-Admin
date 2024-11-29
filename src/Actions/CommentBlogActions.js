@@ -3,18 +3,18 @@ export const FETCH_COMMENTBLOG_REQUEST = 'FETCH_COMMENTBLOG_REQUEST';
 export const FETCH_COMMENTBLOG_SUCCESS = 'FETCH_COMMENTBLOG_SUCCESS';
 export const FETCH_COMMENTBLOG_FAILURE = 'FETCH_COMMENTBLOG_FAILURE';
 export const SET_CURRENT_PAGE = 'SET_CURRENT_PAGE';
+export const SET_LIMIT = 'SET_LIMIT'; 
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from '../Config/index';
 import http from "../Utils/Http";
 
 // Action Creators
-// Action Creators
 export const fetchCommentBlogRequest = () => ({
     type: FETCH_COMMENTBLOG_REQUEST
 });
 
-export const fetchCommentBlogSuccess = (results, totalCount, totalPages, currentPage) => ({
+export const fetchCommentBlogSuccess = ({results, totalCount, totalPages, currentPage}) => ({
     type: FETCH_COMMENTBLOG_SUCCESS,
     payload: {
         results,
@@ -34,33 +34,41 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
+export const setLimit = (limit) => ({
+    type: SET_LIMIT,
+    payload: limit,
+  });
 
-export const fetchCommentBlog = (blog_id, page = 1, pageSize = 10) => {
-    return (dispatch) => {
-        // Dispatch action yêu cầu dữ liệu
-        dispatch(fetchCommentBlogRequest());
 
+  export const fetchCommentBlog = (blog_id, page = 1) => {
+    return async (dispatch) => {
+      // Dispatch action yêu cầu dữ liệu
+      dispatch(fetchCommentBlogRequest());
+
+        // Get limit from localStorage or default to 5
+    const limit = parseInt(localStorage.getItem('limit'), 10) || 5;
+
+  
+      try {
         // Tạo URL cho API với các tham số phân trang và blog_id
         const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.commentBlog}/blog/${blog_id}`);
+      
         url.searchParams.append('page', page);
-        url.searchParams.append('pageSize', pageSize);
-
+        url.searchParams.append('limit', limit); // Corrected typo from "limt" to "limit"
         // Gọi API
-        http.get(url.toString())
-            .then(response => {
-                const { results, totalCount, totalPages, currentPage } = response.data;
-
-                // Dispatch action để cập nhật dữ liệu vào state
-                dispatch(fetchCommentBlogSuccess(results, totalCount, totalPages, currentPage));
-            })
-            .catch(error => {
-                // Lỗi trong khi gọi API
-                const errorMsg = error.response?.data?.message || error.message;
-                dispatch(fetchCommentBlogFailure(errorMsg));
-            });
+        const response = await http.get(url.toString());
+        const { results, totalCount, totalPages, currentPage } = response.data;
+  
+        // Dispatch action để cập nhật dữ liệu vào state
+        dispatch(fetchCommentBlogSuccess({results, totalCount, totalPages, currentPage}));
+      } catch (error) {
+        // Xử lý lỗi khi gọi API
+        const errorMsg = error.response?.data?.message || error.message || "Failed to fetch comments";
+        dispatch(fetchCommentBlogFailure(errorMsg));
+      }
     };
-};
-
+  };
+  
 
 
 

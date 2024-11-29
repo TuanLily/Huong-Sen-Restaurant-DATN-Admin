@@ -2,15 +2,18 @@ import {
     FETCH_COMMENTBLOG_FAILURE,
     FETCH_COMMENTBLOG_REQUEST,
     FETCH_COMMENTBLOG_SUCCESS,
-    SET_CURRENT_PAGE
+    SET_CURRENT_PAGE,
+    SET_LIMIT,
 } from '../Actions/CommentBlogActions';
 
 const initialState = {
-    currentPage: 1,
-    pageSize: 10,
+    currentPage: parseInt(localStorage.getItem("currentPage"), 10) || 1,
     allCommentBlogs: [],
     loading: false,
     commentBlog: [],
+    limit: localStorage.getItem("limit")
+    ? parseInt(localStorage.getItem("limit"))
+    : 10,
     error: '',
     totalCount: 0,
     totalPages: 0
@@ -34,10 +37,10 @@ const commentBlogReducer = (state = initialState, action) => {
                 ...state,
                 loading: false,
                 allCommentBlogs: commentBlogs, // Lưu tất cả các bình luận
-                totalCount: totalCount,         // Tổng số bình luận
-                totalPages: totalPages,         // Tổng số trang
-                currentPage: currentPage,       // Trang hiện tại
-                commentBlog: commentBlogs.slice(0, state.pageSize), // Dữ liệu cho trang hiện tại
+                totalCount,         // Tổng số bình luận
+                totalPages,         // Tổng số trang
+                currentPage,       // Trang hiện tại
+                commentBlog: commentBlogs.slice(0, state.limit), // Dữ liệu cho trang hiện tại
             };
 
         case FETCH_COMMENTBLOG_FAILURE:
@@ -48,14 +51,41 @@ const commentBlogReducer = (state = initialState, action) => {
             };
 
         case SET_CURRENT_PAGE:
-            const start = (action.payload - 1) * state.pageSize;
-            const end = start + state.pageSize;
+            const start = (action.payload - 1) * state.limit;
+            const end = start + state.limit;
+
+            // Lưu thông tin trang hiện tại vào localStorage
+      localStorage.setItem("currentPage", action.payload);
+
+            
+      
             return {
                 ...state,
                 currentPage: action.payload,
                 commentBlog: state.allCommentBlogs.slice(start, end), // Dữ liệu của trang hiện tại
             };
 
+            case SET_LIMIT: {
+                const newLimit = action.payload;
+          
+                // Điều chỉnh currentPage để đảm bảo không vượt quá số trang có sẵn khi limit thay đổi
+                const totalPages = Math.ceil(state.allCommentBlogs.length / newLimit); // Tổng số trang
+                const currentPage =
+                  state.currentPage > totalPages ? totalPages : state.currentPage;
+          
+                // Tính toán lại các chỉ số start và end dựa trên currentPage và newLimit
+                const start = (currentPage - 1) * newLimit;
+                const end = start + newLimit;
+          
+                // Lưu limit vào localStorage
+                localStorage.setItem("limit", newLimit);
+          
+                return {
+                    ...state,
+                    limit: newLimit,
+                    currentPage, // Cập nhật currentPage nếu cần thiết
+                    commentblog: state.allCommentBlogs.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
+                  };}
         default:
             return state;
     }

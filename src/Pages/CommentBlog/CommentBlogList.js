@@ -66,16 +66,17 @@ export default function CommentBlogList() {
 
   const handlePageChange = (page) => {
     if (blogId) {
-      // Gọi action fetchCommentBlog trực tiếp khi page thay đổi
-      dispatch(fetchCommentBlog(blogId, page, commentBlogState.pageSize));
-
-      // Cập nhật URL
+      // Cập nhật URL với trang mới
       navigate(`?page=${page}`);
-
+      
       // Cập nhật trang hiện tại trong Redux state
       dispatch(setCurrentPage(page));
+  
+      // Fetch dữ liệu theo trang mới
+      dispatch(fetchCommentBlog(blogId, page));
     }
   };
+  
 
 
 
@@ -169,13 +170,13 @@ export default function CommentBlogList() {
                     </tr>
                   )}
                   {!commentBlogState.loading &&
-                    commentBlogState.commentBlog.length === 0 && (
+                    commentBlogState.allCommentBlogs.length === 0 && (
                       <tr>
                         <td colSpan="5">Không tìm thấy bình luận</td>
                       </tr>
                     )}
                   {!commentBlogState.loading &&
-                    commentBlogState.commentBlog.map((item, index) => (
+                    commentBlogState.allCommentBlogs.map((item, index) => (
                       <tr key={item.id}>
                         <td>
                           <input
@@ -216,12 +217,19 @@ export default function CommentBlogList() {
               </table>
             </div>
             <div className="my-2">
-              <CustomPagination
+              {/* <CustomPagination
                 count={commentBlogState.totalPages} // Tổng số trang
                 currentPageSelector={(state) => state.commentBlog.currentPage} // Selector để lấy trang hiện tại
                 fetchAction={(page) => fetchCommentBlog(blogId, page, commentBlogState.pageSize)} // Đảm bảo là một hàm
                 onPageChange={handlePageChange} // Hàm xử lý khi thay đổi trang
-              />
+              /> */}
+              <CustomPagination
+                                        count={commentBlogState.totalPages} // Tổng số trang từ state
+                                        currentPageSelector={(state) => state.commentBlog.currentPage} // Selector lấy currentPage
+                                        pageSizeSelector={(state) => state.commentBlog.limit} // Thay pageSizeSelector thành limit
+                                        fetchDataAction={(page, size) => fetchCommentBlog(blogId, page, commentBlogState.pageSize)} // Fetch dữ liệu với searchTerm và page
+                                        onPageChange={handlePageChange} // Hàm chuyển trang
+                                    />
             </div>
           </div>
           <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Xóa bình luận thành công!" />
