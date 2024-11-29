@@ -273,8 +273,8 @@ export default function CustomerList() {
                                                     <td colSpan="7">Không tìm thấy tài khoản</td>
                                                 </tr>
                                             )}
-                                            {userState.user &&
-                                                userState.user.map((user, index) => (
+                                            {userState.allUsers &&
+                                                userState.allUsers.map((user, index) => (
                                                     <tr key={user.id}>
                                                         <td>
                                                             <input

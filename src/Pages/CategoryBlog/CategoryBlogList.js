@@ -31,18 +31,18 @@ export default function CategoryBlogList() {
   const permissions = getQuyenHanState.getQuyenHan || [];
 
   useEffect(() => {
-      if (token) {
-        const decodedToken = jwt_decode(token);
-        const userIdFromToken = decodedToken.id;
-        dispatch(getPermissions(userIdFromToken));  
-      }
+    if (token) {
       const decodedToken = jwt_decode(token);
       const userIdFromToken = decodedToken.id;
       dispatch(getPermissions(userIdFromToken));
+    }
+    const decodedToken = jwt_decode(token);
+    const userIdFromToken = decodedToken.id;
+    dispatch(getPermissions(userIdFromToken));
   }, [navigate, dispatch, token]);
 
   const hasPermission = (permissionName) => {
-      return permissions.data && permissions.data.some(permission => permission.name == permissionName);
+    return permissions.data && permissions.data.some(permission => permission.name == permissionName);
   };
 
   const [open, setOpen] = useState(false)
@@ -66,7 +66,7 @@ export default function CategoryBlogList() {
     if (!searchTerm) {
       dispatch(fetchCategoryBlog('', urlPage, categoryBlogState.pageSize));
     }
-  }, [dispatch,searchTerm, urlPage, categoryBlogState.pageSize]);
+  }, [dispatch, searchTerm, urlPage, categoryBlogState.pageSize]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -90,7 +90,7 @@ export default function CategoryBlogList() {
 
   const handleSuccessClose = () => {
     setOpenSuccess(false);
-};
+  };
 
   const handleConfirm = async () => {
     if (selectedCategoryBlog) {
@@ -100,7 +100,7 @@ export default function CategoryBlogList() {
         setOpenSuccess(true); // Hiển thị thông báo thành công
       } catch (error) {
         console.error("Error deleting product:", error);
-    }
+      }
     }
   };
 
@@ -144,9 +144,9 @@ export default function CategoryBlogList() {
           </div>
           <div className="ms-md-auto py-2 py-md-0">
             {hasPermission('Xóa danh mục bài viết') && (
-                <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
-                    Xóa mục đã chọn
-                </button>
+              <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
+                Xóa mục đã chọn
+              </button>
             )}
             {hasPermission('Thêm danh mục bài viết') && (
               <Link to="/category-blog/add" className="btn btn-primary btn-round">
@@ -190,9 +190,9 @@ export default function CategoryBlogList() {
                       <tr>
                         <th>
                           <input
-                              type="checkbox"
-                              checked={allSelected}
-                              onChange={handleSelectAll}
+                            type="checkbox"
+                            checked={allSelected}
+                            onChange={handleSelectAll}
                           />
                         </th>
                         <th scope="col">STT</th>
@@ -219,17 +219,17 @@ export default function CategoryBlogList() {
                           <td colSpan="4">Error: {categoryBlogState.error}</td>
                         </tr>
                       )}
-                      {categoryBlogState.categories &&
-                        categoryBlogState.categories.map((item, index) => (
+                      {categoryBlogState.allCategories &&
+                        categoryBlogState.allCategories.map((item, index) => (
                           <tr key={item.id}>
                             <td>
                               {item.name == 'Chưa phân loại' ? (
                                 "-"
                               ) : (
                                 <input
-                                    type="checkbox"
-                                    checked={selectedItems.includes(item.id)}
-                                    onChange={() => handleSelectItem(item.id)}
+                                  type="checkbox"
+                                  checked={selectedItems.includes(item.id)}
+                                  onChange={() => handleSelectItem(item.id)}
                                 />
                               )}
                             </td>
@@ -249,7 +249,7 @@ export default function CategoryBlogList() {
                             <td>
                               {item.name !== "Chưa phân loại" && (
                                 <div className="btn-group mt-3" role="group">
-                                  {hasPermission ('Sửa danh mục bài viết') && (
+                                  {hasPermission('Sửa danh mục bài viết') && (
                                     <button
                                       type="button"
                                       className="btn btn-outline-success"
@@ -258,7 +258,7 @@ export default function CategoryBlogList() {
                                       <span className="text-success">Sửa</span>
                                     </button>
                                   )}
-                                  {hasPermission ('Xóa danh mục bài viết') && (
+                                  {hasPermission('Xóa danh mục bài viết') && (
                                     <button
                                       type="button"
                                       className="btn btn-outline-danger"
