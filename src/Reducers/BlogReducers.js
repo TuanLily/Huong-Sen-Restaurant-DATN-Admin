@@ -68,7 +68,7 @@ const blogReducer = (state = initialState, action) => {
       const newLimit = action.payload;
 
       // Điều chỉnh currentPage để đảm bảo không vượt quá số trang có sẵn khi limit thay đổi
-      const totalPages = Math.ceil(state.allUsers.length / newLimit); // Tổng số trang
+      const totalPages = Math.ceil(state.allBlogs.length / newLimit); // Tổng số trang
       const currentPage =
         state.currentPage > totalPages ? totalPages : state.currentPage;
 
@@ -83,7 +83,7 @@ const blogReducer = (state = initialState, action) => {
         ...state,
         limit: newLimit,
         currentPage, // Cập nhật currentPage nếu cần thiết
-        user: state.allUsers.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
+        blog: state.allBlogs.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
       };
     }
 

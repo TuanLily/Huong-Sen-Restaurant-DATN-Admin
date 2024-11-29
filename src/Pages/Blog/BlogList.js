@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect,useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { fetchBlog, deleteBlog, setCurrentPage } from '../../Actions/BlogActions';
@@ -8,6 +8,7 @@ import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 import CheckboxSelection from '../../Components/CheckboxSelection';
+import debounce from "lodash.debounce";
 
 import { getPermissions } from '../../Actions/GetQuyenHanAction';
 import { jwtDecode as jwt_decode } from 'jwt-decode';
@@ -45,11 +46,32 @@ export default function BlogList() {
     const [selectedBlog, setSelectedBlog] = useState(null);
     const [searchTerm, setSearchTerm] = useState(''); 
 
-    useEffect(() => {
+    const debouncedSearch = useMemo(() => debounce((term) => {
+        dispatch(fetchBlog(term, urlPage, blogState.pageSize));
+        dispatch(setCurrentPage(1));
+      }, 1000), [dispatch, urlPage, blogState.pageSize]);
+    
+      useEffect(() => {
+        return () => {
+          debouncedSearch.cancel();
+        };
+      }, [debouncedSearch]);
+    
+      useEffect(() => {
         if (!searchTerm) {
             dispatch(fetchBlog("", urlPage, blogState.pageSize)); // Fetch lại dữ liệu khi không tìm kiếm
         }
     }, [dispatch, searchTerm, urlPage, blogState.pageSize]);
+    
+      useEffect(() => {
+        if (searchTerm) {
+          debouncedSearch(searchTerm);
+        }
+      }, [searchTerm]);
+    
+
+
+
 
     
     useEffect(() => {
@@ -197,7 +219,7 @@ export default function BlogList() {
                                                     <td colSpan="6">Error: {blogState.error}</td>
                                                 </tr>
                                             )}
-                                            {blogState.blog && blogState.blog.map((item, index) => (
+                                            {blogState.allBlogs && blogState.allBlogs.map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>
                                                         <input
