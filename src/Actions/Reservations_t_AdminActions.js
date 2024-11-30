@@ -38,7 +38,7 @@ export const setLimit = (limit) => ({
 });
 
 // Lấy dữ liệu
-export const fetchReservations = (fullname = '', tel = '', email = '', status = '', reservation_code = '', page = 1, pageSize = 10) => {
+export const fetchReservations = (fullname = '', tel = '', email = '', status = '', reservation_code = '', page = 1) => {
     return dispatch => {
         dispatch(fetchReservationsRequest());
 
@@ -139,12 +139,12 @@ export const fetchReservationsID = (id) => {
 };
 
 // Cập nhật trạng thái
-export const updateReservations = (id, data, fullname = '', tel = '', email = '', status = '', reservation_code = '', page = 1, pageSize = 10) => {
+export const updateReservations = (id, data, fullname = '', tel = '', email = '', status = '', reservation_code = '', page = 1) => {
     return (dispatch) => {
         dispatch(fetchReservationsRequest());
         http.patch(`${API_ENDPOINT}/${API_DATA.reservations_admin}/${id}`, data)
             .then((response) => {
-                dispatch(fetchReservations(fullname, tel, email, status, reservation_code, page, pageSize));
+                dispatch(fetchReservations(fullname, tel, email, status, reservation_code, page));
             })
             .catch((error) => {
                 dispatch(fetchReservationsFailure(error.message));

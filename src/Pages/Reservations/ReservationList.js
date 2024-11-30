@@ -88,7 +88,7 @@ export default function ReservationList() {
     const [selectedReservation, setSelectedReservation] = useState(null);
 
     useEffect(() => {
-        dispatch(fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , recodeSearch , urlPage, reservationState.pageSize));
+        dispatch(fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , recodeSearch , urlPage));
     }, [dispatch, urlPage, reservationState.pageSize, nameSearch, phoneSearch, emailSearch, statusSearch, recodeSearch]);
 
     useEffect(() => {
@@ -125,7 +125,7 @@ export default function ReservationList() {
     const handleUpdateStatus = async (id, st) => {
         if (id) {
             try {
-                await dispatch(updateReservations(id, {status: st}, nameSearch, phoneSearch, emailSearch, statusSearch, recodeSearch, urlPage, reservationState.pageSize));
+                await dispatch(updateReservations(id, {status: st}, nameSearch, phoneSearch, emailSearch, statusSearch, recodeSearch, urlPage));
                 setActiveDropdown(null);
                 handleClose();
                 setOpenSuccess(true); // Hiển thị thông báo thành công
@@ -150,7 +150,7 @@ export default function ReservationList() {
     const handlePageChange = (page) => {
         navigate(`?page=${page}`); // Cập nhật URL với page
         dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-        dispatch(fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , recodeSearch , page , reservationState.pageSize));
+        dispatch(fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , recodeSearch , page));
     };
 
     const statusMapping = {
