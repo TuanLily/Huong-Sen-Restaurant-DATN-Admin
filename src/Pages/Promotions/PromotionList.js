@@ -202,12 +202,12 @@ export default function PromotionList () {
                                                     <td colSpan="7"><CustomSpinner/></td>
                                                 </tr>
                                             )}
-                                            {!promotionState.loading && promotionState.promotion.length === 0 && (
+                                            {!promotionState.loading && promotionState.allPromotions.length === 0 && (
                                                 <tr>
                                                     <td colSpan="7">Không tìm thấy mã nào!</td>
                                                 </tr>
                                             )}
-                                            {promotionState.promotion && promotionState.promotion.map((item, index) => {
+                                            {promotionState.allPromotions && promotionState.allPromotions.map((item, index) => {
                                                 const stt = (promotionState.currentPage - 1) * promotionState.pageSize + index + 1;
                                                 return (
                                                     <tr key={item.id}>

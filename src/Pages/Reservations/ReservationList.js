@@ -216,12 +216,12 @@ export default function ReservationList() {
                                                     <td colSpan="7"><CustomSpinner/></td>
                                                 </tr>
                                             )}
-                                            {!reservationState.loading && reservationState.reservation.length === 0 && (
+                                            {!reservationState.loading && reservationState.allReservation.length === 0 && (
                                                 <tr>
                                                     <td colSpan="7">Không tìm thấy danh sách nào!</td>
                                                 </tr>
                                             )}
-                                            {reservationState.reservation && reservationState.reservation.map((item, index) => {
+                                            {reservationState.allReservation && reservationState.allReservation.map((item, index) => {
                                                 const stt = (reservationState.currentPage - 1) * reservationState.pageSize + index + 1;
                                                 const statusInfo = statusMapping[item.status] || { text: 'Không xác định', class: 'badge-secondary' };
                                                 return (

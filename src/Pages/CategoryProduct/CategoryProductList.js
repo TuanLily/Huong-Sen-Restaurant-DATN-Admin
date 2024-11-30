@@ -205,12 +205,12 @@ export default function CategoryProductList() {
                                                     <td colSpan="7"><CustomSpinner /></td>
                                                 </tr>
                                             )}
-                                            {!productCategoryState.loading && productCategoryState.product_category.length === 0 && (
+                                            {!productCategoryState.loading && productCategoryState.allProduct_categorys.length === 0 && (
                                                 <tr>
                                                     <td colSpan="7">Không tìm thấy mã nào!</td>
                                                 </tr>
                                             )}
-                                            {productCategoryState.product_category && productCategoryState.product_category.map((item, index) => {
+                                            {productCategoryState.allProduct_categorys && productCategoryState.allProduct_categorys.map((item, index) => {
                                                 const stt = (productCategoryState.currentPage - 1) * productCategoryState.pageSize + index + 1;
                                                 return (
                                                     <tr key={item.id}>
