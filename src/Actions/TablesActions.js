@@ -2,6 +2,7 @@ export const FETCH_TABLE_REQUEST = "FETCH_TABLE_REQUEST";
 export const FETCH_TABLE_SUCCESS = "FETCH_TABLE_SUCCESS";
 export const FETCH_TABLE_FAILURE = "FETCH_TABLE_FAILURE";
 export const SET_CURRENT_PAGE = "SET_CURRENT_PAGE";
+export const SET_LIMIT = 'SET_LIMIT'; // Thay thế SET_PAGE_SIZE
 
 import { API_ENDPOINT } from "../Config/APIs";
 import AdminConfig from "../Config/index";
@@ -12,12 +13,12 @@ export const fetchTableRequest = () => ({
   type: FETCH_TABLE_REQUEST,
 });
 
-export const fetchTableSuccess = (
+export const fetchTableSuccess = ({
   results,
   totalCount,
   totalPages,
   currentPage
-) => ({
+}) => ({
   type: FETCH_TABLE_SUCCESS,
   payload: {
     results,
@@ -37,11 +38,20 @@ export const setCurrentPage = (page) => ({
   payload: page,
 });
 
+export const setLimit = (limit) => ({  // Thay đổi SET_PAGE_SIZE thành SET_LIMIT
+  type: SET_LIMIT,
+  payload: limit
+});
+
 // Thunk action creator for fetching tables
-export const fetchTables = (number = "", page = 1, pageSize = 8) => {
-  return (dispatch) => {
+export const fetchTables = (number = "", page = 1) => {
+  return async (dispatch) => {
     dispatch(fetchTableRequest());
 
+    // Lấy limit từ localStorage, mặc định là 5 nếu chưa có
+    const limit = parseInt(localStorage.getItem('limit'), 10) || 5;
+
+    try {
     const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.table}`);
     if (number) {
       url.searchParams.append("search", number);
@@ -49,19 +59,20 @@ export const fetchTables = (number = "", page = 1, pageSize = 8) => {
 
     // Thêm tham số phân trang
     url.searchParams.append("page", page);
-    url.searchParams.append("pageSize", pageSize);
+    url.searchParams.append('limit', limit); // Dùng limit thay cho pageSize
 
-    http.get(url.toString())
-      .then((response) => {
-        const { results, totalCount, totalPages, currentPage } = response.data;
-        dispatch(
-          fetchTableSuccess(results, totalCount, totalPages, currentPage)
-        );
-      })
-      .catch((error) => {
-        const errorMsg = error.response?.data?.error || error.message || "Lỗi không xác định";
-        dispatch(fetchTableFailure(errorMsg));
-      });
+    // Gọi API với http.get
+    const response = await http.get(url.toString());
+    const { results, totalCount, totalPages, currentPage } = response.data;
+
+    // Dispatch action thành công
+    dispatch(fetchTableSuccess({ results, totalCount, totalPages, currentPage }));
+} catch (error) {
+    const errorMsg = error.response?.data?.message || error.message || "Failed to fetch tables";
+
+    // Dispatch action lỗi
+    dispatch(fetchTableFailure(errorMsg));
+    };
   };
 };
 

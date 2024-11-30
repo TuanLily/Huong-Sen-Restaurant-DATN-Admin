@@ -3,17 +3,18 @@ import {
   FETCH_TABLE_SUCCESS,
   FETCH_TABLE_FAILURE,
   SET_CURRENT_PAGE,
+  SET_LIMIT  // Thay thế SET_PAGE_SIZE thành SET_LIMIT
 } from "../Actions/TablesActions";
 
 const initialState = {
   allTables: [],       // Tất cả dữ liệu bảng
   tables: [],          // Dữ liệu bảng cho trang hiện tại
-  currentPage: 1,      // Trang hiện tại
-  pageSize: 8,         // Kích thước trang
-  loading: false,      // Trạng thái loading
-  error: '',           // Lưu trữ lỗi nếu có
-  totalCount: 0,       // Tổng số bảng
-  totalPages: 0        // Tổng số trang
+  currentPage: parseInt(localStorage.getItem('currentPage'), 10) || 1,
+    limit: localStorage.getItem('limit') ? parseInt(localStorage.getItem('limit')) : 10,
+    loading: false,
+    error: '',
+    totalCount: 0,
+    totalPages: 0
 };
 
 const tablesReducer = (state = initialState, action) => {
@@ -25,14 +26,18 @@ const tablesReducer = (state = initialState, action) => {
         error: ''
       };
     case FETCH_TABLE_SUCCESS:
+    const { results, totalCount, totalPages, currentPage } = action.payload;
+
+            // Lưu thông tin trang vào localStorage
+            localStorage.setItem('currentPage', currentPage);
       return {
         ...state,
         loading: false,
-        allTables: action.payload.results || [], // Đảm bảo allTables luôn là một mảng
-        totalCount: action.payload.totalCount || 0, // Tổng số bảng
-        totalPages: action.payload.totalPages || 0, // Tổng số trang
-        currentPage: action.payload.currentPage || 1, // Trang hiện tại
-        tables: (action.payload.results || []).slice(0, state.pageSize) // Dữ liệu bảng cho trang hiện tại
+        allTables: results,
+        totalCount,
+        totalPages,
+        currentPage,
+        tables:  action.payload.results.slice(0, state.limit), // Dữ liệu bảng cho trang hiện tại
       };
     case FETCH_TABLE_FAILURE:
       return {
@@ -41,14 +46,37 @@ const tablesReducer = (state = initialState, action) => {
         error: action.payload,
         tables: []
       };
-    case SET_CURRENT_PAGE:
-      const start = (action.payload - 1) * state.pageSize;
-      const end = start + state.pageSize;
+    case SET_CURRENT_PAGE:{
+      const start = (action.payload - 1) * state.limit;
+      const end = start + state.limit;
       return {
         ...state,
         currentPage: action.payload,
         tables: state.allTables.slice(start, end), // Dữ liệu bảng cho trang hiện tại
       };
+    }
+
+    case SET_LIMIT: {
+      const newLimit = action.payload;
+
+      // Điều chỉnh currentPage để đảm bảo không vượt quá số trang có sẵn khi limit thay đổi
+      const totalPages = Math.ceil(state.allUsers.length / newLimit); // Tổng số trang
+      const currentPage = state.currentPage > totalPages ? totalPages : state.currentPage;
+
+      // Tính toán lại các chỉ số start và end dựa trên currentPage và newLimit
+      const start = (currentPage - 1) * newLimit;
+      const end = start + newLimit;
+
+      // Lưu limit vào localStorage
+      localStorage.setItem('limit', newLimit);
+
+      return {
+          ...state,
+          limit: newLimit,
+          currentPage, // Cập nhật currentPage nếu cần thiết
+          tables: state.allTables.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
+      };
+  }
     default:
       return state;
   }

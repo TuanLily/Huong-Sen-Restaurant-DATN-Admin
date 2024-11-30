@@ -1,21 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   fetchListTableFilterByDate,
   deleteTable,
   setCurrentPage,
-  fetchReservationDetails,
   fetchTables,
 } from "../../Actions/TablesActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { FormControl, Paper, InputBase } from "@mui/material";
 import { SuccessAlert } from "../../Components/Alert/Alert";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import debounce from "lodash.debounce";
 
 import { getPermissions } from "../../Actions/GetQuyenHanAction";
 import { jwtDecode as jwt_decode } from "jwt-decode";
@@ -56,18 +54,35 @@ export default function TableList() {
   const [openSuccess, setOpenSuccess] = useState(false);
   const [capacity, setCapacity] = useState("");
   const [selectedDate, setSelectedDate] = useState(dayjs());
-  const [loadingDetails, setLoadingDetails] = useState(false);
-  const [errorDetails, setErrorDetails] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Fetch tables whenever the selected date changes
-  useEffect(() => {
-    const formattedDate = selectedDate.format('YYYY-MM-DD');
-    dispatch(fetchListTableFilterByDate(formattedDate, urlPage, tableState.pageSize)); // Gọi hàm để lấy danh sách bàn theo ngày
-  }, [dispatch, selectedDate, urlPage]);
+  // Debounce hàm tìm kiếm để giảm số lần gọi API
+  const debouncedSearch = useMemo(
+    () =>
+        debounce((term) => {
+            dispatch(fetchTables(term, urlPage, tableState.pageSize));
+            dispatch(setCurrentPage(1));
+        }, 1000),
+    [dispatch, urlPage, tableState.pageSize]
+);
 
-  useEffect(() =>{
-    dispatch(fetchTables(capacity, urlPage, tableState.pageSize));
-  }, [dispatch, urlPage, tableState.pageSize, capacity]);
+useEffect(() => {
+  return () => {
+      debouncedSearch.cancel();
+  };
+}, [debouncedSearch]);
+
+useEffect(() => {
+  if (!searchTerm) {
+      dispatch(fetchTables("", urlPage, tableState.pageSize)); // Fetch lại dữ liệu khi không tìm kiếm
+  }
+}, [dispatch, searchTerm, urlPage, tableState.pageSize]);
+
+useEffect(() => {
+  if (searchTerm) {
+      debouncedSearch(searchTerm);
+  }
+}, [searchTerm]);
 
   // Update URL when currentPage changes
   useEffect(() => {
@@ -107,40 +122,16 @@ export default function TableList() {
     navigate(`edit/${id}`);
   };
 
-  const handleCapacityChange = (event) => {
-    setCapacity(event.target.value);
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
     dispatch(setCurrentPage(1));
   };
 
+
   const handlePageChange = (page) => {
     navigate(`?page=${page}`);
-    dispatch(setCurrentPage(page));
-    const formattedDate = selectedDate.format('YYYY-MM-DD');
-    dispatch(fetchListTableFilterByDate(formattedDate, page, 8)); // Cập nhật danh sách bàn theo trang và ngày
-    dispatch(fetchTables(capacity, page, 8));
-  };
-
-  const handleDateChange = (newDate) => {
-    setSelectedDate(newDate);
-    dispatch(setCurrentPage(1)); // Đặt lại trang hiện tại về 1
-  };
-
-  const handleViewOrder = async (tableId) => {
-    setLoadingDetails(true);
-    setErrorDetails(null);
-    try {
-      const details = await dispatch(fetchReservationDetails(tableId));
-      if (details.data && details.data.length > 0) {
-        const reservationId = details.data[0].id;
-        navigate(`/reservation/detail/${reservationId}`);
-      } else {
-        setErrorDetails("Không tìm thấy thông tin đặt bàn.");
-      }
-    } catch (error) {
-      setErrorDetails("Không thể lấy thông tin đặt bàn.");
-    } finally {
-      setLoadingDetails(false);
-    }
+    dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
+    dispatch(fetchUsers(searchTerm, page, tableState.pageSize)); // Fetch dữ liệu theo trang mới
   };
 
   return (
@@ -160,107 +151,87 @@ export default function TableList() {
           </div>
         </div>
 
-        {/* Capacity Filter Dropdown */}
-        <div className="card-tools my-3">
-          <FormControl sx={{ minWidth: 160 }}>
-            <InputLabel>Lọc theo số người</InputLabel>
-            <Select
-              value={capacity}
-              onChange={handleCapacityChange}
-              label="Lọc theo số người"
-            >
-              <MenuItem value="0">Tất cả</MenuItem>
-              <MenuItem value={2}>2 người</MenuItem>
-              <MenuItem value={4}>4 người</MenuItem>
-              <MenuItem value={6}>6 người</MenuItem>
-              <MenuItem value={8}>8 người</MenuItem>
-            </Select>
-          </FormControl>
-        </div>
-
-        <div className="my-3">
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
-            <DatePicker
-              label="Chọn ngày"
-              value={selectedDate}
-              onChange={handleDateChange}
-              format="DD/MM/YYYY"
-              slotProps={{
-                textField: {
-                  size: "small",
-                  sx: { width: 160 }
-                }
-              }}
-            />
-          </LocalizationProvider>
-        </div>
-
         <div className="row">
-          {tableState.loading ? (
-            <CustomSpinner />
-          ) : tableState.tables.length === 0 ? (
-            <div className="text-center">Không tìm thấy bàn ăn</div>
-          ) : (
-            tableState.tables.map((item) => (
-              <div key={item.id} className="col-md-3 col-sm-6 mb-3">
-                <div className="card text-center">
-                  <div className="card-body text-center">
-                    {item.status !== 1 && (
-                      <div className="status-icon">
-                        <i className="fa-solid fa-circle-check"></i>
-                      </div>
-                    )}
-                    <div className={`table-number ${item.status === 1 ? "bg-info" : "bg-warning"}`}>
-                      {item.number}
-                    </div>
-                    <hr />
-                    <p className="table-status">
-                      {item.status === 1 ? "Bàn trống" : "Đang phục vụ"}
-                    </p>
-                    <p className="table-capacity">
-                      Sức chứa: {item.capacity} người
-                    </p>
-                    {item.reservation_date ? (
-                      <p className="table-reservation-date">
-                        Ngày đặt: {dayjs(item.reservation_date).format('DD/MM/YYYY HH:mm')}
-                      </p>
-                    ) : (
-                      <p className="table-reservation-date">Ngày đặt: Trống</p>
-                    )}
-                    <div className="btn-group" role="group">
-                      {(item.status === 0 && hasPermission("Xem chi tiết đặt bàn")) && (
-                        <button
-                          type="button"
-                          className="btn btn-outline-info"
-                          onClick={() => handleViewOrder(item.id)}
-                        >
-                          Xem đơn
-                        </button>
-                      )}
-                      {hasPermission("Sửa bàn ăn") && (
-                        <button
-                          type="button"
-                          className="btn btn-outline-success ms-2"
-                          onClick={() => handleEdit(item.id)}
-                        >
-                          Sửa
-                        </button>
-                      )}
-                      {hasPermission("Xóa bàn ăn") && (
-                        <button
-                          type="button"
-                          className="btn btn-outline-danger ms-2"
-                          onClick={() => handleClickOpen(item.id)}
-                        >
-                          Xóa
-                        </button>
-                      )}
-                    </div>
+          <div className="col-md-12">
+            <div className="card card-round">
+              <div className="card-header">
+                <div className="card-head-row card-tools-still-right">
+                  <div className="card-title">Danh sách</div>
+                  <div className="card-tools">
+                    <Paper
+                      component="form"
+                      sx={{
+                        p: '2px 4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: 320,
+                      }}
+                    >
+                      <InputBase
+                        sx={{ ml: 1, flex: 1 }}
+                        placeholder="Tìm kiếm bàn ăn ở đây!"
+                        inputProps={{ 'aria-label': 'search' }}
+                        value={searchTerm}
+                        onChange={handleSearch}
+                      />
+                    </Paper>
                   </div>
                 </div>
               </div>
-            ))
-          )}
+              <div className="card-body p-0">
+                <div className="table-responsive text-center">
+                  <table className="table align-items-center mb-0">
+                    <thead className="thead-light">
+                      <tr>
+                        <th scope="col">STT</th>
+                        <th scope="col">Số Bàn</th>
+                        <th scope="col">Số Lượng Người Tối Đa</th>
+                        <th scope="col">Trạng Thái</th>
+                        <th scope="col">Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tableState.loading && (
+                        <tr>
+                          <td colSpan="5"><CustomSpinner /></td>
+                        </tr>
+                      )}
+                      {!tableState.loading && tableState.tables.length === 0 && (
+                        <tr>
+                          <td colSpan="5">Không tìm thấy bàn ăn</td>
+                        </tr>
+                      )}
+                      {tableState.allTables && tableState.allTables.map((item, index) => (
+                        <tr key={item.id}>
+                          <td>{index+1}</td>
+                          <td>{item.number}</td>
+                          <td>{item.capacity}</td>
+                          <td>
+                              {item.status === 1 ? (
+                                <span className="badge badge-success">
+                                  Bàn trống
+                                </span>
+                              ) : (
+                                <span className="badge badge-danger">
+                                  Có khách
+                                </span>
+                              )}
+                            </td>                          <td>
+                            <div className="btn-group mt-3" role="group">
+                              <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
+                              <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
+                                <span className='text-danger'>Xóa</span>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <SuccessAlert
@@ -276,14 +247,13 @@ export default function TableList() {
         />
 
         <div className="my-2">
-          <CustomPagination
-            count={tableState.totalPages}
-            currentPageSelector={(state) => state.tables.currentPage}
-            fetchAction={(page, pageSize) =>
-              fetchListTableFilterByDate(selectedDate.format('YYYY-MM-DD'), page, pageSize) // Cập nhật để sử dụng hàm lọc theo ngày
-            }
-            onPageChange={handlePageChange}
-          />
+        <CustomPagination
+                                        count={tableState.totalPages} // Tổng số trang từ state
+                                        onPageChange={handlePageChange} // Hàm chuyển trang
+                                        currentPageSelector={(state) => state.tables.currentPage} // Selector lấy currentPage
+                                        pageSizeSelector={(state) => state.tables.limit} // Thay pageSizeSelector thành limit
+                                        fetchDataAction={(page, size) => fetchTables(searchTerm, page)} // Fetch dữ liệu với searchTerm và page
+                                    />
         </div>
       </div>
     </div>
