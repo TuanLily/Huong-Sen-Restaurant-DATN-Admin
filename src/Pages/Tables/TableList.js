@@ -245,22 +245,22 @@ export default function TableList() {
                       )}
                       {tableState.allTables && tableState.allTables.map((item, index) => (
                         <tr key={item.id}>
-                          <td>{index + 1}</td>
+                          <td>{index+1}</td>
                           <td>{item.number}</td>
                           <td>{item.capacity}</td>
                           <td>
-                            {item.status === 1 ? (
-                              <span className="badge badge-success">
-                                Bàn trống
-                              </span>
-                            ) : (
-                              <span className="badge badge-danger">
-                                Có khách
-                              </span>
-                            )}
-                          </td>                          <td>
+                              {item.status === 1 ? (
+                                <span className="badge badge-success">
+                                  Bàn trống
+                                </span>
+                              ) : (
+                                <span className="badge badge-danger">
+                                  Có khách
+                                </span>
+                              )}
+                            </td>                          <td>
                             <div className="btn-group mt-3" role="group">
-                              <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item)}>Sửa</button>
+                              <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
                               <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
                                 <span className='text-danger'>Xóa</span>
                               </button>
