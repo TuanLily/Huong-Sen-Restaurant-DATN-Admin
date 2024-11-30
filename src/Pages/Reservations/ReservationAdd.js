@@ -120,7 +120,7 @@ export default function ReservationAdd() {
     const roundedValue = Math.round(value);
     return `${roundedValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
   };
-  
+
 
   const generateReservationCode = () => {
     const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
@@ -236,9 +236,8 @@ export default function ReservationAdd() {
                       <label>Tên khách hàng</label>
                       <input
                         type="text"
-                        className={`form-control ${
-                          errors.fullname ? "is-invalid" : ""
-                        }`}
+                        className={`form-control ${errors.fullname ? "is-invalid" : ""
+                          }`}
                         {...register("fullname", {
                           required: "Tên khách hàng là bắt buộc",
                         })}
@@ -254,9 +253,8 @@ export default function ReservationAdd() {
                       <label>Email</label>
                       <input
                         type="email"
-                        className={`form-control ${
-                          errors.email ? "is-invalid" : ""
-                        }`}
+                        className={`form-control ${errors.email ? "is-invalid" : ""
+                          }`}
                         {...register("email", {
                           required: "Email là bắt buộc",
                           pattern: {
@@ -315,9 +313,8 @@ export default function ReservationAdd() {
                       <label>Số điện thoại</label>
                       <input
                         type="number"
-                        className={`form-control ${
-                          errors.tel ? "is-invalid" : ""
-                        }`}
+                        className={`form-control ${errors.tel ? "is-invalid" : ""
+                          }`}
                         {...register("tel", {
                           required: "Số điện thoại là bắt buộc",
                           pattern: {
@@ -338,9 +335,8 @@ export default function ReservationAdd() {
                       <label>Ngày và giờ đặt</label>
                       <input
                         type="datetime-local"
-                        className={`form-control ${
-                          errors.reservation_date ? "is-invalid" : ""
-                        }`}
+                        className={`form-control ${errors.reservation_date ? "is-invalid" : ""
+                          }`}
                         {...register("reservation_date", {
                           required: "Ngày và giờ đặt là bắt buộc",
                           validate: (value) =>
@@ -348,7 +344,7 @@ export default function ReservationAdd() {
                             "Không thể chọn thời gian trong quá khứ",
                         })}
                         min={new Date().toISOString().slice(0, 16)} // Thiết lập giá trị min là thời gian hiện tại
-                        // Thêm sự kiện onChange
+                      // Thêm sự kiện onChange
                       />
                       {errors.reservation_date && (
                         <div className="invalid-feedback">
@@ -414,12 +410,11 @@ export default function ReservationAdd() {
                               <li className="nav-item">
                                 <Link
                                   to="#"
-                                  className={`nav-link fw-bolder fs-6 ${
-                                    selectedCategory === null &&
-                                    activeTab === "category-info"
+                                  className={`nav-link fw-bolder fs-6 ${selectedCategory === null &&
+                                      activeTab === "category-info"
                                       ? "active text-primary"
                                       : "text-dark"
-                                  }`}
+                                    }`}
                                   onClick={() => {
                                     setSelectedCategory(null);
                                     setActiveTab("category-info");
@@ -438,12 +433,11 @@ export default function ReservationAdd() {
                                     <li className="nav-item" key={category.id}>
                                       <Link
                                         to="#"
-                                        className={`nav-link fw-bolder fs-6 ${
-                                          category.id === selectedCategory &&
-                                          activeTab === "category-info"
+                                        className={`nav-link fw-bolder fs-6 ${category.id === selectedCategory &&
+                                            activeTab === "category-info"
                                             ? "active text-primary"
                                             : "text-dark"
-                                        }`}
+                                          }`}
                                         onClick={() => {
                                           setSelectedCategory(category.id);
                                           setActiveTab("category-info");
@@ -494,8 +488,8 @@ export default function ReservationAdd() {
                                 </tr>
                               )}
                               {!productState.loading &&
-                              productState.allProducts &&
-                              productState.allProducts.length > 0 ? (
+                                productState.allProducts &&
+                                productState.allProducts.length > 0 ? (
                                 productState.allProducts
                                   .filter(
                                     (product) =>
@@ -533,13 +527,23 @@ export default function ReservationAdd() {
 
                                           {/* Hiển thị số lượng */}
                                           <input
-                                            type="number"
+                                            type="text"
                                             value={quantities[product.id] || 0}
                                             className="form-control form-control-lg text-center border-0"
                                             style={{ width: "200px" }}
-                                            readOnly
+                                            onInput={(e) => {
+                                              // Chỉ cho phép nhập số
+                                              const newValue =
+                                                e.target.value.replace(
+                                                  /[^0-9]/g,
+                                                  ""
+                                                );
+                                              handleQuantityChange(
+                                                product.id,
+                                                parseInt(newValue || 0, 10)
+                                              );
+                                            }}
                                           />
-
                                           {/* Nút tăng số lượng */}
                                           <button
                                             type="button"
@@ -548,7 +552,7 @@ export default function ReservationAdd() {
                                               handleQuantityChange(
                                                 product.id,
                                                 (quantities[product.id] || 0) +
-                                                  1
+                                                1
                                               )
                                             }
                                           >

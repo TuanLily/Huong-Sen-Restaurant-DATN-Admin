@@ -229,17 +229,17 @@ export default function ReservationList() {
                                                         <td>{index + 1}</td>
                                                         <td style={{ textAlign: 'left' }}>
                                                             <span className="fw-semibold">Mã hóa đơn: </span>{item.reservation_code ? item.reservation_code : 'Chưa rõ'}<br />
+                                                            <span className="fw-semibold">Ngày đặt: </span>{new Date(item.reservation_date).toLocaleDateString('vi-VN').substring(0, 10)}<br />
                                                             <span className="fw-semibold">Họ và tên: </span>{item.fullname}<br />
                                                             <span className="fw-semibold">Email: </span>{item.email}<br />
                                                             <span className="fw-semibold">Phone: </span>{item.tel}<br />
-                                                            <span className="fw-semibold">Số bàn: </span>{item.tableName ? item.tableName : 'Chưa có'}
+                                                            {/* <span className="fw-semibold">Số bàn: </span>{item.tableName ? item.tableName : 'Chưa có'} */}
                                                         </td>
                                                         <td style={{ textAlign: 'left' }}>
-                                                            <span className="fw-semibold">Ngày đặt: </span>{new Date(item.reservation_date).toLocaleDateString('vi-VN').substring(0, 10)}<br />
                                                             <span className="fw-semibold">Số người: </span>{item.party_size}<br />
                                                             <span className="fw-semibold">Tổng tiền: </span>{formatCurrency(item.total_amount ? item.total_amount : 0)}<br />
                                                             <span className="fw-semibold">Số tiền cọc: </span>{item.deposit ? formatCurrency (item.deposit) : '0 VND'}<br/>
-                                                            <span className="fw-semibold">Số tiền còn lại: </span>{formatCurrency(item.status == 5 ? 0 : item.total_amount ? item.deposit ? item.total_amount - item.deposit : item.total_amount : 0)}
+                                                            <span className="fw-semibold">Số tiền còn lại: </span>{formatCurrency(item.status == 5 ? 0 : item.total_amount ? item.deposit ? item.total_amount - item.deposit : item.total_amount : 0)}<br/>
                                                         </td>
                                                         <td>
                                                         <span className={`badge ${statusInfo.class}`}>
