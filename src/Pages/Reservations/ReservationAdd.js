@@ -116,8 +116,11 @@ export default function ReservationAdd() {
   };
 
   const formatCurrency = (value) => {
-    return `${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
+    // Làm tròn số tiền trước khi định dạng
+    const roundedValue = Math.round(value);
+    return `${roundedValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
   };
+  
 
   const generateReservationCode = () => {
     const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
@@ -503,20 +506,55 @@ export default function ReservationAdd() {
                                     <tr key={product.id}>
                                       <td>{product.name}</td>
                                       <td>{formatCurrency(product.price)}</td>
-                                      <td className="input-group">
-                                        <input
-                                          type="number"
-                                          className="form-control"
-                                          style={{ width: "300px" }}
-                                          value={quantities[product.id] || ""}
-                                          min={0}
-                                          onChange={(e) =>
-                                            handleQuantityChange(
-                                              product.id,
-                                              parseInt(e.target.value)
-                                            )
-                                          }
-                                        />
+                                      <td className="d-flex justify-content-center align-items-center">
+                                        {/* Nhóm số lượng với các nút dính liền */}
+                                        <div
+                                          className="btn-group"
+                                          role="group"
+                                          aria-label="Quantity Controls"
+                                        >
+                                          {/* Nút giảm số lượng */}
+                                          <button
+                                            type="button"
+                                            className="btn btn-outline-secondary btn-lg"
+                                            onClick={() =>
+                                              handleQuantityChange(
+                                                product.id,
+                                                Math.max(
+                                                  0,
+                                                  (quantities[product.id] ||
+                                                    0) - 1
+                                                )
+                                              )
+                                            }
+                                          >
+                                            <i className="fas fa-minus"></i>
+                                          </button>
+
+                                          {/* Hiển thị số lượng */}
+                                          <input
+                                            type="number"
+                                            value={quantities[product.id] || 0}
+                                            className="form-control form-control-lg text-center border-0"
+                                            style={{ width: "200px" }}
+                                            readOnly
+                                          />
+
+                                          {/* Nút tăng số lượng */}
+                                          <button
+                                            type="button"
+                                            className="btn btn-outline-secondary btn-lg"
+                                            onClick={() =>
+                                              handleQuantityChange(
+                                                product.id,
+                                                (quantities[product.id] || 0) +
+                                                  1
+                                              )
+                                            }
+                                          >
+                                            <i className="fas fa-plus"></i>
+                                          </button>
+                                        </div>
                                       </td>
                                     </tr>
                                   ))
