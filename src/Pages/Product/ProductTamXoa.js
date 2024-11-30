@@ -206,7 +206,7 @@ export default function ProductTamXoa () {
                                                     <td colSpan="7">Không tìm thấy sản phẩm nào!</td>
                                                 </tr>
                                             )}
-                                            {productState.product && productState.product.map((item, index) => {
+                                            {productState.allProducts && productState.allProducts.map((item, index) => {
                                                 const stt = (productState.currentPage - 1) * productState.pageSize + index + 1;
                                                 return (
                                                     <tr key={item.id}>

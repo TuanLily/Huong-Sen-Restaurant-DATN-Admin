@@ -12,7 +12,7 @@ const initialState = {
     loading: false,
     product_category: [],
     error: '',
-    totalCount: 0, 
+    totalCount: 0,
     totalPages: 0,
     currentPage: parseInt(localStorage.getItem('currentPage'), 10) || 1,
     limit: localStorage.getItem('limit') ? parseInt(localStorage.getItem('limit')) : 10,
@@ -27,6 +27,8 @@ const productCategoryReducer = (state = initialState, action) => {
             };
         case FETCH_PRODUCT_CATEGORY_SUCCESS:
             const { results, totalCount, totalPages, currentPage } = action.payload;
+
+            localStorage.setItem('currentPage', currentPage);
 
             return {
                 ...state,
