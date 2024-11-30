@@ -131,7 +131,7 @@ useEffect(() => {
   const handlePageChange = (page) => {
     navigate(`?page=${page}`);
     dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-    dispatch(fetchUsers(searchTerm, page, tableState.pageSize)); // Fetch dữ liệu theo trang mới
+    dispatch(fetchTables(searchTerm, page, tableState.pageSize)); // Fetch dữ liệu theo trang mới
   };
 
   return (

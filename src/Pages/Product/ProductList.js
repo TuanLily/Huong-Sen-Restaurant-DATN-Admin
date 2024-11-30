@@ -211,7 +211,7 @@ export default function ProductList() {
             <div className="d-flex align-items-center flex-wrap">
               {hasPermission("Xóa sản phẩm") && (
                 <button
-                  className="btn btn-danger me-2 mb-2 mb-md-0"
+                  className="btn btn-danger btn-round me-2 mb-2 mb-md-0"
                   onClick={handleDeleteSelected}
                   disabled={selectedItems.length === 0}
                   style={{ height: "38px" }}
@@ -222,7 +222,7 @@ export default function ProductList() {
               {hasPermission("Khôi phục sản phẩm") && (
                 <Link
                   to="/product/tam_xoa"
-                  className="btn btn-info me-2 mb-2 mb-md-0"
+                  className="btn btn-info btn-round me-2 mb-2 mb-md-0"
                   style={{ height: "38px" }}
                 >
                   Sản phẩm tạm xóa
@@ -231,7 +231,7 @@ export default function ProductList() {
               {hasPermission("Thêm sản phẩm") && (
                 <Link
                   to="/product/add"
-                  className="btn btn-primary"
+                  className="btn btn-primary btn-round"
                   style={{ height: "38px" }}
                 >
                   Thêm sản phẩm

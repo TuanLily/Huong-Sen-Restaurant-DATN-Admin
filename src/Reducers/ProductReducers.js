@@ -60,7 +60,7 @@ const productReducer = (state = initialState, action) => {
             const newLimit = action.payload;
 
             // Điều chỉnh currentPage để đảm bảo không vượt quá số trang có sẵn khi limit thay đổi
-            const totalPages = Math.ceil(state.allUsers.length / newLimit); // Tổng số trang
+            const totalPages = Math.ceil(state.allProducts.length / newLimit); // Tổng số trang
             const currentPage = state.currentPage > totalPages ? totalPages : state.currentPage;
 
             // Tính toán lại các chỉ số start và end dựa trên currentPage và newLimit
