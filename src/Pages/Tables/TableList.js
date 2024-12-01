@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
-  fetchListTableFilterByDate,
   deleteTable,
   setCurrentPage,
   fetchTables,
@@ -13,7 +12,6 @@ import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 import { FormControl, Paper, InputBase, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from "@mui/material";
 import { SuccessAlert } from "../../Components/Alert/Alert";
-import dayjs from "dayjs";
 import debounce from "lodash.debounce";
 
 import { getPermissions } from "../../Actions/GetQuyenHanAction";
@@ -54,7 +52,6 @@ export default function TableList() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [openSuccess, setOpenSuccess] = useState(false);
   const [capacity, setCapacity] = useState("");
-  const [selectedDate, setSelectedDate] = useState(dayjs());
   const [searchTerm, setSearchTerm] = useState("");
   const [openEditModal, setOpenEditModal] = useState(false);
   const [editingTable, setEditingTable] = useState(null);
@@ -164,12 +161,6 @@ export default function TableList() {
     }
   };
 
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
-    dispatch(setCurrentPage(1));
-  };
-
-
   const handlePageChange = (page) => {
     navigate(`?page=${page}`);
     dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
@@ -194,86 +185,55 @@ export default function TableList() {
         </div>
 
         <div className="row">
-          <div className="col-md-12">
-            <div className="card card-round">
-              <div className="card-header">
-                <div className="card-head-row card-tools-still-right">
-                  <div className="card-title">Danh sách</div>
-                  <div className="card-tools">
-                    <Paper
-                      component="form"
-                      sx={{
-                        p: '2px 4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        width: 320,
-                      }}
-                    >
-                      <InputBase
-                        sx={{ ml: 1, flex: 1 }}
-                        placeholder="Tìm kiếm bàn ăn ở đây!"
-                        inputProps={{ 'aria-label': 'search' }}
-                        value={searchTerm}
-                        onChange={handleSearch}
-                      />
-                    </Paper>
+          {tableState.loading ? (
+            <CustomSpinner />
+          ) : tableState.tables.length === 0 ? (
+            <div className="text-center">Không tìm thấy bàn ăn</div>
+          ) : (
+            tableState.allTables.map((item) => (
+              <div key={item.id} className="col-md-3 col-sm-6 mb-3">
+                <div className="card text-center">
+                  <div className="card-body text-center">
+                    {item.status !== 1 && (
+                      <div className="status-icon">
+                        <i className="fa-solid fa-circle-check"></i>
+                      </div>
+                    )}
+                    <div className={`table-number ${item.status === 1 ? "bg-info" : "bg-warning"}`}>
+                      {item.number}
+                    </div>
+                    <hr />
+                    <p className="table-status">
+                      {item.status === 1 ? "Bàn trống" : "Đang phục vụ"}
+                    </p>
+                    <p className="table-capacity">
+                      Sức chứa: {item.capacity} người
+                    </p>
+                    <div className="btn-group" role="group">
+                      {hasPermission("Sửa bàn ăn") && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-success ms-2"
+                          onClick={() => handleEdit(item.id)}
+                        >
+                          Sửa
+                        </button>
+                      )}
+                      {hasPermission("Xóa bàn ăn") && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger ms-2"
+                          onClick={() => handleClickOpen(item.id)}
+                        >
+                          Xóa
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="card-body p-0">
-                <div className="table-responsive text-center">
-                  <table className="table align-items-center mb-0">
-                    <thead className="thead-light">
-                      <tr>
-                        <th scope="col">STT</th>
-                        <th scope="col">Số Bàn</th>
-                        <th scope="col">Số Lượng Người Tối Đa</th>
-                        <th scope="col">Trạng Thái</th>
-                        <th scope="col">Thao tác</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {tableState.loading && (
-                        <tr>
-                          <td colSpan="5"><CustomSpinner /></td>
-                        </tr>
-                      )}
-                      {!tableState.loading && tableState.tables.length === 0 && (
-                        <tr>
-                          <td colSpan="5">Không tìm thấy bàn ăn</td>
-                        </tr>
-                      )}
-                      {tableState.allTables && tableState.allTables.map((item, index) => (
-                        <tr key={item.id}>
-                          <td>{index + 1}</td>
-                          <td>{item.number}</td>
-                          <td>{item.capacity}</td>
-                          <td>
-                            {item.status === 1 ? (
-                              <span className="badge badge-success">
-                                Bàn trống
-                              </span>
-                            ) : (
-                              <span className="badge badge-danger">
-                                Có khách
-                              </span>
-                            )}
-                          </td>                          <td>
-                            <div className="btn-group mt-3" role="group">
-                              <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item)}>Sửa</button>
-                              <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
-                                <span className='text-danger'>Xóa</span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
+            ))
+          )}
         </div>
 
         <SuccessAlert
