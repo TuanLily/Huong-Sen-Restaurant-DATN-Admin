@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { fetchProductCategoryHoatDong, fetchProductCategory, deleteProductCategory, setCurrentPage } from '../../Actions/ProductCategoryActions';
+import { fetchProductCategoryHoatDong, fetchProductCategory, deleteProductCategory, setCurrentPage, updateProductCategory } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
@@ -14,6 +14,7 @@ import debounce from 'lodash.debounce';
 
 import { getPermissions } from '../../Actions/GetQuyenHanAction';
 import { jwtDecode as jwt_decode } from 'jwt-decode';
+import EditCategoryModal from '../../Components/Common/EditCategoryModal';
 
 export default function CategoryProductList() {
     const navigate = useNavigate();
@@ -48,6 +49,9 @@ export default function CategoryProductList() {
     const [openSuccess, setOpenSuccess] = useState(false);
     const [selectedProductCategory, setSelectedProductCategory] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [successMessage, setSuccessMessage] = useState('');
 
     // Debounce hàm tìm kiếm để giảm số lần gọi API
     const debouncedSearch = useMemo(() => debounce((term) => {
@@ -96,7 +100,8 @@ export default function CategoryProductList() {
             try {
                 await dispatch(deleteProductCategory(selectedProductCategory, searchTerm, urlPage, productCategoryState.pageSize));
                 handleClose();
-                setOpenSuccess(true); // Hiển thị thông báo thành công
+                setSuccessMessage('Xóa danh mục thành công!');
+                setOpenSuccess(true);
             } catch (error) {
                 console.error("Error deleting customer:", error);
             }
@@ -107,7 +112,8 @@ export default function CategoryProductList() {
         for (let Id of selectedProductIds) {
             await dispatch(deleteProductCategory(Id, searchTerm, urlPage, productCategoryState.pageSize));
         }
-        setOpenSuccess(true); // Hiển thị thông báo thành công
+        setSuccessMessage('Xóa danh mục thành công!');
+        setOpenSuccess(true);
     };
 
     const {
@@ -118,8 +124,27 @@ export default function CategoryProductList() {
         allSelected
     } = CheckboxSelection(productCategoryState.product_category, handleDeleteProductsCategory);
 
-    const handleEdit = (id) => {
-        navigate(`edit/${id}`);
+    const handleEdit = (category) => {
+        setSelectedCategory(category);
+        setEditModalOpen(true);
+    };
+
+    const handleEditClose = () => {
+        setEditModalOpen(false);
+        setSelectedCategory(null);
+    };
+
+    const handleEditSave = async (formData) => {
+        try {
+            await dispatch(updateProductCategory(selectedCategory.id, formData));
+            setEditModalOpen(false);
+            setSelectedCategory(null);
+            dispatch(fetchProductCategoryHoatDong(searchTerm, urlPage, productCategoryState.pageSize));
+            setSuccessMessage('Cập nhật danh mục thành công!');
+            setOpenSuccess(true);
+        } catch (error) {
+            console.error("Error updating category:", error);
+        }
     };
 
     const handleSearch = (event) => {
@@ -248,7 +273,11 @@ export default function CategoryProductList() {
                                                             ) : (
                                                                 <div className="btn-group mt-3" role="group">
                                                                     {hasPermission('Sửa danh mục sản phẩm') && (
-                                                                        <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>
+                                                                        <button 
+                                                                            type="button" 
+                                                                            className="btn btn-outline-success" 
+                                                                            onClick={() => handleEdit(item)}
+                                                                        >
                                                                             Sửa
                                                                         </button>
                                                                     )}
@@ -278,10 +307,20 @@ export default function CategoryProductList() {
                             </div>
                         </div>
                     </div>
-                    <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Xóa danh mục thành công!" />
+                    <SuccessAlert 
+                        open={openSuccess} 
+                        onClose={handleSuccessClose} 
+                        message={successMessage} 
+                    />
                 </div>
             </div>
             <DialogConfirm open={open} onClose={handleClose} onConfirm={handleConfirm} />
+            <EditCategoryModal
+                open={editModalOpen}
+                onClose={handleEditClose}
+                category={selectedCategory}
+                onSave={handleEditSave}
+            />
         </div>
     )
 }

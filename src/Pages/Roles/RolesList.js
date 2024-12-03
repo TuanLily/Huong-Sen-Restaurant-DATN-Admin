@@ -5,17 +5,19 @@ import {
   deleteRole,
   fetchRole,
   setCurrentPage,
+  updateRole,
 } from "../../Actions/RoleActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 import { format } from "date-fns";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
-import { DangerAlert } from "../../Components/Alert/Alert"; // Import DangerAlert component
+import { DangerAlert, SuccessAlert } from "../../Components/Alert/Alert"; // Import DangerAlert component
 import { InputBase, Paper } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
 import { getPermissions } from "../../Actions/GetQuyenHanAction";
 import { jwtDecode as jwt_decode } from "jwt-decode";
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 
 export default function RolesList() {
   const dispatch = useDispatch();
@@ -52,6 +54,14 @@ export default function RolesList() {
   const [searchTerm, setSearchTerm] = useState(""); // State cho thanh tìm kiếm
   const [openError, setOpenError] = useState(false); // State cho DangerAlert
   const [errorMessage, setErrorMessage] = useState(""); // State cho thông báo lỗi
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingRole, setEditingRole] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    description: ''
+  });
+  const [successMessage, setSuccessMessage] = useState('');
+  const [openSuccess, setOpenSuccess] = useState(false);
 
   useEffect(() => {
     dispatch(fetchRole(searchTerm, urlPage, roleState.pageSize));
@@ -77,6 +87,8 @@ export default function RolesList() {
       try {
         await dispatch(deleteRole(selectedRole));
         handleClose();
+        setSuccessMessage('Xóa vai trò thành công!');
+        setOpenSuccess(true);
       } catch (error) {
         setErrorMessage(error.message);
         setOpenError(true);
@@ -89,8 +101,39 @@ export default function RolesList() {
     dispatch(setCurrentPage(1));
   };
 
-  const handleEdit = (id) => {
-    navigate(`edit/${id}`);
+  const handleEditClick = (role) => {
+    setEditingRole(role);
+    setEditFormData({
+      name: role.name,
+      description: role.description
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setEditModalOpen(false);
+    setEditingRole(null);
+    setEditFormData({ name: '', description: '' });
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      await dispatch(updateRole(editingRole.id, editFormData));
+      handleEditClose();
+      dispatch(fetchRole(searchTerm, roleState.currentPage, roleState.pageSize));
+      setSuccessMessage('Cập nhật vai trò thành công!');
+      setOpenSuccess(true);
+    } catch (error) {
+      setErrorMessage(error.message);
+      setOpenError(true);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setEditFormData({
+      ...editFormData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handlePageChange = (page) => {
@@ -101,6 +144,10 @@ export default function RolesList() {
 
   const handleErrorClose = () => {
     setOpenError(false);
+  };
+
+  const handleSuccessClose = () => {
+    setOpenSuccess(false);
   };
 
   return (
@@ -211,7 +258,7 @@ export default function RolesList() {
                                     <button
                                       type="button"
                                       className="btn btn-outline-success"
-                                      onClick={() => handleEdit(item.id)}
+                                      onClick={() => handleEditClick(item)}
                                     >
                                       Sửa
                                     </button>
@@ -261,6 +308,46 @@ export default function RolesList() {
         vertical="top"
         horizontal="right"
       />
+      <SuccessAlert
+        open={openSuccess} 
+        onClose={handleSuccessClose} 
+        message={successMessage} 
+      />
+      <Dialog open={editModalOpen} onClose={handleEditClose} maxWidth="sm" fullWidth>
+        <DialogTitle>Chỉnh sửa vai trò</DialogTitle>
+        <DialogContent>
+          <div className="mt-3">
+            <TextField
+              fullWidth
+              label="Tên vai trò"
+              name="name"
+              value={editFormData.name}
+              onChange={handleInputChange}
+              margin="dense"
+            />
+          </div>
+          <div className="mt-3">
+            <TextField
+              fullWidth
+              label="Mô tả"
+              name="description"
+              value={editFormData.description}
+              onChange={handleInputChange}
+              margin="dense"
+              multiline
+              rows={4}
+            />
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <button className="btn btn-secondary" onClick={handleEditClose}>
+            Hủy
+          </button>
+          <button className="btn btn-primary" onClick={handleEditSubmit}>
+            Lưu thay đổi
+          </button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

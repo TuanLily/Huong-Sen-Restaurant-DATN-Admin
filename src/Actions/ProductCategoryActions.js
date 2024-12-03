@@ -32,7 +32,7 @@ export const setCurrentPage = (page) => ({
     payload: page
 });
 
-export const setLimit = (limit) => ({ 
+export const setLimit = (limit) => ({
     type: SET_LIMIT,
     payload: limit
 });

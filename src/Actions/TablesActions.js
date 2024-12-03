@@ -52,26 +52,26 @@ export const fetchTables = (number = "", page = 1) => {
     const limit = parseInt(localStorage.getItem('limit'), 10) || 5;
 
     try {
-    const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.table}`);
-    if (number) {
-      url.searchParams.append("search", number);
-    }
+      const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.table}`);
+      if (number) {
+        url.searchParams.append("search", number);
+      }
 
-    // Thêm tham số phân trang
-    url.searchParams.append("page", page);
-    url.searchParams.append('limit', limit); // Dùng limit thay cho pageSize
+      // Thêm tham số phân trang
+      url.searchParams.append("page", page);
+      url.searchParams.append('limit', limit); // Dùng limit thay cho pageSize
 
-    // Gọi API với http.get
-    const response = await http.get(url.toString());
-    const { results, totalCount, totalPages, currentPage } = response.data;
+      // Gọi API với http.get
+      const response = await http.get(url.toString());
+      const { results, totalCount, totalPages, currentPage } = response.data;
 
-    // Dispatch action thành công
-    dispatch(fetchTableSuccess({ results, totalCount, totalPages, currentPage }));
-} catch (error) {
-    const errorMsg = error.response?.data?.message || error.message || "Failed to fetch tables";
+      // Dispatch action thành công
+      dispatch(fetchTableSuccess({ results, totalCount, totalPages, currentPage }));
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message || "Failed to fetch tables";
 
-    // Dispatch action lỗi
-    dispatch(fetchTableFailure(errorMsg));
+      // Dispatch action lỗi
+      dispatch(fetchTableFailure(errorMsg));
     };
   };
 };

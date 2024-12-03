@@ -6,6 +6,7 @@ import {
   fetchCategoryBlog,
   deleteCategoryBlog,
   setCurrentPage,
+  updateCategoryBlog,
 } from "../../Actions/BlogsCategoriesActions";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
@@ -17,6 +18,7 @@ import debounce from "lodash.debounce";
 
 import { getPermissions } from '../../Actions/GetQuyenHanAction';
 import { jwtDecode as jwt_decode } from 'jwt-decode';
+import EditCategoryModal from '../../Components/Common/EditCategoryModal';
 
 export default function CategoryBlogList() {
   const dispatch = useDispatch();
@@ -49,6 +51,9 @@ export default function CategoryBlogList() {
   const [openSuccess, setOpenSuccess] = useState(false);;
   const [selectedCategoryBlog, setSelectedCategoryBlog] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Debounce hàm tìm kiếm để giảm số lần gọi API
   const debouncedSearch = useMemo(() => debounce((term) => {
@@ -97,7 +102,8 @@ export default function CategoryBlogList() {
       try {
         await dispatch(deleteCategoryBlog(selectedCategoryBlog));
         handleClose();
-        setOpenSuccess(true); // Hiển thị thông báo thành công
+        setSuccessMessage('Xóa danh mục thành công!');
+        setOpenSuccess(true);
       } catch (error) {
         console.error("Error deleting product:", error);
       }
@@ -108,7 +114,8 @@ export default function CategoryBlogList() {
     for (let Id of selectedIds) {
       await dispatch(deleteCategoryBlog(Id));
     }
-    setOpenSuccess(true); // Hiển thị thông báo thành công
+    setSuccessMessage('Xóa danh mục thành công!');
+    setOpenSuccess(true);
   };
 
   const {
@@ -124,8 +131,27 @@ export default function CategoryBlogList() {
     debouncedSearch(event.target.value);
   };
 
-  const handleEdit = (id) => {
-    navigate(`edit/${id}`);
+  const handleEdit = (category) => {
+    setSelectedCategory(category);
+    setEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setEditModalOpen(false);
+    setSelectedCategory(null);
+  };
+
+  const handleEditSave = async (formData) => {
+    try {
+      await dispatch(updateCategoryBlog(selectedCategory.id, formData));
+      setEditModalOpen(false);
+      setSelectedCategory(null);
+      dispatch(fetchCategoryBlog(searchTerm, urlPage, categoryBlogState.pageSize));
+      setSuccessMessage('Cập nhật danh mục thành công!');
+      setOpenSuccess(true);
+    } catch (error) {
+      console.error("Error updating category:", error);
+    }
   };
 
   const handlePageChange = (page) => {
@@ -253,7 +279,7 @@ export default function CategoryBlogList() {
                                     <button
                                       type="button"
                                       className="btn btn-outline-success"
-                                      onClick={() => handleEdit(item.id)}
+                                      onClick={() => handleEdit(item)}
                                     >
                                       <span className="text-success">Sửa</span>
                                     </button>
@@ -297,13 +323,23 @@ export default function CategoryBlogList() {
               </div>
             </div>
           </div>
-          <SuccessAlert open={openSuccess} onClose={handleSuccessClose} message="Xóa danh mục thành công!" />
+          <SuccessAlert 
+            open={openSuccess} 
+            onClose={handleSuccessClose} 
+            message={successMessage} 
+          />
         </div>
       </div>
       <DialogConfirm
         open={open}
         onClose={handleClose}
         onConfirm={handleConfirm}
+      />
+      <EditCategoryModal
+        open={editModalOpen}
+        onClose={handleEditClose}
+        category={selectedCategory}
+        onSave={handleEditSave}
       />
     </div>
   );
