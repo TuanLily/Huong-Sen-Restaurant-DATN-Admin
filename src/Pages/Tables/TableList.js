@@ -6,11 +6,12 @@ import {
   deleteTable,
   setCurrentPage,
   fetchTables,
+  updateTable,
 } from "../../Actions/TablesActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
-import { FormControl, Paper, InputBase } from "@mui/material";
+import { FormControl, Paper, InputBase, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from "@mui/material";
 import { SuccessAlert } from "../../Components/Alert/Alert";
 import dayjs from "dayjs";
 import debounce from "lodash.debounce";
@@ -55,34 +56,42 @@ export default function TableList() {
   const [capacity, setCapacity] = useState("");
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [searchTerm, setSearchTerm] = useState("");
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [editingTable, setEditingTable] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    number: '',
+    capacity: '',
+    status: 1
+  });
+  const [successMessage, setSuccessMessage] = useState("");
 
   // Debounce hàm tìm kiếm để giảm số lần gọi API
   const debouncedSearch = useMemo(
     () =>
-        debounce((term) => {
-            dispatch(fetchTables(term, urlPage, tableState.pageSize));
-            dispatch(setCurrentPage(1));
-        }, 1000),
+      debounce((term) => {
+        dispatch(fetchTables(term, urlPage, tableState.pageSize));
+        dispatch(setCurrentPage(1));
+      }, 1000),
     [dispatch, urlPage, tableState.pageSize]
-);
+  );
 
-useEffect(() => {
-  return () => {
+  useEffect(() => {
+    return () => {
       debouncedSearch.cancel();
-  };
-}, [debouncedSearch]);
+    };
+  }, [debouncedSearch]);
 
-useEffect(() => {
-  if (!searchTerm) {
+  useEffect(() => {
+    if (!searchTerm) {
       dispatch(fetchTables("", urlPage, tableState.pageSize)); // Fetch lại dữ liệu khi không tìm kiếm
-  }
-}, [dispatch, searchTerm, urlPage, tableState.pageSize]);
+    }
+  }, [dispatch, searchTerm, urlPage, tableState.pageSize]);
 
-useEffect(() => {
-  if (searchTerm) {
+  useEffect(() => {
+    if (searchTerm) {
       debouncedSearch(searchTerm);
-  }
-}, [searchTerm]);
+    }
+  }, [searchTerm]);
 
   // Update URL when currentPage changes
   useEffect(() => {
@@ -108,9 +117,10 @@ useEffect(() => {
       try {
         await dispatch(deleteTable(selectedTable));
         handleClose();
+        setSuccessMessage("Xóa bàn ăn thành công!");
         setOpenSuccess(true);
         const formattedDate = selectedDate.format('YYYY-MM-DD');
-        dispatch(fetchListTableFilterByDate(formattedDate, urlPage, tableState.pageSize)); // Cập nhật lại danh sách bàn sau khi xóa
+        dispatch(fetchListTableFilterByDate(formattedDate, urlPage, tableState.pageSize));
         dispatch(fetchTables(capacity, urlPage, tableState.pageSize));
       } catch (error) {
         console.error("Error deleting table:", error);
@@ -118,8 +128,40 @@ useEffect(() => {
     }
   };
 
-  const handleEdit = (id) => {
-    navigate(`edit/${id}`);
+  const handleEdit = (table) => {
+    setEditingTable(table);
+    setEditFormData({
+      number: table.number,
+      capacity: table.capacity,
+      status: table.status
+    });
+    setOpenEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setOpenEditModal(false);
+    setEditingTable(null);
+    setEditFormData({ number: '', capacity: '', status: 1 });
+  };
+
+  const handleEditFormChange = (event) => {
+    const { name, value } = event.target;
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      await dispatch(updateTable(editingTable.id, editFormData));
+      handleCloseEditModal();
+      setSuccessMessage("Cập nhật bàn ăn thành công!");
+      setOpenSuccess(true);
+      dispatch(fetchTables(searchTerm, tableState.currentPage, tableState.pageSize));
+    } catch (error) {
+      console.error("Error updating table:", error);
+    }
   };
 
   const handleSearch = (event) => {
@@ -203,22 +245,22 @@ useEffect(() => {
                       )}
                       {tableState.allTables && tableState.allTables.map((item, index) => (
                         <tr key={item.id}>
-                          <td>{index+1}</td>
+                          <td>{index + 1}</td>
                           <td>{item.number}</td>
                           <td>{item.capacity}</td>
                           <td>
-                              {item.status === 1 ? (
-                                <span className="badge badge-success">
-                                  Bàn trống
-                                </span>
-                              ) : (
-                                <span className="badge badge-danger">
-                                  Có khách
-                                </span>
-                              )}
-                            </td>                          <td>
+                            {item.status === 1 ? (
+                              <span className="badge badge-success">
+                                Bàn trống
+                              </span>
+                            ) : (
+                              <span className="badge badge-danger">
+                                Có khách
+                              </span>
+                            )}
+                          </td>                          <td>
                             <div className="btn-group mt-3" role="group">
-                              <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
+                              <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item)}>Sửa</button>
                               <button type="button" className="btn btn-outline-danger" onClick={() => handleClickOpen(item.id)}>
                                 <span className='text-danger'>Xóa</span>
                               </button>
@@ -237,7 +279,7 @@ useEffect(() => {
         <SuccessAlert
           open={openSuccess}
           onClose={handleSuccessClose}
-          message="Xóa bàn ăn thành công!"
+          message={successMessage}
         />
 
         <DialogConfirm
@@ -246,14 +288,72 @@ useEffect(() => {
           onConfirm={handleConfirm}
         />
 
+        <Dialog open={openEditModal} onClose={handleCloseEditModal}>
+          <DialogTitle>Chỉnh sửa bàn ăn</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              name="number"
+              label="Số bàn"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={editFormData.number}
+              onChange={handleEditFormChange}
+            />
+            <TextField
+              select
+              margin="dense"
+              name="capacity"
+              label="Số lượng người tối đa"
+              fullWidth
+              variant="outlined"
+              value={editFormData.capacity}
+              onChange={handleEditFormChange}
+              SelectProps={{
+                native: true,
+              }}
+            >
+              <option value="">Chọn số lượng người</option>
+              <option value="2">2 người</option>
+              <option value="4">4 người</option>
+              <option value="6">6 người</option>
+              <option value="8">8 người</option>
+            </TextField>
+            <TextField
+              select
+              margin="dense"
+              name="status"
+              label="Trạng thái"
+              fullWidth
+              variant="outlined"
+              value={editFormData.status}
+              onChange={handleEditFormChange}
+              SelectProps={{
+                native: true,
+              }}
+            >
+              <option value={1}>Bàn trống</option>
+              <option value={0}>Có khách</option>
+            </TextField>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseEditModal}>Hủy</Button>
+            <Button onClick={handleEditSubmit} variant="contained" color="primary">
+              Lưu thay đổi
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         <div className="my-2">
-        <CustomPagination
-                                        count={tableState.totalPages} // Tổng số trang từ state
-                                        onPageChange={handlePageChange} // Hàm chuyển trang
-                                        currentPageSelector={(state) => state.tables.currentPage} // Selector lấy currentPage
-                                        pageSizeSelector={(state) => state.tables.limit} // Thay pageSizeSelector thành limit
-                                        fetchDataAction={(page, size) => fetchTables(searchTerm, page)} // Fetch dữ liệu với searchTerm và page
-                                    />
+          <CustomPagination
+            count={tableState.totalPages} // Tổng số trang từ state
+            onPageChange={handlePageChange} // Hàm chuyển trang
+            currentPageSelector={(state) => state.tables.currentPage} // Selector lấy currentPage
+            pageSizeSelector={(state) => state.tables.limit} // Thay pageSizeSelector thành limit
+            fetchDataAction={(page, size) => fetchTables(searchTerm, page)} // Fetch dữ liệu với searchTerm và page
+          />
         </div>
       </div>
     </div>
