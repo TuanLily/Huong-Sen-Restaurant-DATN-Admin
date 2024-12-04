@@ -37,18 +37,25 @@ export const setLimit = (limit) => ({
     payload: limit
 });
 
-export const fetchProductCategory = (name = '', page = 1, pageSize = 10) => {
+export const fetchProductCategory = (name = '', status = '', page = 1, pageSize = 10) => {
     return dispatch => {
         dispatch(fetchProductCategoryRequest());
+
+        const limit = parseInt(localStorage.getItem('limit'), 10) || 5;
+        
         const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}`);
 
         // Thêm tham số tìm kiếm nếu có
         if (name) {
             url.searchParams.append('search', name);
         }
+        if (status) {
+            url.searchParams.append('searchStatus', status);
+        }
+
         // Thêm tham số phân trang
         url.searchParams.append('page', page);
-        url.searchParams.append('pageSize', pageSize);
+        url.searchParams.append('limit', limit);
 
         http.get(url.toString())
             .then(response => {
@@ -130,7 +137,7 @@ export const updateProductCategory = (id, data) => {
         http.patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`, data)
             .then((response) => {
                 dispatch(fetchProductCategorySuccess(response.data.data));
-                dispatch(fetchProductCategory()); // Reload danh sách sau khi cập nhật
+                dispatch(fetchProductCategoryHoatDong()); // Reload danh sách sau khi cập nhật
             })
             .catch((error) => {
                 dispatch(fetchProductCategoryFailure(error.message));
@@ -144,7 +151,7 @@ export const deleteProductCategory = (id, name = '', page = 1, pageSize = 10) =>
         http.delete(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`)
             .then(() => {
                 // Sau khi xóa danh muc, gọi lại fetchProductCategory để làm mới danh sách
-                dispatch(fetchProductCategory(name, page, pageSize));
+                dispatch(fetchProductCategoryHoatDong(name, page, pageSize));
             })
             .catch((error) => {
                 const errorMsg = error.message;

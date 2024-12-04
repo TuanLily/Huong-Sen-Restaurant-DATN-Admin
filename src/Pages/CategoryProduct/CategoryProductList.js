@@ -49,13 +49,14 @@ export default function CategoryProductList() {
     const [openSuccess, setOpenSuccess] = useState(false);
     const [selectedProductCategory, setSelectedProductCategory] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchStatus, setsearchStatus] = useState("");
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
 
     // Debounce hàm tìm kiếm để giảm số lần gọi API
-    const debouncedSearch = useMemo(() => debounce((term) => {
-        dispatch(fetchProductCategoryHoatDong(term, urlPage, productCategoryState.pageSize));
+    const debouncedSearch = useMemo(() => debounce((term, status) => {
+        dispatch(fetchProductCategory(term, status, urlPage, productCategoryState.pageSize));
         dispatch(setCurrentPage(1));
     }, 1000), [dispatch, urlPage, productCategoryState.pageSize]);
 
@@ -67,13 +68,13 @@ export default function CategoryProductList() {
 
     useEffect(() => {
         if (!searchTerm) {
-            dispatch(fetchProductCategory('', urlPage, productCategoryState.pageSize));
+            dispatch(fetchProductCategory('', searchStatus, urlPage, productCategoryState.pageSize));
         }
     }, [dispatch, urlPage, productCategoryState.pageSize]);
 
     useEffect(() => {
         if (searchTerm) {
-            debouncedSearch(searchTerm);
+            debouncedSearch(searchTerm, searchStatus);
         }
     }, [searchTerm]);
 
@@ -139,7 +140,7 @@ export default function CategoryProductList() {
             await dispatch(updateProductCategory(selectedCategory.id, formData));
             setEditModalOpen(false);
             setSelectedCategory(null);
-            dispatch(fetchProductCategoryHoatDong(searchTerm, urlPage, productCategoryState.pageSize));
+            dispatch(fetchProductCategory(searchTerm, urlPage, productCategoryState.pageSize));
             setSuccessMessage('Cập nhật danh mục thành công!');
             setOpenSuccess(true);
         } catch (error) {
@@ -149,59 +150,69 @@ export default function CategoryProductList() {
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
-        debouncedSearch(event.target.value);
+        debouncedSearch(event.target.value, searchStatus);
+    };
+
+    const handleSearchStatus = (event) => {
+        setsearchStatus(event.target.value);
+        debouncedSearch(searchTerm, event.target.value);
     };
 
     const handlePageChange = (page) => {
         navigate(`?page=${page}`); // Cập nhật URL với page
         dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-        dispatch(fetchProductCategory(searchTerm, page, productCategoryState.pageSize));
+        dispatch(fetchProductCategory(searchTerm, searchStatus, page, productCategoryState.pageSize));
     };
 
     return (
         <div className="container">
             <div className="page-inner">
-                <div className="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-                    <div>
+                <div className="pt-2 pb-4">
+                    <div className="mb-3">
                         <h3 className="fw-bold mb-3">Quản lý danh mục sản phẩm</h3>
-                        <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
                     </div>
-                    <div className="ms-md-auto py-2 py-md-0">
-                        {hasPermission('Xóa danh mục sản phẩm') && (
-                            <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
-                                Xóa mục đã chọn
-                            </button>
-                        )}
-                        {hasPermission('Thêm danh mục sản phẩm') && (<Link to="/category-product/add" className="btn btn-primary btn-round">Thêm danh mục</Link>)}
-                        <DialogConfirm />
+
+                    <div className="d-flex flex-wrap justify-content-between align-items-center">
+                        <div className="d-flex align-items-center">
+                        <input
+                            type="text"
+                            className="form-control me-2"
+                            style={{ height: "38px", minWidth: "150px" }}
+                            placeholder="Tên"
+                            aria-label="Tên"
+                            value={searchTerm}
+                            onChange={handleSearch}
+                        />
+                        <select
+                            className="form-control"
+                            style={{ height: "38px", minWidth: "150px" }}
+                            value={searchStatus}
+                            onChange={handleSearchStatus}
+                        >
+                            <option value="">Trạng thái</option>
+                            <option value="1">Hoạt động</option>
+                            <option value="0">Ngưng hoạt động</option>
+                        </select>
+                        </div>
+
+                        <div className="d-flex align-items-center flex-wrap">
+                            {hasPermission('Xóa danh mục sản phẩm') && (
+                                <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
+                                    Xóa mục đã chọn
+                                </button>
+                            )}
+                            {hasPermission('Thêm danh mục sản phẩm') && (<Link to="/category-product/add" className="btn btn-primary btn-round">Thêm danh mục</Link>)}
+                            <DialogConfirm />
+                        </div>
                     </div>
                 </div>
+
                 <div className="row">
                     <div className="col-md-12">
                         <div className="card card-round">
                             <div className="card-header">
                                 <div className="card-head-row card-tools-still-right">
                                     <div className="card-title">Danh sách</div>
-                                    <div className="card-tools">
-                                        <Paper
-                                            component="form"
-                                            sx={{
-                                                p: '2px 4px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                width: 320,
-                                            }}
-                                        >
-                                            <SearchIcon />
-                                            <InputBase
-                                                sx={{ ml: 1, flex: 1 }}
-                                                placeholder="Tìm kiếm danh mục ở đây!"
-                                                inputProps={{ 'aria-label': 'search' }}
-                                                value={searchTerm}
-                                                onChange={handleSearch} // Thêm xử lý thay đổi từ khóa tìm kiếm
-                                            />
-                                        </Paper>
-                                    </div>
                                 </div>
                             </div>
                             <div className="card-body p-0">
@@ -301,7 +312,7 @@ export default function CategoryProductList() {
                                         onPageChange={handlePageChange}
                                         currentPageSelector={(state) => state.product_category.currentPage} // Selector để lấy trang hiện tại
                                         pageSizeSelector={(state) => state.product_category.limit} // Thay pageSizeSelector thành limit
-                                        fetchDataAction={(page, size) => fetchProductCategoryHoatDong(searchTerm, page)}
+                                        fetchDataAction={(page, size) => fetchProductCategory(searchTerm, searchStatus, page)}
                                     />
                                 </div>
                             </div>
