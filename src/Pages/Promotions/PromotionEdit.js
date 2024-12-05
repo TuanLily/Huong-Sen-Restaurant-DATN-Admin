@@ -18,6 +18,17 @@ export default function PromotionEdit () {
 
     const watchValidFrom = watch('valid_from');
 
+    const formatDateForInput = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const hh = String(date.getHours()).padStart(2, '0');
+        const mi = String(date.getMinutes()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    };
+
     useEffect(() => {
         dispatch(fetchPromotion());
     }, [dispatch]);
@@ -28,8 +39,8 @@ export default function PromotionEdit () {
             setValue('code_name', promotion.code_name);
             setValue('discount', promotion.discount);
             setValue('quantity', promotion.quantity);
-            setValue('valid_to', promotion.valid_to.substring(0, 10));
-            setValue('valid_from', promotion.valid_from.substring(0, 10));
+            setValue('valid_to', formatDateForInput(promotion.valid_to));
+            setValue('valid_from', formatDateForInput(promotion.valid_from));
         }
     }, [promotiontState.promotion, id, setValue]);
 
@@ -38,19 +49,21 @@ export default function PromotionEdit () {
     };
 
     const onSubmit = (data) => {
-        const addOneDay = (date) => {
-            const newDate = new Date(date);
-            newDate.setDate(newDate.getDate() + 1);
-            return newDate.toLocaleDateString('en-CA');
+        const formatToMySQLDateTime = (isoDate) => {
+            const date = new Date(isoDate);
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            const hh = String(date.getHours()).padStart(2, '0');
+            const mi = String(date.getMinutes()).padStart(2, '0');
+            const ss = String(date.getSeconds()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
         };
-
-        const validFromDate = addOneDay(data.valid_from);
-        const validToDate = addOneDay(data.valid_to);
 
         const updatedData = {
             ...data,
-            valid_from: validFromDate,
-            valid_to: validToDate,
+            valid_from: formatToMySQLDateTime(data.valid_from),
+            valid_to: formatToMySQLDateTime(data.valid_to),
         };
 
         dispatch(updatePromotions(id, updatedData));
@@ -94,12 +107,12 @@ export default function PromotionEdit () {
                                         <div className="col-md-6">
                                         <div className="form-group">
                                             <label htmlFor="">Ngày bắt đầu</label>
-                                            <input type="date" className="form-control" id="" {...register('valid_from', { required: 'Vui lòng nhập ngày bắt đầu!', validate: value => new Date(value) >= new Date(currentDate) || 'Ngày bắt đầu không được nhỏ hơn ngày hiện tại!'})}/>
+                                            <input type="datetime-local" className="form-control" id="" {...register('valid_from', { required: 'Vui lòng nhập ngày bắt đầu!', validate: value => new Date(value) >= new Date(currentDate) || 'Ngày bắt đầu không được nhỏ hơn ngày hiện tại!'})}/>
                                             {errors.valid_from && <div className="text-danger">{errors.valid_from.message}</div>}
                                         </div>
                                         <div className="form-group">
                                             <label htmlFor="">Ngày kết thúc</label>
-                                            <input type="date" className="form-control" id="" {...register('valid_to', { required: 'Vui lòng nhập ngày kết thúc!', validate: value => {if (new Date(value) <= new Date(watchValidFrom)) {return 'Ngày kết thúc không hợp lệ!'} return true}}) }/>
+                                            <input type="datetime-local" className="form-control" id="" {...register('valid_to', { required: 'Vui lòng nhập ngày kết thúc!', validate: value => {if (new Date(value) <= new Date(watchValidFrom)) {return 'Ngày kết thúc không hợp lệ!'} return true}}) }/>
                                             {errors.valid_to && <div className="text-danger">{errors.valid_to.message}</div>}
                                         </div>
                                     </div>

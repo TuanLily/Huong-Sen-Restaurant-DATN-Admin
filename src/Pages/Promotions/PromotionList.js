@@ -7,6 +7,7 @@ import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 import CheckboxSelection from '../../Components/CheckboxSelection';
 import { SuccessAlert, DangerAlert } from '../../Components/Alert/Alert';
+import { formatDateTime } from '../../Utils/FormatDateTime';
 
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -225,10 +226,10 @@ export default function PromotionList () {
                                                         </td>
                                                         <td>{item.quantity}</td>
                                                         <td>
-                                                            {item.valid_from.substring(0, 10)}
+                                                            {formatDateTime(item.valid_from)}
                                                         </td>
                                                         <td>
-                                                            {item.valid_to.substring(0, 10)}
+                                                            {formatDateTime(item.valid_to)}
                                                         </td>
                                                         <td>
                                                             <div className="btn-group mt-3" role="group">
