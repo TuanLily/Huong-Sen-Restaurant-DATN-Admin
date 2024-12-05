@@ -39,7 +39,7 @@ export const setLimit = (limit) => ({ // Thêm hành động để thiết lập
 });
 
 // Thunk action creator for fetching category blogs
-export const fetchCategoryBlog = (name = '', page = 1) => {
+export const fetchCategoryBlog = (name = '', status = '', page = 1) => {
     return async (dispatch) => {
         dispatch(fetchCategoryBlogRequest());
 
@@ -53,6 +53,10 @@ export const fetchCategoryBlog = (name = '', page = 1) => {
             if (name) {
                 url.searchParams.append('search', name);
             }
+            if (status) {
+                url.searchParams.append('searchStatus', status);
+            }
+
             // Add pagination parameters
             url.searchParams.append('page', page);
             url.searchParams.append('limit', limit);

@@ -6,6 +6,7 @@ import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 import { SuccessAlert } from '../../Components/Alert/Alert';
+import { formatDateTime } from '../../Utils/FormatDateTime';
 
 import { InputBase, Select, MenuItem, FormControl, InputLabel, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -229,7 +230,7 @@ export default function ReservationList() {
                                                         <td>{index + 1}</td>
                                                         <td style={{ textAlign: 'left' }}>
                                                             <span className="fw-semibold">Mã hóa đơn: </span>{item.reservation_code ? item.reservation_code : 'Chưa rõ'}<br />
-                                                            <span className="fw-semibold">Ngày đặt: </span>{new Date(item.reservation_date).toLocaleDateString('vi-VN').substring(0, 10)}<br />
+                                                            <span className="fw-semibold">Ngày đặt: </span>{formatDateTime(item.reservation_date)}<br />
                                                             <span className="fw-semibold">Họ và tên: </span>{item.fullname}<br />
                                                             <span className="fw-semibold">Email: </span>{item.email}<br />
                                                             <span className="fw-semibold">Phone: </span>{item.tel}<br />

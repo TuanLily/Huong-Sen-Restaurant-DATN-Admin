@@ -5,6 +5,7 @@ import { fetchReservationsID } from '../../Actions/Reservations_t_AdminActions';
 import { fetchReservationdetail } from '../../Actions/GetReservationDetailAction';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 import logo from "../../Assets/Images/huong-sen-logo.png";
+import { formatDateTime } from '../../Utils/FormatDateTime';
 
 export default function ReservationDetail() {
     const { id } = useParams();
@@ -110,7 +111,7 @@ export default function ReservationDetail() {
                                 <p><strong>Tên:</strong> {reservationState.reservation[0].fullname} | <strong>Mã:</strong> {reservationState.reservation[0].reservation_code ? reservationState.reservation[0].reservation_code :  'Chưa rõ'}</p>
                                 <p><strong>Phone:</strong> {reservationState.reservation[0].tel}</p>
                                 <p><strong>Email:</strong> {reservationState.reservation[0].email}</p>
-                                <p><strong>Ngày đặt:</strong> {new Date(reservationState.reservation[0].reservation_date).toLocaleDateString('vi-VN').substring(0, 10)} | <strong>Số người:</strong> {reservationState.reservation[0].party_size}</p>
+                                <p><strong>Ngày đặt:</strong> {formatDateTime(reservationState.reservation[0].reservation_date)} | <strong>Số người:</strong> {reservationState.reservation[0].party_size}</p>
                             </div>
                             
                             {/* Chi tiết đơn hàng */}
