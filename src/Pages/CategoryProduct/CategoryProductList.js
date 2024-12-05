@@ -7,6 +7,7 @@ import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 import CheckboxSelection from '../../Components/CheckboxSelection';
 import { SuccessAlert } from '../../Components/Alert/Alert';
+import { formatDateTime } from '../../Utils/FormatDateTime';
 
 import { InputBase, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -269,10 +270,10 @@ export default function CategoryProductList() {
                                                             {item.status === 0 && <span className="badge badge-danger">Ngưng hoạt động</span>}
                                                         </td>
                                                         <td>
-                                                            {item.created_at.substring(0, 10)}
+                                                            {formatDateTime(item.created_at)}
                                                         </td>
                                                         <td>
-                                                            {item.updated_at.substring(0, 10)}
+                                                            {formatDateTime(item.updated_at)}
                                                         </td>
                                                         <td>
                                                             {item.name === 'Chưa phân loại' ? (
