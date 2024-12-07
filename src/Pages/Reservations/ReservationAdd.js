@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchProductCategoryHoatDong } from "../../Actions/ProductCategoryActions";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
+import { formatCurrency } from "../../Utils/FormatCurrency";
 import {
   addReservation,
   fetchExistingReservations as fetchExistingReservationsAction,
@@ -115,11 +116,7 @@ export default function ReservationAdd() {
     });
   };
 
-  const formatCurrency = (value) => {
-    // Làm tròn số tiền trước khi định dạng
-    const roundedValue = Math.round(value);
-    return `${roundedValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
-  };
+ 
 
 
   const generateReservationCode = () => {

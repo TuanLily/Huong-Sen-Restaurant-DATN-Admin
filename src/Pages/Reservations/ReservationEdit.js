@@ -18,6 +18,7 @@ import { useForm } from "react-hook-form";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
+import { formatCurrency } from "../../Utils/FormatCurrency";
 
 export default function ReservationUpdate() {
   const dispatch = useDispatch();
@@ -186,13 +187,7 @@ export default function ReservationUpdate() {
     });
   };
 
-  const formatCurrency = (value) => {
-    // Làm tròn số tiền trước khi định dạng
-    const roundedValue = Math.round(value);
-    return `${roundedValue
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ".")} VND`;
-  };
+  
 
   const groupReservationsByProduct = (reservations) => {
     const grouped = {};
