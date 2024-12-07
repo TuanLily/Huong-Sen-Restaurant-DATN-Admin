@@ -16,6 +16,7 @@ import debounce from "lodash.debounce";
 
 import { getPermissions } from "../../Actions/GetQuyenHanAction";
 import { jwtDecode as jwt_decode } from "jwt-decode";
+import dayjs from "dayjs";
 
 export default function TableList() {
   const dispatch = useDispatch();
@@ -52,6 +53,7 @@ export default function TableList() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [openSuccess, setOpenSuccess] = useState(false);
   const [capacity, setCapacity] = useState("");
+  const [selectedDate, setSelectedDate] = useState(dayjs());
   const [searchTerm, setSearchTerm] = useState("");
   const [openEditModal, setOpenEditModal] = useState(false);
   const [editingTable, setEditingTable] = useState(null);
@@ -151,7 +153,11 @@ export default function TableList() {
 
   const handleEditSubmit = async () => {
     try {
-      await dispatch(updateTable(editingTable.id, editFormData));
+      await dispatch(updateTable(editingTable.id, {
+        ...editFormData,
+        capacity: parseInt(editFormData.capacity),
+        status: parseInt(editFormData.status)
+      }));
       handleCloseEditModal();
       setSuccessMessage("Cập nhật bàn ăn thành công!");
       setOpenSuccess(true);
@@ -160,6 +166,12 @@ export default function TableList() {
       console.error("Error updating table:", error);
     }
   };
+
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+    dispatch(setCurrentPage(1));
+  };
+
 
   const handlePageChange = (page) => {
     navigate(`?page=${page}`);
@@ -214,7 +226,7 @@ export default function TableList() {
                         <button
                           type="button"
                           className="btn btn-outline-success ms-2"
-                          onClick={() => handleEdit(item.id)}
+                          onClick={() => handleEdit(item)}
                         >
                           Sửa
                         </button>
