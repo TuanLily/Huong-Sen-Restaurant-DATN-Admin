@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm } from 'react-hook-form';
 import { useNavigate } from "react-router-dom";
 import { addProduct , fetchProduct } from "../../Actions/ProductActions";
-import { fetchProductCategory } from "../../Actions/ProductCategoryActions";
+import { fetchCategoryProductNoPage } from "../../Actions/CategoryProductNoPageActions";
 import ImageUploadComponent from "../../Components/ImageUpload/ImageUpload";
 import { SuccessAlert } from "../../Components/Alert/Alert";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
@@ -12,13 +12,12 @@ export default function ProductAdd () {
     const dispatch = useDispatch();
     const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
     const productState = useSelector(state => state.product);
-    const productCategoryState = useSelector(state => state.product_category);
+    const productCategoryState = useSelector(state => state.productCategoryNoPage);
 
     useEffect(() => {
-        dispatch(fetchProductCategory());
+        dispatch(fetchCategoryProductNoPage());
         dispatch(fetchProduct());
     }, [dispatch]);
-
 
     const navigate = useNavigate();
 
@@ -137,7 +136,7 @@ export default function ProductAdd () {
                                             <label>Danh mục</label>
                                             <select className="form-select" id="category_id" {...register('category_id', { required: 'Vui lòng chọn danh mục!' })}>
                                                 <option value="">---</option>
-                                                {productCategoryState.product_category && productCategoryState.product_category
+                                                {productCategoryState.product_category
                                                     .filter(item => item.status == 1)
                                                     .map((item, index) => (
                                                         <option key={item.id} value={item.id}>{item.name}</option>

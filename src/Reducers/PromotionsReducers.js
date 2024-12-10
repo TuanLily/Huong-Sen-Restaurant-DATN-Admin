@@ -72,7 +72,7 @@ const promotionReducer = (state = initialState, action) => {
                 ...state,
                 limit: newLimit,
                 currentPage, // Cập nhật currentPage nếu cần thiết
-                user: state.allPromotions.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
+                promotion: state.allPromotions.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
             };
         }
         default:

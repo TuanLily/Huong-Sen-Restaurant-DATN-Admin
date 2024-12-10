@@ -74,7 +74,7 @@ const productReducer = (state = initialState, action) => {
                 ...state,
                 limit: newLimit,
                 currentPage, // Cập nhật currentPage nếu cần thiết
-                user: state.allProducts.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
+                product: state.allProducts.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
             };
         }
         default:

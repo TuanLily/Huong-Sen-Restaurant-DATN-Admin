@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { fetchProductCategoryHoatDong, fetchProductCategory, deleteProductCategory, setCurrentPage, updateProductCategory } from '../../Actions/ProductCategoryActions';
+import { fetchProductCategory, deleteProductCategory, setCurrentPage, updateProductCategory } from '../../Actions/ProductCategoryActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
@@ -141,7 +141,7 @@ export default function CategoryProductList() {
             await dispatch(updateProductCategory(selectedCategory.id, formData));
             setEditModalOpen(false);
             setSelectedCategory(null);
-            dispatch(fetchProductCategory(searchTerm, urlPage, productCategoryState.pageSize));
+            dispatch(fetchProductCategory(searchTerm, searchStatus, urlPage, productCategoryState.pageSize));
             setSuccessMessage('Cập nhật danh mục thành công!');
             setOpenSuccess(true);
         } catch (error) {

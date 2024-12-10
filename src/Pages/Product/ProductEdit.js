@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchProduct, updateProduct } from '../../Actions/ProductActions';
-import { fetchProductCategory } from "../../Actions/ProductCategoryActions";
+import { fetchCategoryProductNoPage } from "../../Actions/CategoryProductNoPageActions";
 import ImageUploadComponent from '../../Components/ImageUpload/ImageUpload';
 import { SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
@@ -16,7 +16,7 @@ export default function ProductEdit () {
     const navigate = useNavigate();
 
     const productState = useSelector((state) => state.product);
-    const productCategoryState = useSelector(state => state.product_category);
+    const productCategoryState = useSelector(state => state.productCategoryNoPage);
 
     const [initialImage, setInitialImage] = useState(null);
     const [image, setImage] = useState('');
@@ -24,7 +24,7 @@ export default function ProductEdit () {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        dispatch(fetchProductCategory());
+        dispatch(fetchCategoryProductNoPage());
         dispatch(fetchProduct());
     }, [dispatch]);
 

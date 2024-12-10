@@ -75,7 +75,7 @@ const productCategoryReducer = (state = initialState, action) => {
                 ...state,
                 limit: newLimit,
                 currentPage, // Cập nhật currentPage nếu cần thiết
-                user: state.allProduct_categorys.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
+                product_category: state.allProduct_categorys.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
             };
         }
         default:

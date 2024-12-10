@@ -71,7 +71,7 @@ const Reservations_t_AdminReducer = (state = initialState, action) => {
                 ...state,
                 limit: newLimit,
                 currentPage, // Cập nhật currentPage nếu cần thiết
-                user: state.allReservation.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
+                reservation: state.allReservation.slice(start, end), // Cập nhật lại danh sách người dùng theo limit mới
             };
         }
         default:

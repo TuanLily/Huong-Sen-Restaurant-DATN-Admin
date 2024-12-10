@@ -100,6 +100,7 @@ export const fetchProductCategoryHoatDong = (name = '', page = 1, pageSize = 10)
             });
     };
 };
+
 export const fetchListProductCategory = () => {
     return dispatch => {
         dispatch(fetchProductCategoryRequest());
@@ -137,7 +138,7 @@ export const updateProductCategory = (id, data) => {
         http.patch(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`, data)
             .then((response) => {
                 dispatch(fetchProductCategorySuccess(response.data.data));
-                dispatch(fetchProductCategoryHoatDong()); // Reload danh sách sau khi cập nhật
+                dispatch(fetchProductCategory()); // Reload danh sách sau khi cập nhật
             })
             .catch((error) => {
                 dispatch(fetchProductCategoryFailure(error.message));
@@ -151,7 +152,7 @@ export const deleteProductCategory = (id, name = '', page = 1, pageSize = 10) =>
         http.delete(`${API_ENDPOINT}/${AdminConfig.routes.categoryProduct}/${id}`)
             .then(() => {
                 // Sau khi xóa danh muc, gọi lại fetchProductCategory để làm mới danh sách
-                dispatch(fetchProductCategoryHoatDong(name, page, pageSize));
+                dispatch(fetchProductCategory(name, page, pageSize));
             })
             .catch((error) => {
                 const errorMsg = error.message;

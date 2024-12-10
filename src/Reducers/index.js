@@ -2,6 +2,7 @@ import { combineReducers } from "redux";
 import customerReducer from "./CustomerReducers";
 import productReducer from "./ProductReducers";
 import productCategoryReducer from "./ProductCategoryDeducers";
+import productCategoryNoPageReducer from "./CategoryProductNoPageReducers";
 import roleReducer from "./RoleReducers";
 import permissionsReducer from "./PermissionsReducers";
 import blogsCategoriesReducer from "./BlogsCategoriesReducers";
@@ -45,6 +46,7 @@ const rootReducer = combineReducers({
     reservations_Detail_Admin: ReservationDetailReducer,
     statistical: StatisticalReducer,
     revenueTimeReducer: revenueTimeReducer,
+    productCategoryNoPage: productCategoryNoPageReducer,
 });
 
 export default rootReducer;

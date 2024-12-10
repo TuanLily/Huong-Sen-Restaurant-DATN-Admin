@@ -7,7 +7,7 @@ import {
   updateStatus,
   setCurrentPage,
 } from "../../Actions/ProductActions";
-import { fetchProductCategory } from "../../Actions/ProductCategoryActions";
+import { fetchCategoryProductNoPage } from "../../Actions/CategoryProductNoPageActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
@@ -45,7 +45,7 @@ export default function ProductList() {
   };
 
   const productState = useSelector((state) => state.product);
-  const productCategoryState = useSelector((state) => state.product_category);
+  const productCategoryState = useSelector((state) => state.productCategoryNoPage);
 
   const query = new URLSearchParams(location.search);
   const urlPage = parseInt(query.get("page")) || 1;
@@ -66,17 +66,17 @@ export default function ProductList() {
         productState.pageSize
       )
     );
-    dispatch(fetchProductCategory());
+    dispatch(fetchCategoryProductNoPage());
   }, [dispatch, urlPage, productState.pageSize, searchTerm, searchCateID]);
 
   useEffect(() => {
     navigate(`?page=${productState.currentPage}`);
-    dispatch(fetchProductCategory());
+    dispatch(fetchCategoryProductNoPage());
   }, [productState.currentPage, navigate]);
 
   const getCategoryName = (id) => {
     const product_category = productCategoryState.product_category.find(
-      (cat) => cat.id === id
+      (cat) => cat.id == id
     );
     return product_category ? product_category.name : "Không xác định";
   };
