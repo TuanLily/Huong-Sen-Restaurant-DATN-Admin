@@ -39,7 +39,7 @@ export const setLimit = (limit) => ({  // Thay đổi SET_PAGE_SIZE thành SET_L
 });
 
 // Thunk action for fetching users
-export const fetchUsers = (fullname = '', page = 1) => {
+export const fetchUsers = (fullname = '', status = '',  searchRoleId = '', searchUserType = '', page = 1) => {
     return async (dispatch) => {
         dispatch(fetchUserRequest());
 
@@ -53,6 +53,15 @@ export const fetchUsers = (fullname = '', page = 1) => {
             if (fullname) {
                 url.searchParams.append('search', fullname);
             }
+            if (status) {
+                url.searchParams.append('searchStatus', status);
+            }
+            if (searchUserType) {
+                url.searchParams.append('searchUserType', searchUserType);
+            }
+            if (searchRoleId) {
+                url.searchParams.append("searchRoleId", searchRoleId);
+              }
             url.searchParams.append('page', page);
             url.searchParams.append('limit', limit); // Dùng limit thay cho pageSize
 
