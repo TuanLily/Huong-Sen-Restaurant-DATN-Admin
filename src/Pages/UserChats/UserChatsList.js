@@ -184,11 +184,13 @@ export default function UserChatsList() {
       return false;
     }
 
-    // Lấy tên khách hàng từ customerInfo
+    // Lấy tên khách hàng và số điện thoại từ customerInfo
     const customerName = group.customerInfo.fullname || "Không có tên cần tìm";
+    const customerPhone = group.customerInfo.tel || "";
 
-    // Tìm kiếm dựa trên tên khách hàng
-    return customerName.toLowerCase().includes(searchTerm.toLowerCase());
+    // Tìm kiếm dựa trên tên khách hàng hoặc số điện thoại
+    return customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customerPhone.includes(searchTerm);
   });
 
   // Hàm để cập nhật trạng thái đang nhập
@@ -412,7 +414,7 @@ export default function UserChatsList() {
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Tìm kiếm..."
+                    placeholder="Tìm kiếm theo tên hoặc số điện thoại..."
                     style={{ width: "100%" }}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -439,7 +441,7 @@ export default function UserChatsList() {
                     <div className="flex-grow-1">
                       <p className="mb-0">
                         <strong>
-                          {group.customerInfo.fullname || "Không xác định"}
+                          {group.customerInfo.fullname || "Unknown"} -  SĐT:{group.customerInfo.tel || ""}
                         </strong>{" "}
                         {group.lastMessageRole !== "admin" && (
                           <i
@@ -476,8 +478,9 @@ export default function UserChatsList() {
                 />
                 <p className="mb-0">
                   <strong>
+                    {console.log("Check :: ", selectedUser)}
                     {selectedUser
-                      ? selectedUser.customerInfo?.fullname || "Unknown"
+                      ? `${selectedUser.customerInfo?.fullname || "Unknown"} - SĐT: ${selectedUser.customerInfo?.tel || ""}`
                       : "Chọn tài khoản để chat"}
                   </strong>
                 </p>
@@ -577,7 +580,7 @@ export default function UserChatsList() {
                           <small className="text-muted mb-1 d-block">
                             {message.role === "admin"
                               ? "Nhà Hàng Hương Sen"
-                              : message.fullname}
+                              : `${message.fullname || "Unknown"} - SĐT: ${message.tel || ""}`}
                           </small>
                           <p className="mb-0">{message.text}</p>
                         </div>
@@ -620,9 +623,11 @@ export default function UserChatsList() {
                         <div
                           ref={emojiPickerRef}
                           style={{
-                            position: "absolute",
-                            bottom: "-60px",
-                            right: "45px",
+                            position: "fixed",
+                            bottom: "80px",
+                            right: "20px",
+                            zIndex: 1000,
+                            boxShadow: "0 0 10px rgba(0,0,0,0.1)"
                           }}
                         >
                           <Picker onEmojiClick={onEmojiClick} />
