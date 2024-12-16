@@ -120,7 +120,7 @@ export default function ReservationAdd() {
     });
   };
 
- 
+
 
 
   const generateReservationCode = () => {
@@ -207,7 +207,7 @@ export default function ReservationAdd() {
       // Xử lý thông báo lỗi "Không có bàn phù hợp"
       setOpenError(true);
       setErrorMessage(
-        "Không có bàn phù hợp với số lượng người. Vui lòng thử lại."
+        "Thêm mới đơn đặt bàn thất bại. Vui lòng thử lại."
       );
     }
   };
@@ -251,13 +251,12 @@ export default function ReservationAdd() {
                       )}
                     </div>
                     <div className="form-group">
-                      <label>Email</label>
+                      <label>Email (không bắt buộc)</label>
                       <input
                         type="email"
                         className={`form-control ${errors.email ? "is-invalid" : ""
                           }`}
                         {...register("email", {
-                          required: "Email là bắt buộc",
                           pattern: {
                             value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
                             message: "Email không hợp lệ",
@@ -276,17 +275,6 @@ export default function ReservationAdd() {
                       <input
                         type="number"
                         className="form-control"
-                        {...register("partySize", {
-                          required: "Vui lòng nhập số lượng người",
-                          min: {
-                            value: 1,
-                            message: "Số lượng người tối thiểu là 1",
-                          },
-                          max: {
-                            value: 8,
-                            message: "Số lượng người tối đa là 8",
-                          },
-                        })}
                         placeholder="Nhập số lượng người"
                         defaultValue={1}
                       />
@@ -372,6 +360,7 @@ export default function ReservationAdd() {
                             <Switch
                               checked={isDeposit}
                               onChange={handleDepositChange}
+                              disabled
                             />
                           }
                           label="Đặt cọc 30%"
@@ -412,9 +401,9 @@ export default function ReservationAdd() {
                                 <Link
                                   to="#"
                                   className={`nav-link fw-bolder fs-6 ${selectedCategory === null &&
-                                      activeTab === "category-info"
-                                      ? "active text-primary"
-                                      : "text-dark"
+                                    activeTab === "category-info"
+                                    ? "active text-primary"
+                                    : "text-dark"
                                     }`}
                                   onClick={() => {
                                     setSelectedCategory(null);
@@ -424,7 +413,7 @@ export default function ReservationAdd() {
                                   Tất cả
                                 </Link>
                               </li>
-                              
+
                             </ul>
                             <div className="card-tools">
                               <Paper

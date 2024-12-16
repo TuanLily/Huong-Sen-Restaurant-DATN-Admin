@@ -91,6 +91,7 @@ export default function ReservationUpdate() {
         setValue("email", reservation.email || "");
         setValue("tel", reservation.tel || "");
 
+
         // Chuyển đổi reservation_date sang giờ Việt Nam
         const reservationDate = reservation.reservation_date
           ? new Date(reservation.reservation_date)
@@ -115,7 +116,7 @@ export default function ReservationUpdate() {
           setValue("reservation_date", "");
         }
 
-        setValue("partySize", reservation.party_size || 1);
+        setValue("party_size", reservation.party_size);
         setValue("notes", reservation.notes || "");
         setValue("totalAmount", reservation.totalAmount || 0);
         setValue("status", reservation.status || 2);
@@ -187,7 +188,7 @@ export default function ReservationUpdate() {
     });
   };
 
-  
+
 
   const groupReservationsByProduct = (reservations) => {
     const grouped = {};
@@ -251,7 +252,7 @@ export default function ReservationUpdate() {
       tel: data.tel,
       reservation_date: data.reservation_date,
       deposit: deposit,
-      party_size: parseInt(data.partySize),
+      party_size: parseInt(data.party_size),
       note: data.notes,
       products: selectedProducts,
       total_amount: calculateTotalAmount(),
@@ -292,9 +293,8 @@ export default function ReservationUpdate() {
                       <label>Tên khách hàng</label>
                       <input
                         type="text"
-                        className={`form-control ${
-                          errors.fullname ? "is-invalid" : ""
-                        }`}
+                        className={`form-control ${errors.fullname ? "is-invalid" : ""
+                          }`}
                         {...register("fullname", {
                           required: "Tên khách hàng là bắt buộc",
                         })}
@@ -307,14 +307,12 @@ export default function ReservationUpdate() {
                       )}
                     </div>
                     <div className="form-group">
-                      <label>Email</label>
+                      <label>Email (không bắt buộc)</label>
                       <input
                         type="email"
-                        className={`form-control ${
-                          errors.email ? "is-invalid" : ""
-                        }`}
+                        className={`form-control ${errors.email ? "is-invalid" : ""
+                          }`}
                         {...register("email", {
-                          required: "Email là bắt buộc",
                           pattern: {
                             value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
                             message: "Email không hợp lệ",
@@ -335,7 +333,7 @@ export default function ReservationUpdate() {
                         className="form-control"
                         {...register("party_size")}
                         placeholder="Nhập số lượng người"
-                        defaultValue={1}
+
                       />
                     </div>
                     <div className="form-group">
@@ -355,9 +353,8 @@ export default function ReservationUpdate() {
                       <label>Số điện thoại</label>
                       <input
                         type="number"
-                        className={`form-control ${
-                          errors.tel ? "is-invalid" : ""
-                        }`}
+                        className={`form-control ${errors.tel ? "is-invalid" : ""
+                          }`}
                         {...register("tel", {
                           required: "Số điện thoại là bắt buộc",
                           pattern: {
@@ -381,8 +378,8 @@ export default function ReservationUpdate() {
                         className={`form-control `}
                         disabled
                         {...register("reservation_date", {})}
-                        // Thiết lập giá trị min là thời gian hiện tại
-                        // Gọi hàm handleDateChange khi có thay đổi
+                      // Thiết lập giá trị min là thời gian hiện tại
+                      // Gọi hàm handleDateChange khi có thay đổi
                       />
                       {errors.reservation_date && (
                         <div className="invalid-feedback">
@@ -422,7 +419,7 @@ export default function ReservationUpdate() {
                   <div className="card-header">
                     <div className="card-head-row card-tools-still-right">
                       <div className="card-title">Danh sách món ăn</div>
-                      
+
                     </div>
                   </div>
                   <div className="card-body p-0">
@@ -511,12 +508,11 @@ export default function ReservationUpdate() {
                               <li className="nav-item">
                                 <Link
                                   to="#"
-                                  className={`nav-link fw-bolder fs-6 ${
-                                    selectedCategory === null &&
-                                    activeTab === "category-info"
+                                  className={`nav-link fw-bolder fs-6 ${selectedCategory === null &&
+                                      activeTab === "category-info"
                                       ? "active text-primary"
                                       : "text-dark"
-                                  }`} // 'Tất cả' sẽ được active nếu selectedCategory là null và activeTab là 'updateInfo'
+                                    }`} // 'Tất cả' sẽ được active nếu selectedCategory là null và activeTab là 'updateInfo'
                                   onClick={() => {
                                     setSelectedCategory(null); // Chọn 'Tất cả'
                                     setActiveTab("category-info"); // Cập nhật activeTab
@@ -525,7 +521,7 @@ export default function ReservationUpdate() {
                                   Tất cả
                                 </Link>
                               </li>
-                             
+
                             </ul>
                             <div className="card-tools">
                               <Paper
@@ -567,8 +563,8 @@ export default function ReservationUpdate() {
                                 </tr>
                               )}
                               {!productState.loading &&
-                              productState.allProducts &&
-                              productState.allProducts.length > 0 ? (
+                                productState.allProducts &&
+                                productState.allProducts.length > 0 ? (
                                 productState.allProducts
                                   .filter(
                                     (product) =>
@@ -632,7 +628,7 @@ export default function ReservationUpdate() {
                                               handleQuantityChange(
                                                 product.id,
                                                 (quantities[product.id] || 0) +
-                                                  1
+                                                1
                                               )
                                             }
                                           >
@@ -668,7 +664,7 @@ export default function ReservationUpdate() {
                       </div>
                       <div className="card-footer">
                         <button type="submit" className="btn btn-primary px-5">
-                          Thêm
+                          Cập nhật
                         </button>
                         <Link
                           to="/reservation"
