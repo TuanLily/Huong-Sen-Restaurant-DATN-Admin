@@ -422,24 +422,7 @@ export default function ReservationUpdate() {
                   <div className="card-header">
                     <div className="card-head-row card-tools-still-right">
                       <div className="card-title">Danh sách món ăn</div>
-                      <div className="card-tools">
-                        <Paper
-                          component="form"
-                          sx={{
-                            p: "2px 4px",
-                            display: "flex",
-                            alignItems: "center",
-                            width: 320,
-                          }}
-                        >
-                          <SearchIcon />
-                          <InputBase
-                            sx={{ ml: 1, flex: 1 }}
-                            placeholder="Tìm kiếm món ăn..."
-                            inputProps={{ "aria-label": "search" }}
-                          />
-                        </Paper>
-                      </div>
+                      
                     </div>
                   </div>
                   <div className="card-body p-0">
@@ -542,31 +525,7 @@ export default function ReservationUpdate() {
                                   Tất cả
                                 </Link>
                               </li>
-                              {productCategoryState.product_category &&
-                                productCategoryState.product_category
-                                  .filter(
-                                    (category) =>
-                                      category.name !== "Chưa phân loại"
-                                  ) // Loại bỏ danh mục "Chưa phân loại"
-                                  .map((category) => (
-                                    <li className="nav-item" key={category.id}>
-                                      <Link
-                                        to="#"
-                                        className={`nav-link fw-bolder fs-6 ${
-                                          category.id === selectedCategory &&
-                                          activeTab === "category-info"
-                                            ? "active text-primary"
-                                            : "text-dark"
-                                        }`} // Active cho danh mục được chọn
-                                        onClick={() => {
-                                          setSelectedCategory(category.id); // Chọn danh mục
-                                          setActiveTab("category-info"); // Cập nhật activeTab
-                                        }}
-                                      >
-                                        {category.name}
-                                      </Link>
-                                    </li>
-                                  ))}
+                             
                             </ul>
                             <div className="card-tools">
                               <Paper

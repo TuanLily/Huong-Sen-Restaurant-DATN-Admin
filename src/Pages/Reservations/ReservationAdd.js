@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { InputBase, Paper } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { fetchProductHoatDongReser } from "../../Actions/ProductActions";
+import { fetchProductHoatDongReser, setCurrentPage } from "../../Actions/ProductActions";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductCategoryHoatDong } from "../../Actions/ProductCategoryActions";
@@ -99,13 +99,17 @@ export default function ReservationAdd() {
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
-    navigate(`?page=1`);
+    dispatch(setCurrentPage(1));
   };
-
   const handlePageChange = (page) => {
-    navigate(`?page=${page}`);
+    navigate(`?page=${page}`); // Cập nhật URL với page
+    dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
     dispatch(
-      fetchProductHoatDongReser(searchTerm, page, productState.pageSize)
+      fetchProductHoatDongReser(
+        searchTerm,
+        page,
+        productState.pageSize
+      )
     );
   };
 
@@ -420,30 +424,7 @@ export default function ReservationAdd() {
                                   Tất cả
                                 </Link>
                               </li>
-                              {productCategoryState.product_category &&
-                                productCategoryState.product_category
-                                  .filter(
-                                    (category) =>
-                                      category.name !== "Chưa phân loại"
-                                  )
-                                  .map((category) => (
-                                    <li className="nav-item" key={category.id}>
-                                      <Link
-                                        to="#"
-                                        className={`nav-link fw-bolder fs-6 ${category.id === selectedCategory &&
-                                            activeTab === "category-info"
-                                            ? "active text-primary"
-                                            : "text-dark"
-                                          }`}
-                                        onClick={() => {
-                                          setSelectedCategory(category.id);
-                                          setActiveTab("category-info");
-                                        }}
-                                      >
-                                        {category.name}
-                                      </Link>
-                                    </li>
-                                  ))}
+                              
                             </ul>
                             <div className="card-tools">
                               <Paper

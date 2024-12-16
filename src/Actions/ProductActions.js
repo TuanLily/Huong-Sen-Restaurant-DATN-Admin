@@ -205,7 +205,7 @@ export const fetchProductHoatDongReser = (name = "", page = 1) => {
 
       // Thêm tham số tìm kiếm nếu có
       if (name) {
-        url.searchParams.append("search", name);
+        url.searchParams.append("searchName", name);
       }
 
       // Thêm tham số phân trang
