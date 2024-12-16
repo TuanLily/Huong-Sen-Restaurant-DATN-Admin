@@ -10,13 +10,12 @@ import {
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
-import { FormControl, Paper, InputBase, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from "@mui/material";
+import { FormControl, Paper, InputBase, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, InputLabel, Select, MenuItem } from "@mui/material";
 import { SuccessAlert } from "../../Components/Alert/Alert";
 import debounce from "lodash.debounce";
 
 import { getPermissions } from "../../Actions/GetQuyenHanAction";
 import { jwtDecode as jwt_decode } from "jwt-decode";
-import dayjs from "dayjs";
 
 export default function TableList() {
   const dispatch = useDispatch();
@@ -52,8 +51,7 @@ export default function TableList() {
   const [open, setOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState(null);
   const [openSuccess, setOpenSuccess] = useState(false);
-  const [capacity, setCapacity] = useState("");
-  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [searchCapacity, setSearchCapacity] = useState('');
   const [searchTerm, setSearchTerm] = useState("");
   const [openEditModal, setOpenEditModal] = useState(false);
   const [editingTable, setEditingTable] = useState(null);
@@ -67,11 +65,13 @@ export default function TableList() {
   // Debounce hàm tìm kiếm để giảm số lần gọi API
   const debouncedSearch = useMemo(
     () =>
-      debounce((term) => {
-        dispatch(fetchTables(term, urlPage, tableState.pageSize));
+      debounce((term, capacity) => {
+        dispatch(fetchTables(term, urlPage, capacity));
         dispatch(setCurrentPage(1));
+        console.log(capacity);
+        
       }, 1000),
-    [dispatch, urlPage, tableState.pageSize]
+    [dispatch, urlPage]
   );
 
   useEffect(() => {
@@ -82,13 +82,13 @@ export default function TableList() {
 
   useEffect(() => {
     if (!searchTerm) {
-      dispatch(fetchTables("", urlPage, tableState.pageSize)); // Fetch lại dữ liệu khi không tìm kiếm
+      dispatch(fetchTables("", urlPage, tableState.pageSize, searchCapacity)); // Fetch lại dữ liệu khi không tìm kiếm
     }
   }, [dispatch, searchTerm, urlPage, tableState.pageSize]);
 
   useEffect(() => {
     if (searchTerm) {
-      debouncedSearch(searchTerm);
+      debouncedSearch(searchTerm, searchCapacity);
     }
   }, [searchTerm]);
 
@@ -118,9 +118,7 @@ export default function TableList() {
         handleClose();
         setSuccessMessage("Xóa bàn ăn thành công!");
         setOpenSuccess(true);
-        const formattedDate = selectedDate.format('YYYY-MM-DD');
-        dispatch(fetchListTableFilterByDate(formattedDate, urlPage, tableState.pageSize));
-        dispatch(fetchTables(capacity, urlPage, tableState.pageSize));
+        dispatch(fetchTables(searchCapacity, urlPage, tableState.pageSize));
       } catch (error) {
         console.error("Error deleting table:", error);
       }
@@ -161,22 +159,22 @@ export default function TableList() {
       handleCloseEditModal();
       setSuccessMessage("Cập nhật bàn ăn thành công!");
       setOpenSuccess(true);
-      dispatch(fetchTables(searchTerm, tableState.currentPage, tableState.pageSize));
+      dispatch(fetchTables(searchTerm, tableState.currentPage, tableState.pageSize, searchCapacity));
     } catch (error) {
       console.error("Error updating table:", error);
     }
   };
 
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
-    dispatch(setCurrentPage(1));
+  const handleSearchCapacity = (event) => {
+    setSearchCapacity(event.target.value); 
+    debouncedSearch(searchTerm, event.target.value);
   };
 
-
+  
   const handlePageChange = (page) => {
     navigate(`?page=${page}`);
     dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-    dispatch(fetchTables(searchTerm, page, tableState.pageSize)); // Fetch dữ liệu theo trang mới
+    dispatch(fetchTables(searchTerm, page, tableState.pageSizem, searchCapacity)); // Fetch dữ liệu theo trang mới
   };
 
   return (
@@ -194,6 +192,21 @@ export default function TableList() {
               </Link>
             ))}
           </div>
+        </div>
+
+        <div className="my-3 col-4">
+        <select
+                className="form-control"
+                style={{ height: "38px", minWidth: "150px" }}
+                value={searchCapacity}
+                onChange={handleSearchCapacity}
+              >
+                <option value="">Số người</option>
+                <option value="2">2 người</option>
+                <option value="4">4 người</option>
+                <option value="6">6 người</option>
+                <option value="8">8 người</option>
+              </select>
         </div>
 
         <div className="row">

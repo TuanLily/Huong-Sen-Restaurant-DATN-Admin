@@ -44,7 +44,7 @@ export const setLimit = (limit) => ({  // Thay đổi SET_PAGE_SIZE thành SET_L
 });
 
 // Thunk action creator for fetching tables
-export const fetchTables = (number = "", page = 1) => {
+export const fetchTables = (number = "", page = 1, searchCapacity = '') => {
   return async (dispatch) => {
     dispatch(fetchTableRequest());
 
@@ -55,6 +55,9 @@ export const fetchTables = (number = "", page = 1) => {
       const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.table}`);
       if (number) {
         url.searchParams.append("search", number);
+      }
+      if (searchCapacity) {
+        url.searchParams.append("searchCapacity", searchCapacity);
       }
 
       // Thêm tham số phân trang
