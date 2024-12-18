@@ -92,6 +92,7 @@ export const fetchUserById = (id) => {
             const url = `${API_ENDPOINT}/${AdminConfig.routes.users}/${id}`;
             const response = await http.get(url);
             const user = response.data.result;
+            console.log("Check data user:: ", user)
             dispatch(fetchUserSuccess(user));
             return user; // Return the fetched user data
         } catch (error) {

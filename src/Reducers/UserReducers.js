@@ -37,7 +37,7 @@ const userReducer = (state = initialState, action) => {
                 totalCount,
                 totalPages,
                 currentPage,
-                user: action.payload.results.slice(0, state.limit),
+                user: Array.isArray(results) ? results.slice(0, state.limit) : [],
 
             };
         case FETCH_USERS_FAILURE:
