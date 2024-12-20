@@ -92,16 +92,16 @@ export default function MenuBar() {
             </li>
 
             {/* Quản Lý Sản Phẩm */}
-            {(hasPermission('Xem sản phẩm') || hasPermission('Xem danh mục sản phẩm') || hasPermission('Khôi phục sản phẩm')) && (
-              <li className={ `nav-item ${ (hasPermission('Xem danh mục sản phẩm') && (location.pathname.startsWith("/category-product")) || (hasPermission('Xem sản phẩm') && location.pathname.startsWith("/product")) || (hasPermission('Khôi phục sản phẩm') && location.pathname.startsWith("/product/tam_xoa"))) ? "active" : "" }` }>
+            {(hasPermission('Xem sản phẩm') || hasPermission('Xem danh mục sản phẩm') || hasPermission('Sửa sản phẩm và Xem danh mục sản phẩm') || hasPermission('Thêm sản phẩm và Xem danh mục sản phẩm') || hasPermission('Khôi phục sản phẩm')) && (
+              <li className={ `nav-item ${ (((hasPermission('Xem danh mục sản phẩm') || hasPermission('Thêm sản phẩm và Xem danh mục sản phẩm') || hasPermission('Sửa sản phẩm và Xem danh mục sản phẩm')) && location.pathname.startsWith("/category-product")) || (hasPermission('Xem sản phẩm') && location.pathname.startsWith("/product")) || (hasPermission('Khôi phục sản phẩm') && location.pathname.startsWith("/product/tam_xoa"))) ? "active" : "" }` }>
                 <NavLink to="#productManagement" className="collapsed" aria-expanded={isProductManagementActive.toString()} data-bs-toggle="collapse">
                   <i className="fa-solid fa-utensils"></i>
                   <p>Quản Lý Món Ăn</p>
                   <span className="caret"></span>
                 </NavLink>
-                <div className={ `collapse ${ (hasPermission('Xem danh mục sản phẩm') && (location.pathname.startsWith("/category-product")) || (hasPermission('Xem sản phẩm') && location.pathname.startsWith("/product")) || (hasPermission('Khôi phục sản phẩm') && location.pathname.startsWith("/product/tam_xoa"))) ? "show" : "" }` } id="productManagement">
+                <div className={ `collapse ${ (((hasPermission('Xem danh mục sản phẩm') || hasPermission('Thêm sản phẩm và Xem danh mục sản phẩm') || hasPermission('Sửa sản phẩm và Xem danh mục sản phẩm')) && location.pathname.startsWith("/category-product")) || (hasPermission('Xem sản phẩm') && location.pathname.startsWith("/product")) || (hasPermission('Khôi phục sản phẩm') && location.pathname.startsWith("/product/tam_xoa"))) ? "show" : "" }` } id="productManagement">
                   <ul className="nav nav-collapse">
-                    {hasPermission('Xem danh mục sản phẩm') && (
+                    {(hasPermission('Xem danh mục sản phẩm') || hasPermission('Thêm sản phẩm và Xem danh mục sản phẩm') || hasPermission('Sửa sản phẩm và Xem danh mục sản phẩm')) && (
                       <li>
                         <NavLink to="/category-product">
                           <span className="sub-item">Danh mục sản phẩm</span>
@@ -128,16 +128,16 @@ export default function MenuBar() {
             )}
 
             {/* Quản Lý Bài Viết */}
-            {(hasPermission('Xem danh mục bài viết') || hasPermission('Xem bài viết')) && (
-              <li className={ `nav-item ${ ((hasPermission('Xem danh mục bài viết') && (location.pathname.startsWith("/category-blog"))) || (hasPermission('Xem bài viết') && location.pathname.startsWith("/blogs"))) ? "active" : "" }` }>
+            {(hasPermission('Xem danh mục bài viết') || hasPermission('Xem bài viết') || hasPermission('Thêm bài viết và Xem danh mục bài viết') || hasPermission('Sửa bài viết và Xem danh mục bài viết')) && (
+              <li className={ `nav-item ${ (((hasPermission('Xem danh mục bài viết') || hasPermission('Thêm bài viết và Xem danh mục bài viết') || hasPermission('Sửa bài viết và Xem danh mục bài viết')) && (location.pathname.startsWith("/category-blog"))) || (hasPermission('Xem bài viết') && location.pathname.startsWith("/blogs"))) ? "active" : "" }` }>
                 <NavLink to="#blogManagement" className="collapsed" aria-expanded={isBlogManagementActive.toString()} data-bs-toggle="collapse">
                   <i className="fa-solid fa-newspaper"></i>
                   <p>Quản Lý Bài Viết</p>
                   <span className="caret"></span>
                 </NavLink>
-                <div className={ `collapse ${ ((hasPermission('Xem danh mục bài viết') && (location.pathname.startsWith("/category-blog"))) || (hasPermission('Xem bài viết') && location.pathname.startsWith("/blogs"))) ? "show" : "" }` } id="blogManagement">
+                <div className={ `collapse ${ (((hasPermission('Xem danh mục bài viết') || hasPermission('Thêm bài viết và Xem danh mục bài viết') || hasPermission('Sửa bài viết và Xem danh mục bài viết')) && location.pathname.startsWith("/category-blog")) || (hasPermission('Xem bài viết') && location.pathname.startsWith("/blogs"))) ? "show" : "" }` } id="blogManagement">
                   <ul className="nav nav-collapse">
-                    {hasPermission('Xem danh mục bài viết') && (
+                    {(hasPermission('Xem danh mục bài viết') || hasPermission('Thêm bài viết và Xem danh mục bài viết') || hasPermission('Sửa bài viết và Xem danh mục bài viết')) && (
                       <li>
                         <NavLink to="/category-blog">
                           <span className="sub-item">Danh mục bài viết</span>

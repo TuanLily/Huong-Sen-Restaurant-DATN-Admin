@@ -33,12 +33,22 @@ const ProtectedRoute = ({ element, requiredPermissions }) => {
 
     // Kiểm tra quyền hạn
     const hasRequiredPermissions = (permissions) => {
+        const permissionMap = {
+            "Xem danh mục sản phẩm": ["Xem danh mục sản phẩm", "Thêm sản phẩm và Xem danh mục sản phẩm"],
+        };
+
         if (!getQuyenHanState || !getQuyenHanState.getQuyenHan || !getQuyenHanState.getQuyenHan.data) {
             return false; // Nếu chưa có quyền hạn
         }
 
         const userPermissions = getQuyenHanState.getQuyenHan.data.map(permission => permission.name);
-        return permissions.every(permission => userPermissions.includes(permission));
+        // return permissions.some(permission => userPermissions.includes(permission));
+        
+        // Mở rộng danh sách quyền yêu cầu
+        const expandedPermissions = permissions.flatMap(permission => permissionMap[permission] || [permission]);
+
+        // Kiểm tra nếu bất kỳ quyền nào khớp
+        return expandedPermissions.some(permission => userPermissions.includes(permission));
     };
 
     if (!isAuthenticated) {
