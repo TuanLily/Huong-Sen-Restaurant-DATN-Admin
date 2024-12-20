@@ -151,7 +151,7 @@ export default function BlogList() {
                                 Xóa mục đã chọn
                             </button>
                         )}
-                        {hasPermission('Thêm bài viết') && (
+                        {hasPermission('Thêm bài viết và Xem danh mục bài viết') && (
                             <Link to="/blogs/add" className="btn btn-primary btn-round">Thêm bài viết</Link>
                         )}
                     </div>
@@ -239,7 +239,7 @@ export default function BlogList() {
                                                             {hasPermission('Xem bình luận bài viết') && (
                                                                 <button type="button" className="btn btn-outline-warning" onClick={() => handleViewComment(item.id)}>Xem bình luận</button>
                                                             )}
-                                                            {hasPermission('Sửa bài viết') && (
+                                                            {hasPermission('Sửa bài viết và Xem danh mục bài viết') && (
                                                                 <button type="button" className="btn btn-outline-success" onClick={() => handleEdit(item.id)}>Sửa</button>
                                                             )}
                                                             {hasPermission('Xóa bài viết') && (

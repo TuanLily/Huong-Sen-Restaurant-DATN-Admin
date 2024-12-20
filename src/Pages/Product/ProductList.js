@@ -228,7 +228,7 @@ export default function ProductList() {
                   Sản phẩm tạm xóa
                 </Link>
               )}
-              {hasPermission("Thêm sản phẩm") && (
+              {hasPermission("Thêm sản phẩm và Xem danh mục sản phẩm") && (
                 <Link
                   to="/product/add"
                   className="btn btn-primary btn-round"
@@ -339,7 +339,7 @@ export default function ProductList() {
                               </td>
                               <td>
                                 <div className="btn-group" role="group">
-                                  {hasPermission("Sửa sản phẩm") && (
+                                  {hasPermission("Sửa sản phẩm và Xem danh mục sản phẩm") && (
                                     <button
                                       type="button"
                                       className="btn btn-outline-success"
