@@ -80,8 +80,8 @@ export default function PromotionAdd () {
                                             <input type="number" className="form-control" id="" placeholder="Nhập số lần dùng" {...register('quantity', { required: 'Vui lòng nhập số lần!',  min: {value: 1, message: 'Số lần không hợp lệ!'} })}/>
                                             {errors.quantity && <div className="text-danger">{errors.quantity.message}</div>}
                                         </div>
-                                        </div>
-                                        <div className="col-md-6">
+                                    </div>
+                                    <div className="col-md-6">
                                         <div className="form-group">
                                             <label htmlFor="">Ngày bắt đầu</label>
                                             <input type="datetime-local" className="form-control" id="" {...register('valid_from', { required: 'Vui lòng nhập ngày bắt đầu!', validate: value => new Date(value) >= new Date(currentDate) || 'Ngày bắt đầu không được nhỏ hơn ngày hiện tại!'})}/>
@@ -91,6 +91,15 @@ export default function PromotionAdd () {
                                             <label htmlFor="">Ngày kết thúc</label>
                                             <input type="datetime-local" className="form-control" id="" {...register('valid_to', { required: 'Vui lòng nhập ngày kết thúc!', validate: value => {if (new Date(value) <= new Date(watchValidFrom)) {return 'Ngày kết thúc không hợp lệ!'} return true}}) }/>
                                             {errors.valid_to && <div className="text-danger">{errors.valid_to.message}</div>}
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Loại</label>
+                                            <select className="form-select" id="type" {...register('type', { required: 'Vui lòng chọn loại!' })}>
+                                                <option value="">---</option>
+                                                <option value='1'>Mã giảm giá</option>
+                                                <option value='0'>Voucher</option>
+                                            </select>
+                                            {errors.type && <div className="text-danger">{errors.type.message}</div>}
                                         </div>
                                     </div>
                                 </div>

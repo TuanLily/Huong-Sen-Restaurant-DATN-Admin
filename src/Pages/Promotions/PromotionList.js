@@ -192,6 +192,7 @@ export default function PromotionList () {
                                                 <th scope="col">Mã khuyến mãi</th>
                                                 <th scope="col">Phần trăm giảm</th>
                                                 <th scope="col">Số lần</th>
+                                                <th scope="col">Loại</th>
                                                 <th scope="col">Ngày bắt đầu</th>
                                                 <th scope="col">Ngày kết thúc</th>
                                                 <th scope="col">Thao tác</th>
@@ -225,6 +226,7 @@ export default function PromotionList () {
                                                             <span className="badge badge-success">{item.discount}%</span>
                                                         </td>
                                                         <td>{item.quantity}</td>
+                                                        <td>{item.type == 0 ? 'Voucher' : 'Mã giảm giá'}</td>
                                                         <td>
                                                             {formatDateTime(item.valid_from)}
                                                         </td>
