@@ -287,7 +287,7 @@ export default function ReservationList() {
                                                                         <button onClick={() => handleUpdateStatus(item.id , 5)} className="dropdown-item">
                                                                             <i className="fas fa-check-circle mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Hoàn thanh đơn
                                                                         </button>
-                                                                        {(item.status !== 3 && item.status !== 4) && (
+                                                                        {(item.status !== 4) && (
                                                                             <div>
                                                                                 <div className="dropdown-divider"></div>
                                                                                 <button onClick={() => handleUpdateStatus(item.id , 4)} className="dropdown-item">
