@@ -174,11 +174,15 @@ export default function ReservationDetail() {
                                             <p><strong>Tiền cọc:</strong> {formatCurrency(deposit)}</p>
                                             <p><strong>Còn lại:</strong> {reservation.status == 5 ? 0 : formatCurrency(remaining)}</p>
                                             <p><strong>Trạng thái:</strong> {statusMapping[reservation.status].text}</p>
+                                            {reservationState.reservation[0].deposit > reservationState.reservation[0].total_amount && (
+                                                <span style={{ fontSize: '15px', color: 'red' }}>
+                                                    Trả lại tiền cho khách.
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                 );
                             })()}
-
 
                             {/* Nút in và quay lại */}
                             <div style={{ textAlign: 'center', marginTop: '20px' }} className="print-buttons">

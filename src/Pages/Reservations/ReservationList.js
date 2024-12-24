@@ -241,6 +241,11 @@ export default function ReservationList() {
                                                             <span className="fw-semibold">Tổng tiền: </span>{formatCurrency(item.total_amount ? item.total_amount : 0)}<br />
                                                             <span className="fw-semibold">Số tiền cọc: </span>{item.deposit ? formatCurrency (item.deposit) : '0 VND'}<br/>
                                                             <span className="fw-semibold">Số tiền còn lại: </span>{formatCurrency(item.status == 5 ? 0 : item.total_amount ? item.deposit ? item.total_amount - item.deposit : item.total_amount : 0)}<br/>
+                                                            {item.total_amount && item.deposit && item.total_amount < item.deposit && (
+                                                                <span style={{ fontSize: '12px', color: 'red' }}>
+                                                                    Trả tiền lại cho khách khi đến ăn.
+                                                                </span>
+                                                            )}<br/>
                                                         </td>
                                                         <td>
                                                         <span className={`badge ${statusInfo.class}`}>
