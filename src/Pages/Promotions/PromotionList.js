@@ -226,7 +226,7 @@ export default function PromotionList () {
                                                             <span className="badge badge-success">{item.discount}%</span>
                                                         </td>
                                                         <td>{item.quantity}</td>
-                                                        <td>{item.type == 0 ? 'Voucher' : 'Mã giảm giá'}</td>
+                                                        <td>{item.type == 0 ? 'Mã thường' : 'Mã đặt biệt'}</td>
                                                         <td>
                                                             {formatDateTime(item.valid_from)}
                                                         </td>

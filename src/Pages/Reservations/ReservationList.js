@@ -233,10 +233,10 @@ export default function ReservationList() {
                                                             <span className="fw-semibold">Ngày đặt: </span>{formatDateTime(item.reservation_date)}<br />
                                                             <span className="fw-semibold">Họ và tên: </span>{item.fullname}<br />
                                                             <span className="fw-semibold">Email: </span>{item.email}<br />
-                                                            <span className="fw-semibold">Phone: </span>{item.tel}<br />
-                                                            {/* <span className="fw-semibold">Số bàn: </span>{item.tableName ? item.tableName : 'Chưa có'} */}
+                                                            <span className="fw-semibold">Phone: </span>{item.tel}
                                                         </td>
                                                         <td style={{ textAlign: 'left' }}>
+                                                            <span className="fw-semibold">Số bàn: </span>{item.tableName ? item.tableName : 'Chưa có'}<br/>
                                                             <span className="fw-semibold">Số người: </span>{item.party_size}<br />
                                                             <span className="fw-semibold">Tổng tiền: </span>{formatCurrency(item.total_amount ? item.total_amount : 0)}<br />
                                                             <span className="fw-semibold">Số tiền cọc: </span>{item.deposit ? formatCurrency (item.deposit) : '0 VND'}<br/>
@@ -260,7 +260,7 @@ export default function ReservationList() {
                                                                         Hành động
                                                                     </button>
                                                                 )}
-                                                                {(hasPermission('Sửa đặt bàn') && item.status != 5 && item.status != 0 && item.status != 2) && (
+                                                                {(hasPermission('Sửa đặt bàn') && item.status != 5 && item.status != 0 && item.status != 2 && item.status != 1) && (
                                                                     <button onClick={() => handleEdit(item.id)} className="btn" style={{ backgroundColor: '#ff6b6b', color: '#fff', marginRight: '5px', border: 'none' }}>
                                                                         <i className="fas fa-edit mr-2"></i>
                                                                     </button>

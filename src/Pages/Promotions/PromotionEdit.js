@@ -120,8 +120,8 @@ export default function PromotionEdit () {
                                             <label>Loại</label>
                                             <select className="form-select" id="type" {...register('type', { required: 'Vui lòng chọn loại!' })}>
                                                 <option value="">---</option>
-                                                <option value='1'>Mã giảm giá</option>
-                                                <option value='0'>Voucher</option>
+                                                <option value='1'>Mã đặt biệt</option>
+                                                <option value='0'>Mã thường</option>
                                             </select>
                                             {errors.type && <div className="text-danger">{errors.type.message}</div>}
                                         </div>
