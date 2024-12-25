@@ -151,6 +151,7 @@ export default function ReservationAdd() {
             product_id: product.id,
             quantity: quantity,
             price: product.price,
+            total_price: product.price * quantity,
           };
         }
         return null;
@@ -163,7 +164,7 @@ export default function ReservationAdd() {
       return;
     }
 
-    const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
+    const total = selectedProducts.reduce((sum, item) => sum + item.total_price, 0);
     const deposit = isDeposit ? total * 0.3 : 0;
 
     let reservationCode;
@@ -187,7 +188,7 @@ export default function ReservationAdd() {
 
     const requestData = {
       ...data,
-      partySize: parseInt(data.partySize),
+      party_Size: parseInt(data.partySize),
       totalAmount: total,
       deposit: deposit,
       status: parseInt(data.status),
@@ -218,6 +219,7 @@ export default function ReservationAdd() {
   };
 
   const toggleDropdown = () => setIsOpen(!isOpen);
+
 
   return (
     <div className="container">
@@ -277,6 +279,7 @@ export default function ReservationAdd() {
                         className="form-control"
                         placeholder="Nhập số lượng người"
                         defaultValue={1}
+                        {...register("partySize")}
                       />
                       {errors.partySize && (
                         <small className="text-danger">

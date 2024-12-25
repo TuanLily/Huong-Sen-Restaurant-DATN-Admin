@@ -19,6 +19,7 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import { formatCurrency } from "../../Utils/FormatCurrency";
+import { formatDateTime } from "../../Utils/FormatDateTime";
 
 export default function ReservationUpdate() {
   const dispatch = useDispatch();
@@ -45,7 +46,6 @@ export default function ReservationUpdate() {
   const [openError, setOpenError] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [isDeposit, setIsDeposit] = useState(false);
 
   const handleSuccessClose = () => setOpenSuccess(false);
   const handleErrorClose = () => setOpenError(false);
@@ -61,8 +61,7 @@ export default function ReservationUpdate() {
       fullname: "",
       email: "",
       tel: "",
-      reservation_date: "",
-      deposit: 0, // Đặt cọc mặc định là 0, sẽ tính toán sau
+      reservation_date: "", // Đặt cọc mặc định là 0, sẽ tính toán sau
       partySize: 1,
       notes: "",
       totalAmount: 0,
@@ -91,7 +90,6 @@ export default function ReservationUpdate() {
         setValue("email", reservation.email || "");
         setValue("tel", reservation.tel || "");
 
-
         // Chuyển đổi reservation_date sang giờ Việt Nam
         const reservationDate = reservation.reservation_date
           ? new Date(reservation.reservation_date)
@@ -117,20 +115,29 @@ export default function ReservationUpdate() {
         }
 
         setValue("party_size", reservation.party_size);
-        setValue("notes", reservation.notes || "");
+        setValue("note", reservation.note || "");
         setValue("totalAmount", reservation.totalAmount || 0);
         setValue("status", reservation.status || 2);
-        setIsDeposit(reservation.deposit > 0);
       }
     }
   }, [reservationState.reservation, setValue, reservationId]);
 
   const calculateTotalAmount = () => {
-    const totalFoodAmount = groupedReservationDetails.reduce(
-      (total, item) => total + item.totalPrice,
+    const selectedProducts = Object.entries(quantities).map(
+      ([id, quantity]) => {
+        const product = productState.product.find((p) => p.id === parseInt(id));
+        return product && quantity > 0 ? product.price * quantity : 0;
+      }
+    );
+    const totalSelected = selectedProducts.reduce(
+      (sum, price) => sum + price,
       0
     );
-    return customerInfo.totalAmount + totalFoodAmount;
+    const totalGrouped = groupedReservationDetails.reduce(
+      (sum, item) => sum + item.totalPrice,
+      0
+    );
+    return totalSelected + totalGrouped;
   };
 
   useEffect(() => {
@@ -149,10 +156,6 @@ export default function ReservationUpdate() {
       .filter((item) => item !== null);
 
     const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
-    const deposit = total * 0.3; // Đặt cọc mặc định là 30%
-    setValue("deposit", deposit);
-    const totalAfterDeposit = total - deposit;
-    setValue("totalAmount", totalAfterDeposit > 0 ? totalAfterDeposit : 0);
   }, [quantities, productState.product, setValue]);
 
   const handleDeleteProduct = async (productId) => {
@@ -187,8 +190,6 @@ export default function ReservationUpdate() {
       [id]: Math.max(value, 0),
     });
   };
-
-
 
   const groupReservationsByProduct = (reservations) => {
     const grouped = {};
@@ -244,18 +245,18 @@ export default function ReservationUpdate() {
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    const deposit = total * 0.3; // Tính tiền đặt cọc
+    const totalAmount = calculateTotalAmount();
+    // Tính tiền đặt cọc
 
     const requestData = {
       fullname: data.fullname,
       email: data.email,
       tel: data.tel,
       reservation_date: data.reservation_date,
-      deposit: deposit,
       party_size: parseInt(data.party_size),
       note: data.notes,
       products: selectedProducts,
-      total_amount: calculateTotalAmount(),
+      total_amount: totalAmount,
       status: parseInt(data.status),
       id: reservationId,
     };
@@ -286,15 +287,32 @@ export default function ReservationUpdate() {
               <div className="card-header">
                 <div className="card-title">Cập nhật đặt bàn</div>
               </div>
+
               <div className="card-body">
+                <div>
+                  <h5 className="form-group card_title">
+                    {reservationState.reservation &&
+                      reservationState.reservation.length > 0 && (
+                        <>
+                          <strong>Mã đơn:</strong>{" "}
+                          {reservationState.reservation[0].reservation_code} |{" "}
+                          <strong>Ngày đặt:</strong>{" "}
+                          {formatDateTime(
+                            reservationState.reservation[0].reservation_date
+                          )}
+                        </>
+                      )}
+                  </h5>
+                </div>
                 <div className="row">
                   <div className="col-md-6">
                     <div className="form-group">
                       <label>Tên khách hàng</label>
                       <input
                         type="text"
-                        className={`form-control ${errors.fullname ? "is-invalid" : ""
-                          }`}
+                        className={`form-control ${
+                          errors.fullname ? "is-invalid" : ""
+                        }`}
                         {...register("fullname", {
                           required: "Tên khách hàng là bắt buộc",
                         })}
@@ -310,8 +328,9 @@ export default function ReservationUpdate() {
                       <label>Email (không bắt buộc)</label>
                       <input
                         type="email"
-                        className={`form-control ${errors.email ? "is-invalid" : ""
-                          }`}
+                        className={`form-control ${
+                          errors.email ? "is-invalid" : ""
+                        }`}
                         {...register("email", {
                           pattern: {
                             value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
@@ -325,16 +344,6 @@ export default function ReservationUpdate() {
                           {errors.email.message}
                         </div>
                       )}
-                    </div>
-                    <div className="form-group">
-                      <label>Số lượng người</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        {...register("party_size")}
-                        placeholder="Nhập số lượng người"
-
-                      />
                     </div>
                     <div className="form-group">
                       <label>Tổng tiền</label>
@@ -353,8 +362,9 @@ export default function ReservationUpdate() {
                       <label>Số điện thoại</label>
                       <input
                         type="number"
-                        className={`form-control ${errors.tel ? "is-invalid" : ""
-                          }`}
+                        className={`form-control ${
+                          errors.tel ? "is-invalid" : ""
+                        }`}
                         {...register("tel", {
                           required: "Số điện thoại là bắt buộc",
                           pattern: {
@@ -371,22 +381,6 @@ export default function ReservationUpdate() {
                         </div>
                       )}
                     </div>
-                    <div className="form-group">
-                      <label>Ngày và giờ đặt</label>
-                      <input
-                        type="datetime-local"
-                        className={`form-control `}
-                        disabled
-                        {...register("reservation_date", {})}
-                      // Thiết lập giá trị min là thời gian hiện tại
-                      // Gọi hàm handleDateChange khi có thay đổi
-                      />
-                      {errors.reservation_date && (
-                        <div className="invalid-feedback">
-                          {errors.reservation_date.message}
-                        </div>
-                      )}
-                    </div>
 
                     <div className="form-group">
                       <label>Trạng thái</label>
@@ -399,17 +393,16 @@ export default function ReservationUpdate() {
                         <option value={5}>Hoàn thành đơn</option>
                       </select>
                     </div>
-                  </div>
-                  <div className="col-12">
                     <div className="form-group">
                       <label>Ghi chú</label>
-                      <textarea
-                        className="form-control full-width"
+                      <input
+                        className="form-control full-width "
                         {...register("notes")}
                         placeholder="Nhập ghi chú"
-                      ></textarea>
+                      ></input>
                     </div>
                   </div>
+                  <div className="col-12"></div>
                 </div>
               </div>
             </div>
@@ -419,7 +412,6 @@ export default function ReservationUpdate() {
                   <div className="card-header">
                     <div className="card-head-row card-tools-still-right">
                       <div className="card-title">Danh sách món ăn</div>
-
                     </div>
                   </div>
                   <div className="card-body p-0">
@@ -508,11 +500,12 @@ export default function ReservationUpdate() {
                               <li className="nav-item">
                                 <Link
                                   to="#"
-                                  className={`nav-link fw-bolder fs-6 ${selectedCategory === null &&
-                                      activeTab === "category-info"
+                                  className={`nav-link fw-bolder fs-6 ${
+                                    selectedCategory === null &&
+                                    activeTab === "category-info"
                                       ? "active text-primary"
                                       : "text-dark"
-                                    }`} // 'Tất cả' sẽ được active nếu selectedCategory là null và activeTab là 'updateInfo'
+                                  }`} // 'Tất cả' sẽ được active nếu selectedCategory là null và activeTab là 'updateInfo'
                                   onClick={() => {
                                     setSelectedCategory(null); // Chọn 'Tất cả'
                                     setActiveTab("category-info"); // Cập nhật activeTab
@@ -521,7 +514,6 @@ export default function ReservationUpdate() {
                                   Tất cả
                                 </Link>
                               </li>
-
                             </ul>
                             <div className="card-tools">
                               <Paper
@@ -563,8 +555,8 @@ export default function ReservationUpdate() {
                                 </tr>
                               )}
                               {!productState.loading &&
-                                productState.allProducts &&
-                                productState.allProducts.length > 0 ? (
+                              productState.allProducts &&
+                              productState.allProducts.length > 0 ? (
                                 productState.allProducts
                                   .filter(
                                     (product) =>
@@ -628,7 +620,7 @@ export default function ReservationUpdate() {
                                               handleQuantityChange(
                                                 product.id,
                                                 (quantities[product.id] || 0) +
-                                                1
+                                                  1
                                               )
                                             }
                                           >
