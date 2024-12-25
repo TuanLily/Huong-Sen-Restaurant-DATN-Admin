@@ -79,27 +79,39 @@ export const fetchTables = (number = "", page = 1, searchCapacity = '') => {
   };
 };
 
-export const fetchListTableFilterByDate = (date, page = 1, pageSize = 8) => {
+
+
+export const fetchListTableFilterByDate = (date, page = 1) => {
   return async (dispatch) => {
     dispatch(fetchTableRequest()); // Bắt đầu yêu cầu
 
-    try {
-      const response = await http.get(`${API_ENDPOINT}/${AdminConfig.routes.table}/filter-by-date`, {
-        params: { date, page, pageSize } // Gửi các tham số trong query string
-      });
+    // Lấy limit từ localStorage, mặc định là 5 nếu chưa có
+    const limit = parseInt(localStorage.getItem("limit"), 10) || 5;
 
+    try {
+      const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.table}/filter-by-date`);
+      
+      // Thêm tham số vào query string
+      url.searchParams.append("date", date);
+      url.searchParams.append("page", page);
+      url.searchParams.append("limit", limit); // Thay pageSize bằng limit
+
+      // Gọi API với http.get
+      const response = await http.get(url.toString());
       const { results, totalCount, totalPages, currentPage } = response.data;
 
-      dispatch(
-        fetchTableSuccess(results, totalCount, totalPages, currentPage)
-      );
+      // Dispatch action thành công
+      dispatch(fetchTableSuccess(results, totalCount, totalPages, currentPage));
     } catch (error) {
       const errorMsg = error.response?.data?.error || error.message || "Đã xảy ra lỗi khi lọc bàn theo ngày";
+
+      // Dispatch action lỗi
       dispatch(fetchTableFailure(errorMsg));
       throw error;
     }
   };
 };
+
 
 export const fetchReservationDetails = (tableId) => {
   return async (dispatch) => {
@@ -114,7 +126,6 @@ export const fetchReservationDetails = (tableId) => {
     }
   };
 };
-
 
 
 export const addTable = (table) => {

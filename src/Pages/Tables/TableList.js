@@ -6,13 +6,32 @@ import {
   setCurrentPage,
   fetchTables,
   updateTable,
+  fetchReservationDetails,
+  
 } from "../../Actions/TablesActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
-import { FormControl, Paper, InputBase, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, InputLabel, Select, MenuItem } from "@mui/material";
+import {
+  FormControl,
+  Paper,
+  InputBase,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import { SuccessAlert } from "../../Components/Alert/Alert";
 import debounce from "lodash.debounce";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import "dayjs/locale/vi"; // Import locale tiếng Việt
 
 import { getPermissions } from "../../Actions/GetQuyenHanAction";
 import { jwtDecode as jwt_decode } from "jwt-decode";
@@ -51,16 +70,23 @@ export default function TableList() {
   const [open, setOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState(null);
   const [openSuccess, setOpenSuccess] = useState(false);
-  const [searchCapacity, setSearchCapacity] = useState('');
+  const [searchCapacity, setSearchCapacity] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [openEditModal, setOpenEditModal] = useState(false);
   const [editingTable, setEditingTable] = useState(null);
   const [editFormData, setEditFormData] = useState({
-    number: '',
-    capacity: '',
-    status: 1
+    number: "",
+    capacity: "",
+    status: 1,
   });
   const [successMessage, setSuccessMessage] = useState("");
+
+  const [capacity, setCapacity] = useState("");
+  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [reservationDetails, setReservationDetails] = useState([]);
+  const [showDetail, setShowDetail] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [errorDetails, setErrorDetails] = useState(null);
 
   // Debounce hàm tìm kiếm để giảm số lần gọi API
   const debouncedSearch = useMemo(
@@ -69,7 +95,6 @@ export default function TableList() {
         dispatch(fetchTables(term, urlPage, capacity));
         dispatch(setCurrentPage(1));
         console.log(capacity);
-        
       }, 1000),
     [dispatch, urlPage]
   );
@@ -91,6 +116,13 @@ export default function TableList() {
       debouncedSearch(searchTerm, searchCapacity);
     }
   }, [searchTerm]);
+
+  useEffect(() => {
+    const formattedDate = selectedDate.format("YYYY-MM-DD");
+    dispatch(
+      fetchTables(capacity, urlPage, tableState.pageSize, formattedDate)
+    );
+  }, [dispatch, urlPage, tableState.pageSize, capacity, selectedDate]);
 
   // Update URL when currentPage changes
   useEffect(() => {
@@ -118,7 +150,15 @@ export default function TableList() {
         handleClose();
         setSuccessMessage("Xóa bàn ăn thành công!");
         setOpenSuccess(true);
-        dispatch(fetchTables(searchCapacity, urlPage, tableState.pageSize));
+        const formattedDate = selectedDate.format("YYYY-MM-DD");
+        dispatch(
+          fetchTables(
+            capacity,
+            tableState.currentPage,
+            tableState.pageSize,
+            formattedDate
+          )
+        );
       } catch (error) {
         console.error("Error deleting table:", error);
       }
@@ -130,7 +170,7 @@ export default function TableList() {
     setEditFormData({
       number: table.number,
       capacity: table.capacity,
-      status: table.status
+      status: table.status,
     });
     setOpenEditModal(true);
   };
@@ -138,43 +178,79 @@ export default function TableList() {
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
     setEditingTable(null);
-    setEditFormData({ number: '', capacity: '', status: 1 });
+    setEditFormData({ number: "", capacity: "", status: 1 });
   };
 
   const handleEditFormChange = (event) => {
     const { name, value } = event.target;
-    setEditFormData(prev => ({
+    setEditFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleEditSubmit = async () => {
     try {
-      await dispatch(updateTable(editingTable.id, {
-        ...editFormData,
-        capacity: parseInt(editFormData.capacity),
-        status: parseInt(editFormData.status)
-      }));
+      await dispatch(
+        updateTable(editingTable.id, {
+          ...editFormData,
+          capacity: parseInt(editFormData.capacity),
+          status: parseInt(editFormData.status),
+        })
+      );
       handleCloseEditModal();
       setSuccessMessage("Cập nhật bàn ăn thành công!");
       setOpenSuccess(true);
-      dispatch(fetchTables(searchTerm, tableState.currentPage, tableState.pageSize, searchCapacity));
+      dispatch(
+        fetchTables(
+          searchTerm,
+          tableState.currentPage,
+          tableState.pageSize,
+          searchCapacity
+        )
+      );
     } catch (error) {
       console.error("Error updating table:", error);
     }
   };
 
   const handleSearchCapacity = (event) => {
-    setSearchCapacity(event.target.value); 
+    setSearchCapacity(event.target.value);
     debouncedSearch(searchTerm, event.target.value);
   };
 
-  
   const handlePageChange = (page) => {
     navigate(`?page=${page}`);
     dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
-    dispatch(fetchTables(searchTerm, page, tableState.pageSizem, searchCapacity)); // Fetch dữ liệu theo trang mới
+    const formattedDate = selectedDate.format("YYYY-MM-DD");
+    dispatch(fetchTables(capacity, page, tableState.pageSize, formattedDate));
+  };
+
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+    dispatch(setCurrentPage(1));
+  };
+
+  const handleViewOrder = async (tableId) => {
+    setLoadingDetails(true);
+    setErrorDetails(null);
+    try {
+      // Gọi API để lấy thông tin chi tiết đơn đặt bàn
+      const details = await dispatch(fetchReservationDetails(tableId));
+
+      // Kiểm tra nếu có dữ liệu và chuyển hướng đến URL chi tiết đơn đặt bàn
+      if (details.data && details.data.length > 0) {
+        // Giả sử bạn muốn lấy ID của đơn đặt bàn đầu tiên
+        const reservationId = details.data[0].id; // Hoặc bất kỳ logic nào bạn muốn
+        navigate(`/reservation/detail/${reservationId}`);
+      } else {
+        setErrorDetails("Không tìm thấy thông tin đặt bàn.");
+      }
+    } catch (error) {
+      setErrorDetails("Không thể lấy thông tin đặt bàn.");
+    } finally {
+      setLoadingDetails(false);
+    }
   };
 
   return (
@@ -186,27 +262,44 @@ export default function TableList() {
             <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
           </div>
           <div className="ms-md-auto py-2 py-md-0">
-            {(hasPermission('Thêm bàn ăn') && (
+            {hasPermission("Thêm bàn ăn") && (
               <Link to="/tables/add" className="btn btn-primary btn-round">
                 Thêm bàn ăn
               </Link>
-            ))}
+            )}
           </div>
         </div>
 
         <div className="my-3 col-4">
-        <select
-                className="form-control"
-                style={{ height: "38px", minWidth: "150px" }}
-                value={searchCapacity}
-                onChange={handleSearchCapacity}
-              >
-                <option value="">Số người</option>
-                <option value="2">2 người</option>
-                <option value="4">4 người</option>
-                <option value="6">6 người</option>
-                <option value="8">8 người</option>
-              </select>
+          <select
+            className="form-control"
+            style={{ height: "38px", minWidth: "150px" }}
+            value={searchCapacity}
+            onChange={handleSearchCapacity}
+          >
+            <option value="">Số người</option>
+            <option value="2">2 người</option>
+            <option value="4">4 người</option>
+            <option value="6">6 người</option>
+            <option value="8">8 người</option>
+          </select>
+        </div>
+
+        <div className="my-3">
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
+            <DatePicker
+              label="Chọn ngày"
+              value={selectedDate}
+              onChange={handleDateChange}
+              format="DD/MM/YYYY"
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: { width: 160 },
+                },
+              }}
+            />
+          </LocalizationProvider>
         </div>
 
         <div className="row">
@@ -224,7 +317,11 @@ export default function TableList() {
                         <i className="fa-solid fa-circle-check"></i>
                       </div>
                     )}
-                    <div className={`table-number ${item.status === 1 ? "bg-info" : "bg-warning"}`}>
+                    <div
+                      className={`table-number ${
+                        item.status === 1 ? "bg-info" : "bg-warning"
+                      }`}
+                    >
                       {item.number}
                     </div>
                     <hr />
@@ -235,6 +332,15 @@ export default function TableList() {
                       Sức chứa: {item.capacity} người
                     </p>
                     <div className="btn-group" role="group">
+                      {item.status === 0 && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-info"
+                          onClick={() => handleViewOrder(item.id)}
+                        >
+                          Xem đơn
+                        </button>
+                      )}
                       {hasPermission("Sửa bàn ăn") && (
                         <button
                           type="button"
@@ -325,7 +431,11 @@ export default function TableList() {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseEditModal}>Hủy</Button>
-            <Button onClick={handleEditSubmit} variant="contained" color="primary">
+            <Button
+              onClick={handleEditSubmit}
+              variant="contained"
+              color="primary"
+            >
               Lưu thay đổi
             </Button>
           </DialogActions>
