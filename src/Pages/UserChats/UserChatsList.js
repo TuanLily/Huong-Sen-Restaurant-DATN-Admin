@@ -22,6 +22,7 @@ import { SuccessAlert } from "../../Components/Alert/Alert";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 import defaultAvatar from "../../Assets/Images/profile-icon.png"
 import axios from 'axios';
+import { CircularProgress } from '@mui/material';
 
 
 export default function UserChatsList() {
@@ -41,6 +42,7 @@ export default function UserChatsList() {
   const emojiPickerRef = useRef(null);
   const [chatMode, setChatMode] = useState('human'); // 'bot' hoặc 'human'
   const [endedChats, setEndedChats] = useState({});
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const selectedAdminUser = JSON.parse(localStorage.getItem("user_admin"));
 
@@ -246,7 +248,7 @@ export default function UserChatsList() {
           chatId: selectedUser.chatId,
           text: "Cuộc trò chuyện với nhân viên đã kết thúc, bạn đang được chuyển về chat với chatbot.",
           timestamp: serverTimestamp(),
-          role: "system",
+          role: "admin",
           status: "ended"
         });
 
@@ -278,7 +280,7 @@ export default function UserChatsList() {
         chatId: selectedUser.chatId,
         text: "Cuộc trò chuyện đã được tiếp nối đến nhân viên tư vấn, bạn vui lòng đợi trong giây lát.",
         timestamp: serverTimestamp(),
-        role: "system",
+        role: "admin",
         status: "active"
       });
     }
@@ -347,6 +349,8 @@ export default function UserChatsList() {
 
   const handleConfirmDelete = async () => {
     if (chatToDelete) {
+      handleCloseDeleteDialog();
+      setIsDeleting(true);
       try {
         // Xóa tất cả tin nhắn trong cuộc trò chuyện
         const messagesRef = collection(db, "messages");
@@ -373,9 +377,10 @@ export default function UserChatsList() {
         setOpenSuccess(true);
       } catch (error) {
         console.error("Lỗi khi xóa lịch sử chat:", error);
+      } finally {
+        setIsDeleting(false);
       }
     }
-    handleCloseDeleteDialog();
   };
 
   if (isLoading) {
@@ -388,6 +393,22 @@ export default function UserChatsList() {
 
   return (
     <div className="container">
+      {isDeleting && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backdropFilter: 'blur(20px)',
+          zIndex: 1000,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <CircularProgress color="warning" />
+        </div>
+      )}
       <div className="page-inner bg-light rounded p-4 shadow-sm">
         <div className="d-flex align-items-center flex-column flex-md-row mb-4">
           <div>
