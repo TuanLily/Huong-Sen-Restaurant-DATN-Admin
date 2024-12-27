@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { fetchReservations, deleteReservations, updateReservations, setCurrentPage } from '../../Actions/Reservations_t_AdminActions';
+import { requestMomoPaymentBalance } from '../../Actions/PaymentActions';
 import DialogConfirm from '../../Components/Dialog/Dialog';
 import CustomPagination from '../../Components/Pagination/CustomPagination';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
@@ -136,6 +137,14 @@ export default function ReservationList() {
         }
     };
 
+    const payBalance = async (reservationId, amount) => {
+        const momoResponse = await dispatch(requestMomoPaymentBalance(reservationId, amount));
+    
+        if (momoResponse && momoResponse.payUrl) {
+          window.location.href = momoResponse.payUrl;
+        }
+    }
+
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
     };
@@ -266,13 +275,18 @@ export default function ReservationList() {
                                                                     </button>
                                                                 )}
                                                                 {hasPermission('Xem chi tiết đặt bàn') && (
-                                                                    <button onClick={() => handleDetail(item.id)} className="btn" style={{ backgroundColor: '#ffcc5c', color: '#fff', border: 'none' }}>
+                                                                    <button onClick={() => handleDetail(item.id)} className="btn" style={{ backgroundColor: '#ffcc5c', color: '#fff', border: 'none' , marginRight: '5px' }}>
                                                                         <i className="fas fa-eye mr-2"></i>
+                                                                    </button>
+                                                                )}
+                                                                {(item.status == 4) && (item.deposit < item.total_amount) && (
+                                                                    <button className="btn" style={{ backgroundColor: '#8cd790', color: '#fff', border: 'none' }} onClick={() => payBalance(item.id , item.deposit ? item.total_amount - item.deposit : item.total_amount)}>
+                                                                        <i className="fas fa-credit-card"></i>
                                                                     </button>
                                                                 )}
                                                                 </div>
                                                                 {activeDropdown === index && (
-                                                                    <div className="dropdown-menu show" style={{ position: 'absolute', zIndex: 2, right: '5.3%' }}>
+                                                                    <div className="dropdown-menu show" style={{ position: 'absolute', zIndex: 2, right: '5.9%' }}>
                                                                         {(item.status !== 3 && item.status !== 4) && (
                                                                             <div>
                                                                                 <button onClick={() => handleUpdateStatus(item.id , 1)} className="dropdown-item">
@@ -289,12 +303,23 @@ export default function ReservationList() {
                                                                                 <div className="dropdown-divider"></div>
                                                                             </div>
                                                                         )}
-                                                                        <button onClick={() => handleUpdateStatus(item.id , 5)} className="dropdown-item">
-                                                                            <i className="fas fa-check-circle mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Hoàn thanh đơn
-                                                                        </button>
+                                                                        {(item.status == 4) && (
+                                                                            <div>
+                                                                                <button onClick={() => handleUpdateStatus(item.id , 5)} className="dropdown-item">
+                                                                                    <i className="fas fa-check-circle mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Hoàn thành đơn
+                                                                                </button>
+                                                                            </div>
+                                                                        )}
+                                                                        {(item.status == 3) && (
+                                                                            <div>
+                                                                                <button onClick={() => handleUpdateStatus(item.id , 0)} className="dropdown-item">
+                                                                                    <i className="fas fa-ban mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Hủy đơn
+                                                                                </button>
+                                                                                <div className="dropdown-divider"></div>
+                                                                            </div>
+                                                                        )}
                                                                         {(item.status !== 4) && (
                                                                             <div>
-                                                                                <div className="dropdown-divider"></div>
                                                                                 <button onClick={() => handleUpdateStatus(item.id , 4)} className="dropdown-item">
                                                                                     <i className="fas fa-dollar-sign mr-2" style={{ minWidth: '20px', textAlign: 'center' }}></i> Chờ thanh toán toàn bộ đơn
                                                                                 </button>
