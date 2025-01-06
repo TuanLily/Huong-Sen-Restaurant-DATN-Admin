@@ -1,7 +1,10 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { InputBase, Paper } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { fetchProductHoatDongReser, setCurrentPage } from "../../Actions/ProductActions";
+import {
+  fetchProductHoatDongReser,
+  setCurrentPage,
+} from "../../Actions/ProductActions";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProductCategoryHoatDong } from "../../Actions/ProductCategoryActions";
@@ -105,11 +108,7 @@ export default function ReservationAdd() {
     navigate(`?page=${page}`); // Cập nhật URL với page
     dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
     dispatch(
-      fetchProductHoatDongReser(
-        searchTerm,
-        page,
-        productState.pageSize
-      )
+      fetchProductHoatDongReser(searchTerm, page, productState.pageSize)
     );
   };
 
@@ -119,9 +118,6 @@ export default function ReservationAdd() {
       [id]: Math.max(value, 0),
     });
   };
-
-
-
 
   const generateReservationCode = () => {
     const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
@@ -164,7 +160,10 @@ export default function ReservationAdd() {
       return;
     }
 
-    const total = selectedProducts.reduce((sum, item) => sum + item.total_price, 0);
+    const total = selectedProducts.reduce(
+      (sum, item) => sum + item.total_price,
+      0
+    );
     const deposit = isDeposit ? total * 0.3 : 0;
 
     let reservationCode;
@@ -207,9 +206,7 @@ export default function ReservationAdd() {
     } catch (error) {
       // Xử lý thông báo lỗi "Không có bàn phù hợp"
       setOpenError(true);
-      setErrorMessage(
-        "Thêm mới đơn đặt bàn thất bại. Vui lòng thử lại."
-      );
+      setErrorMessage("Thêm mới đơn đặt bàn thất bại. Vui lòng thử lại.");
     }
   };
 
@@ -219,7 +216,6 @@ export default function ReservationAdd() {
   };
 
   const toggleDropdown = () => setIsOpen(!isOpen);
-
 
   return (
     <div className="container">
@@ -239,8 +235,9 @@ export default function ReservationAdd() {
                       <label>Tên khách hàng</label>
                       <input
                         type="text"
-                        className={`form-control ${errors.fullname ? "is-invalid" : ""
-                          }`}
+                        className={`form-control ${
+                          errors.fullname ? "is-invalid" : ""
+                        }`}
                         {...register("fullname", {
                           required: "Tên khách hàng là bắt buộc",
                         })}
@@ -256,8 +253,9 @@ export default function ReservationAdd() {
                       <label>Email (không bắt buộc)</label>
                       <input
                         type="email"
-                        className={`form-control ${errors.email ? "is-invalid" : ""
-                          }`}
+                        className={`form-control ${
+                          errors.email ? "is-invalid" : ""
+                        }`}
                         {...register("email", {
                           pattern: {
                             value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
@@ -305,8 +303,9 @@ export default function ReservationAdd() {
                       <label>Số điện thoại</label>
                       <input
                         type="number"
-                        className={`form-control ${errors.tel ? "is-invalid" : ""
-                          }`}
+                        className={`form-control ${
+                          errors.tel ? "is-invalid" : ""
+                        }`}
                         {...register("tel", {
                           required: "Số điện thoại là bắt buộc",
                           pattern: {
@@ -327,16 +326,30 @@ export default function ReservationAdd() {
                       <label>Ngày và giờ đặt</label>
                       <input
                         type="datetime-local"
-                        className={`form-control ${errors.reservation_date ? "is-invalid" : ""
-                          }`}
+                        className={`form-control ${
+                          errors.reservation_date ? "is-invalid" : ""
+                        }`}
                         {...register("reservation_date", {
                           required: "Ngày và giờ đặt là bắt buộc",
-                          validate: (value) =>
-                            new Date(value) >= new Date() ||
-                            "Không thể chọn thời gian trong quá khứ",
+                          validate: (value) => {
+                            const selectedDate = new Date(value);
+                            const now = new Date();
+                            const minTime = new Date(
+                              now.getTime() + 2 * 60 * 60 * 1000
+                            ); // Thời gian tối thiểu là 2 giờ sau thời gian hiện tại
+
+                            if (selectedDate < now) {
+                              return "Không thể chọn thời gian trong quá khứ";
+                            }
+
+                            if (selectedDate < minTime) {
+                              return "Vui lòng đặt bàn trước ít nhất 2 giờ";
+                            }
+
+                            return true; // Nếu tất cả các điều kiện đều hợp lệ
+                          },
                         })}
-                        min={new Date().toISOString().slice(0, 16)} // Thiết lập giá trị min là thời gian hiện tại
-                      // Thêm sự kiện onChange
+                        min={new Date().toISOString().slice(0, 16)} // Giá trị tối thiểu là thời gian hiện tại
                       />
                       {errors.reservation_date && (
                         <div className="invalid-feedback">
@@ -344,6 +357,7 @@ export default function ReservationAdd() {
                         </div>
                       )}
                     </div>
+
                     <div className="form-group">
                       <label>Trạng thái</label>
                       <select
@@ -403,11 +417,12 @@ export default function ReservationAdd() {
                               <li className="nav-item">
                                 <Link
                                   to="#"
-                                  className={`nav-link fw-bolder fs-6 ${selectedCategory === null &&
+                                  className={`nav-link fw-bolder fs-6 ${
+                                    selectedCategory === null &&
                                     activeTab === "category-info"
-                                    ? "active text-primary"
-                                    : "text-dark"
-                                    }`}
+                                      ? "active text-primary"
+                                      : "text-dark"
+                                  }`}
                                   onClick={() => {
                                     setSelectedCategory(null);
                                     setActiveTab("category-info");
@@ -416,7 +431,6 @@ export default function ReservationAdd() {
                                   Tất cả
                                 </Link>
                               </li>
-
                             </ul>
                             <div className="card-tools">
                               <Paper
@@ -458,8 +472,8 @@ export default function ReservationAdd() {
                                 </tr>
                               )}
                               {!productState.loading &&
-                                productState.allProducts &&
-                                productState.allProducts.length > 0 ? (
+                              productState.allProducts &&
+                              productState.allProducts.length > 0 ? (
                                 productState.allProducts
                                   .filter(
                                     (product) =>
@@ -522,7 +536,7 @@ export default function ReservationAdd() {
                                               handleQuantityChange(
                                                 product.id,
                                                 (quantities[product.id] || 0) +
-                                                1
+                                                  1
                                               )
                                             }
                                           >
