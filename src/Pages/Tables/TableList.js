@@ -7,7 +7,6 @@ import {
   fetchTables,
   updateTable,
   fetchReservationDetails,
-  
 } from "../../Actions/TablesActions";
 import DialogConfirm from "../../Components/Dialog/Dialog";
 import CustomPagination from "../../Components/Pagination/CustomPagination";
@@ -308,7 +307,7 @@ export default function TableList() {
           ) : tableState.tables.length === 0 ? (
             <div className="text-center">Không tìm thấy bàn ăn</div>
           ) : (
-            tableState.allTables.map((item) => (
+            tableState.tables.map((item) => (
               <div key={item.id} className="col-md-3 col-sm-6 mb-3">
                 <div className="card text-center">
                   <div className="card-body text-center">
@@ -328,6 +327,15 @@ export default function TableList() {
                     <p className="table-status">
                       {item.status === 1 ? "Bàn trống" : "Đang phục vụ"}
                     </p>
+                    {item.status === 0 && item.guest_name && (
+                      <p className="current-guest">
+                        Khách đang ăn: <br />
+                        {item.guest_name || "Không có"}
+                      </p>
+                    )}
+                    {item.status === 1 && !item.guest_name && (
+                      <p className="current-guest">Không có khách</p>
+                    )}
                     <p className="table-capacity">
                       Sức chứa: {item.capacity} người
                     </p>
