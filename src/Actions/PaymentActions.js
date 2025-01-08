@@ -22,54 +22,11 @@ export const fetchReservationFailure = error => ({
     payload: error,
 });
 
-// Thunk to Add a New Reservation
-export const addNewReservation = (reservationData) => {
-    return async (dispatch) => {
-        dispatch(fetchReservationRequest());
-        try {
-            const response = await http.post(`${API_ENDPOINT}${API_DATA.reservations}`, reservationData);
-            dispatch(fetchReservationSuccess(response.data));
-            return response.data; // Trả về dữ liệu đơn đặt chỗ
-        } catch (error) {
-            dispatch(fetchReservationFailure(error.message));
-            throw new Error(error.message); // Ném lỗi để bắt trong component
-        }
-    };
-};
-
-
-export const requestMomoPayment = (reservationId, amount, reservation_code) => async dispatch => {
-    try {
-      const response = await http.post('http://localhost:6969/api/public/payment', {
-        reservationId,
-        amount,
-        reservation_code 
-      });
-      return response.data; // Trả về dữ liệu để xử lý tiếp
-    } catch (error) {
-      console.error("Error in MoMo payment request:", error);
-      throw error;
-    }
-};
-
-export const requestMomoPayUrl = (reservationId, amount) => async dispatch => {
-    try {
-        const response = await http.post('http://localhost:6969/api/public/payment/get_pay_url', {
-        reservationId,
-        amount,
-        });
-        return response.data; // Trả về dữ liệu để xử lý tiếp
-    } catch (error) {
-        console.error("Error in MoMo payment request:", error);
-        throw error;
-    }
-};
-
 export const requestMomoPaymentBalance = (reservationId, amount) => async dispatch => {
     try {
       const response = await http.post('http://localhost:6969/api/public/payment/pay_balance', {
         reservationId,
-        amount 
+        amount
       });
       return response.data; // Trả về dữ liệu để xử lý tiếp
     } catch (error) {

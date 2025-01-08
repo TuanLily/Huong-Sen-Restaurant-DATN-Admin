@@ -131,6 +131,9 @@ export default function ReservationList() {
                 setActiveDropdown(null);
                 handleClose();
                 setOpenSuccess(true); // Hiển thị thông báo thành công
+
+                // Gọi lại fetchReservations để lấy dữ liệu mới
+                dispatch(fetchReservations(nameSearch, phoneSearch, emailSearch, statusSearch, recodeSearch, urlPage));
             } catch (error) {
                 console.error("Error update reservations:", error);
             }
