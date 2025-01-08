@@ -323,40 +323,48 @@ export default function ReservationAdd() {
                       )}
                     </div>
                     <div className="form-group">
-                      <label>Ngày và giờ đặt</label>
-                      <input
-                        type="datetime-local"
-                        className={`form-control ${
-                          errors.reservation_date ? "is-invalid" : ""
-                        }`}
-                        {...register("reservation_date", {
-                          required: "Ngày và giờ đặt là bắt buộc",
-                          validate: (value) => {
-                            const selectedDate = new Date(value);
-                            const now = new Date();
-                            const minTime = new Date(
-                              now.getTime() + 2 * 60 * 60 * 1000
-                            ); // Thời gian tối thiểu là 2 giờ sau thời gian hiện tại
+  <label>Ngày và giờ đặt</label>
+  <input
+    type="datetime-local"
+    className={`form-control ${
+      errors.reservation_date ? "is-invalid" : ""
+    }`}
+    {...register("reservation_date", {
+      required: "Ngày và giờ đặt là bắt buộc",
+      validate: (value) => {
+        const selectedDate = new Date(value);
+        const now = new Date();
+        const minTime = new Date(
+          now.getTime() + 2 * 60 * 60 * 1000
+        ); // Thời gian tối thiểu là 2 giờ sau thời gian hiện tại
+        const maxTime = new Date(
+          now.getTime() + 7 * 24 * 60 * 60 * 1000
+        ); // Thời gian tối đa là 7 ngày sau thời gian hiện tại
 
-                            if (selectedDate < now) {
-                              return "Không thể chọn thời gian trong quá khứ";
-                            }
+        if (selectedDate < now) {
+          return "Không thể chọn thời gian trong quá khứ";
+        }
 
-                            if (selectedDate < minTime) {
-                              return "Vui lòng đặt bàn trước ít nhất 2 giờ";
-                            }
+        if (selectedDate < minTime) {
+          return "Vui lòng đặt bàn trước ít nhất 2 giờ";
+        }
 
-                            return true; // Nếu tất cả các điều kiện đều hợp lệ
-                          },
-                        })}
-                        min={new Date().toISOString().slice(0, 16)} // Giá trị tối thiểu là thời gian hiện tại
-                      />
-                      {errors.reservation_date && (
-                        <div className="invalid-feedback">
-                          {errors.reservation_date.message}
-                        </div>
-                      )}
-                    </div>
+        if (selectedDate > maxTime) {
+          return "Không thể đặt bàn quá 7 ngày tính từ hôm nay";
+        }
+
+        return true; // Nếu tất cả các điều kiện đều hợp lệ
+      },
+    })}
+    min={new Date().toISOString().slice(0, 16)} // Giá trị tối thiểu là thời gian hiện tại
+  />
+  {errors.reservation_date && (
+    <div className="invalid-feedback">
+      {errors.reservation_date.message}
+    </div>
+  )}
+</div>
+
 
                     <div className="form-group">
                       <label>Trạng thái</label>
