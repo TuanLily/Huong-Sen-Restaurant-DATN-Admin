@@ -41,6 +41,7 @@ export default function ReservationAdd() {
   const [openError, setOpenError] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [tongTien, setTongTien] = useState(0);
 
   // Set initial state for deposit to true and status to 3
   const [isDeposit, setIsDeposit] = useState(true);
@@ -83,10 +84,12 @@ export default function ReservationAdd() {
       .map(([id, quantity]) => {
         const product = productState.product.find((p) => p.id === parseInt(id));
         if (product && quantity > 0) {
+          // Tính giá dựa trên sale_price nếu có
+          const price = product.sale_price ? product.price - product.sale_price : product.price;
           return {
             product_id: product.id,
             quantity: quantity,
-            price: product.price * quantity,
+            price: price * quantity,
           };
         }
         return null;
@@ -491,7 +494,7 @@ export default function ReservationAdd() {
                                   .map((product) => (
                                     <tr key={product.id}>
                                       <td>{product.name}</td>
-                                      <td>{formatCurrency(product.price)}</td>
+                                      <td>{formatCurrency(product.sale_price ? product.price - product.sale_price : product.price)}</td>
                                       <td className="d-flex justify-content-center align-items-center">
                                         {/* Nhóm số lượng với các nút dính liền */}
                                         <div

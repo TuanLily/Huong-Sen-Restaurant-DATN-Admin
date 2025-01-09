@@ -126,7 +126,9 @@ export default function ReservationUpdate() {
     const selectedProducts = Object.entries(quantities).map(
       ([id, quantity]) => {
         const product = productState.product.find((p) => p.id === parseInt(id));
-        return product && quantity > 0 ? product.price * quantity : 0;
+        // Nếu có sale_price, tính giá bằng price - sale_price
+        const price = product && product.sale_price ? product.price - product.sale_price : product.price;
+        return product && quantity > 0 ? price * quantity : 0;
       }
     );
     const totalSelected = selectedProducts.reduce(
@@ -566,7 +568,7 @@ export default function ReservationUpdate() {
                                   .map((product) => (
                                     <tr key={product.id}>
                                       <td>{product.name}</td>
-                                      <td>{formatCurrency(product.price)}</td>
+                                      <td>{formatCurrency(product.sale_price ? product.price - product.sale_price : product.price)}</td>
                                       <td className="d-flex justify-content-center align-items-center">
                                         {/* Nhóm số lượng với các nút dính liền */}
                                         <div

@@ -84,8 +84,8 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.dashboard, component: Dashboard},
 
     { path: AdminConfig.routes.product, component: ProductList, permissions: ['Xem sản phẩm'] },
-    { path: AdminConfig.routes.productAdd, component: ProductAdd, permissions: ['Thêm sản phẩm và Xem danh mục sản phẩm'] },
-    { path: AdminConfig.routes.productEdit, component: ProductEdit, permissions: ['Sửa sản phẩm và Xem danh mục sản phẩm'] },
+    { path: AdminConfig.routes.productAdd, component: ProductAdd, permissions: ['Thêm sản phẩm'] },
+    { path: AdminConfig.routes.productEdit, component: ProductEdit, permissions: ['Sửa sản phẩm'] },
     { path: AdminConfig.routes.productTamXoa, component: ProductTamXoa, permissions: ['Khôi phục sản phẩm'] },
 
     { path: AdminConfig.routes.categoryProduct, component: CategoryProduct, permissions: ['Xem danh mục sản phẩm'] },
@@ -93,8 +93,8 @@ const publicAdminRoutes = [
     { path: AdminConfig.routes.categoryProductEdit, component: categoryProductEdit, permissions: ['Sửa danh mục sản phẩm'] },
 
     { path: AdminConfig.routes.blog, component: BlogList, permissions: ['Xem bài viết'] },
-    { path: AdminConfig.routes.blogAdd, component: BlogAdd, permissions: ['Thêm bài viết và Xem danh mục bài viết'] },
-    { path: AdminConfig.routes.blogEdit, component: BlogEdit, permissions: ['Sửa bài viết và Xem danh mục bài viết'] },
+    { path: AdminConfig.routes.blogAdd, component: BlogAdd, permissions: ['Thêm bài viết'] },
+    { path: AdminConfig.routes.blogEdit, component: BlogEdit, permissions: ['Sửa bài viết'] },
     { path: AdminConfig.routes.blogDelete, component: BlogDelete },
 
     { path: AdminConfig.routes.categoryBlog, component: CategoryBlogList, permissions: ['Xem danh mục bài viết'] },

@@ -248,7 +248,7 @@ export default function ReservationList() {
                                                             <span className="fw-semibold">Phone: </span>{item.tel}
                                                         </td>
                                                         <td style={{ textAlign: 'left' }}>
-                                                            <span className="fw-semibold">Số bàn: </span>{item.tableName ? item.tableName : 'Chưa có'}<br/>
+                                                            <span className="fw-semibold">Số bàn: </span>{(item.tableName && item.status !== 1 && item.status !== 2) ? item.tableName : 'Chưa có'}<br/>
                                                             <span className="fw-semibold">Số người: </span>{item.party_size}<br />
                                                             <span className="fw-semibold">Tổng tiền: </span>{formatCurrency(item.total_amount ? item.total_amount : 0)}<br />
                                                             <span className="fw-semibold">Số tiền cọc: </span>{item.deposit ? formatCurrency (item.deposit) : '0 VND'}<br/>

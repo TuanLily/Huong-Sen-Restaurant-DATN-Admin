@@ -12,11 +12,36 @@ import { DangerAlert, SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
+import { getPermissions } from "../../Actions/GetQuyenHanAction";
+import { jwtDecode as jwt_decode } from "jwt-decode";
+
 export default function RolesEdit() {
   const { handleSubmit } = useForm();
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  const getQuyenHanState = useSelector((state) => state.getQuyenHan);
+  const permissions = getQuyenHanState.getQuyenHan || [];
+
+  useEffect(() => {
+  if (token) {
+      const decodedToken = jwt_decode(token);
+      const userIdFromToken = decodedToken.id;
+      dispatch(getPermissions(userIdFromToken));
+  }
+  const decodedToken = jwt_decode(token);
+  const userIdFromToken = decodedToken.id;
+  dispatch(getPermissions(userIdFromToken));
+  }, [navigate, dispatch, token]);
+
+  const hasPermission = (permissionName) => {
+  return (
+      permissions.data &&
+      permissions.data.some((permission) => permission.name == permissionName)
+  );
+  };
 
   const roleState = useSelector((state) => state.role);
   const permissionsState = useSelector((state) => state.permissions);
@@ -66,14 +91,56 @@ export default function RolesEdit() {
     }
   }, [rolePermissionsState, selectedRole]);
 
+  // // Chuyển trạng thái chọn của một quyền cụ thể
+  // const handleCheckboxChange = (id) => {
+  //   setSelectedPermissions((prev) =>
+  //     prev.includes(id)
+  //       ? prev.filter((permission) => permission !== id)
+  //       : [...prev, id]
+  //   );
+  // };
+
   // Chuyển trạng thái chọn của một quyền cụ thể
-  const handleCheckboxChange = (id) => {
-    setSelectedPermissions((prev) =>
-      prev.includes(id)
+  const handleCheckboxChange = (id, label, group) => {
+    setSelectedPermissions((prev) => {
+      const isAddEditDelete = ["Thêm", "Sửa", "Xóa"].includes(label);
+      const isView = label === "Xem";
+  
+      if (isAddEditDelete) {
+        // Khi chọn "Thêm", "Sửa", hoặc "Xóa", tự động thêm quyền "Xem"
+        const viewPermission = group.options.find((perm) => perm.label === "Xem");
+        if (viewPermission && !prev.includes(viewPermission.id)) {
+          return [...prev, id, viewPermission.id];
+        }
+      }
+  
+      if (isView) {
+        // Không cho bỏ quyền "Xem" nếu có "Thêm", "Sửa", hoặc "Xóa"
+        const relatedPermissions = group.options.filter(
+          (perm) =>
+            ["Thêm", "Sửa", "Xóa"].includes(perm.label) &&
+            selectedPermissions.includes(perm.id)
+        );
+        if (relatedPermissions.length > 0) {
+          return prev; // Không thay đổi nếu "Xem" liên quan
+        }
+      }
+  
+      // Thêm hoặc gỡ quyền thông thường
+      return prev.includes(id)
         ? prev.filter((permission) => permission !== id)
-        : [...prev, id]
+        : [...prev, id];
+    });
+  };  
+
+  const isViewDisabled = (group) => {
+    // Nếu bất kỳ quyền "Thêm", "Sửa", hoặc "Xóa" được chọn, disable quyền "Xem"
+    return group.options.some(
+      (option) =>
+        ["Thêm", "Sửa", "Xóa"].includes(option.label) &&
+        selectedPermissions.includes(option.id)
     );
-  };
+  };  
 
   // Chọn tất cả quyền trong một nhóm
   const handleSelectAll = (rolePermissions) => {
@@ -171,19 +238,28 @@ export default function RolesEdit() {
                 </button>
                 <div className="mb-3 col-md-4">
                   <select
-                    className="form-select"
+                    className={`form-select ${!hasPermission("Xem vai trò") ? 'is-invalid' : ''}`} 
                     onChange={(e) => {
                       const selectedId = parseInt(e.target.value);
                       setSelectedRole(selectedId);
                     }}
                     value={selectedRole || ''}
                   >
-                    <option value="">Chọn vai trò ...</option>
-                    {roleState.role.map((role) => (
-                      <option key={role.id} value={role.id}>
-                        {role.name}
-                      </option>
-                    ))}
+                    {hasPermission("Xem vai trò") ? (
+                      <option value="">Chọn vai trò...</option>
+                    ) : (
+                      <option value="" disabled>Bạn không có quyền xem vai trò!</option>
+                    )}
+                    {hasPermission("Xem vai trò") && (
+                      <>
+                        {/* <option value="">Chọn vai trò ...</option> */}
+                        {roleState.role.map((role) => (
+                          <option key={role.id} value={role.id}>
+                            {role.name}
+                          </option>
+                        ))}
+                      </>
+                    )}
                   </select>
                 </div>
                 <div className="mb-3 col-md-4">
@@ -201,7 +277,7 @@ export default function RolesEdit() {
                   <>
                     <h2 className="text-center my-4">Quản lý phân quyền</h2>
                     <div className="row row-cols-1 row-cols-md-5">
-                      {filteredPermissionsData.map((group, index) => (
+                      {/* {filteredPermissionsData.map((group, index) => (
                         <div key={index} className="col mb-4">
                           <h4 className="fw-bold fs-6">{group.title}</h4>
                           <div className="form-check">
@@ -232,6 +308,47 @@ export default function RolesEdit() {
                                 id={`option-${option.id}`}
                                 checked={selectedPermissions.includes(option.id)}
                                 onChange={() => handleCheckboxChange(option.id)}
+                              />
+                              <label className="form-check-label" htmlFor={`option-${option.id}`}>
+                                {option.label}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      ))} */}
+                      {filteredPermissionsData.map((group, index) => (
+                        <div key={index} className="col mb-4">
+                          <h4 className="fw-bold fs-6">{group.title}</h4>
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id={`selectAll-${index}`}
+                              onChange={() => handleSelectAll(group)}
+                              checked={
+                                group.options &&
+                                group.options.length > 0 &&
+                                group.options.every((option) =>
+                                  selectedPermissions.includes(option.id)
+                                )
+                              }
+                            />
+                            <label className="form-check-label" htmlFor={`selectAll-${index}`}>
+                              Chọn tất cả
+                            </label>
+                          </div>
+                          {group.options.map((option) => (
+                            <div key={option.id} className="form-check">
+                              <input
+                                className="form-check-input"
+                                type="checkbox"
+                                value={option.id}
+                                id={`option-${option.id}`}
+                                checked={selectedPermissions.includes(option.id)}
+                                onChange={() =>
+                                  handleCheckboxChange(option.id, option.label, group)
+                                }
+                                disabled={option.label === "Xem" && isViewDisabled(group)}
                               />
                               <label className="form-check-label" htmlFor={`option-${option.id}`}>
                                 {option.label}

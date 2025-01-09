@@ -25,7 +25,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { SuccessAlert } from "../../Components/Alert/Alert";
+import { SuccessAlert, DangerAlert } from "../../Components/Alert/Alert";
 import debounce from "lodash.debounce";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -79,6 +79,9 @@ export default function TableList() {
     status: 1,
   });
   const [successMessage, setSuccessMessage] = useState("");
+
+  const [openError, setOpenError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const [capacity, setCapacity] = useState("");
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -142,6 +145,10 @@ export default function TableList() {
     setOpenSuccess(false);
   };
 
+  const handleErrorClose = () => {
+    setOpenError(false);
+  };
+
   const handleConfirm = async () => {
     if (selectedTable) {
       try {
@@ -160,6 +167,8 @@ export default function TableList() {
         );
       } catch (error) {
         console.error("Error deleting table:", error);
+        setErrorMessage('Xóa bàn không thành công!');
+        setOpenError(true);
       }
     }
   };
@@ -210,6 +219,16 @@ export default function TableList() {
       );
     } catch (error) {
       console.error("Error updating table:", error);
+      setErrorMessage('Cập nhật bàn không thành công!');
+      dispatch(
+        fetchTables(
+          searchTerm,
+          tableState.currentPage,
+          tableState.pageSize,
+          searchCapacity
+        )
+      );
+      setOpenError(true);
     }
   };
 
@@ -379,6 +398,14 @@ export default function TableList() {
           open={openSuccess}
           onClose={handleSuccessClose}
           message={successMessage}
+        />
+
+        <DangerAlert
+          open={openError}
+          onClose={handleErrorClose}
+          message={errorMessage}
+          vertical="top"
+          horizontal="right"
         />
 
         <DialogConfirm

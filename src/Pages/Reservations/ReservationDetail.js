@@ -42,8 +42,6 @@ export default function ReservationDetail() {
                 <section className="d-flex justify-content-center align-items-center" style={{ height: '100vh', backgroundColor: '#EEEEEE' }}>
                     <CustomSpinner />
                 </section>
-            ) : (reservationState.error || reservationDetailState.error) ? (
-                <div>Error: {reservationState.error} {reservationDetailState.error}</div>
             ) : (
                 <div>
                     {reservationState.reservation.length > 0 ? (
@@ -111,7 +109,7 @@ export default function ReservationDetail() {
                                 <p><strong>Tên:</strong> {reservationState.reservation[0].fullname} | <strong>Mã:</strong> {reservationState.reservation[0].reservation_code ? reservationState.reservation[0].reservation_code :  'Chưa rõ'}</p>
                                 <p><strong>Phone:</strong> {reservationState.reservation[0].tel}</p>
                                 <p><strong>Email:</strong> {reservationState.reservation[0].email}</p>
-                                <p><strong>Ngày đặt:</strong> {formatDateTime(reservationState.reservation[0].reservation_date)} | <strong>Số người:</strong> {reservationState.reservation[0].party_size} | <strong>Số bàn:</strong> {reservationState.reservation[0].tableName ? reservationState.reservation[0].tableName : 'Chưa có'}</p>
+                                <p><strong>Ngày đặt:</strong> {formatDateTime(reservationState.reservation[0].reservation_date)} | <strong>Số người:</strong> {reservationState.reservation[0].party_size} | <strong>Số bàn:</strong> {(reservationState.reservation[0].tableName && reservationState.reservation[0].status !== 1 && reservationState.reservation[0].status !== 2) ? reservationState.reservation[0].tableName : 'Chưa có'}</p>
                             </div>
                             
                             {/* Chi tiết đơn hàng */}

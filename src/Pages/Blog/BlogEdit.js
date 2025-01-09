@@ -10,7 +10,36 @@ import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
+import { getPermissions } from "../../Actions/GetQuyenHanAction";
+import { jwtDecode as jwt_decode } from "jwt-decode";
+
 export default function BlogEdit() {
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  const getQuyenHanState = useSelector((state) => state.getQuyenHan);
+  const permissions = getQuyenHanState.getQuyenHan || [];
+
+  useEffect(() => {
+  if (token) {
+      const decodedToken = jwt_decode(token);
+      const userIdFromToken = decodedToken.id;
+      dispatch(getPermissions(userIdFromToken));
+  }
+  const decodedToken = jwt_decode(token);
+  const userIdFromToken = decodedToken.id;
+      dispatch(getPermissions(userIdFromToken));
+  }, [navigate, dispatch, token]);
+
+  const hasPermission = (permissionName) => {
+      return (
+          permissions.data &&
+          permissions.data.some((permission) => permission.name == permissionName)
+      );
+  };
+
   const {
     register,
     handleSubmit,
@@ -18,9 +47,6 @@ export default function BlogEdit() {
     formState: { errors },
     reset,
   } = useForm();
-  const { id } = useParams();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const blogState = useSelector((state) => state.blog);
   const blogCategoryState = useSelector((state) => state.categories);
@@ -31,6 +57,7 @@ export default function BlogEdit() {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState(""); // Track Quill content
   const [author, setAuthor] = useState(""); // Track author
+  const [initialCategoryId, setInitialCategoryId] = useState(null); // Lưu id danh mục ban đầu
 
   useEffect(() => {
     const fetchBlogData = async () => {
@@ -48,6 +75,7 @@ export default function BlogEdit() {
     if (blog) {
       setValue("title", blog.title);
       setValue("blog_category_id", blog.blog_category_id);
+      setInitialCategoryId(blog.blog_category_id); // Lưu lại ID danh mục ban đầu
       setInitialPoster(blog.poster);
       setPoster(blog.poster);
       setContent(blog.content); // Set Quill content
@@ -115,6 +143,8 @@ export default function BlogEdit() {
     );
   }
 
+  const canViewCategories = hasPermission("Xem danh mục bài viết");
+
   return (
     <div className="container">
       <div className="page-inner">
@@ -158,7 +188,7 @@ export default function BlogEdit() {
                   <div className="col-md-6">
                     <div className="form-group">
                       <label>Danh mục</label>
-                      <select
+                      {/* <select
                         className="form-select"
                         id="blog_category_id"
                         {...register("blog_category_id", {
@@ -171,7 +201,33 @@ export default function BlogEdit() {
                               {item.name}
                             </option>
                           ))}
+                      </select> */}
+                      <select
+                        className={`form-select ${!hasPermission("Xem danh mục bài viết") ? 'is-invalid' : ''}`} 
+                        id="blog_category_id"
+                        {...register("blog_category_id", {
+                          required: hasPermission("Xem danh mục bài viết") ? "Vui lòng chọn danh mục!" : false,
+                        })}
+                        disabled={!hasPermission("Xem danh mục bài viết")}
+                      >
+                        {hasPermission("Xem danh mục bài viết") ? (
+                          blogCategoryState.categories &&
+                          blogCategoryState.categories.map((item) => (
+                            <option key={item.id} value={item.id}>
+                              {item.name}
+                            </option>
+                          ))
+                        ) : (
+                          <option value={blogState.blog[0]?.blog_category_id} disabled selected>
+                            Bạn không có quyền xem danh mục
+                          </option>
+                        )}
                       </select>
+
+                      {!hasPermission("Xem danh mục bài viết") && (
+                        <p className="text-danger">Bạn không có quyền xem danh mục!</p>
+                      )}
+
                       {errors.blog_category_id && (
                         <p className="text-danger">
                           {errors.blog_category_id.message}

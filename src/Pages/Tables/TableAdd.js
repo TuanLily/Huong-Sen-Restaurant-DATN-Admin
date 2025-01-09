@@ -41,7 +41,7 @@ export default function TableAdd() {
       reset();
       navigate("/tables"); // Điều hướng ngay lập tức sau khi thêm thành công
     } catch (error) {
-      setErrorMessage(error.message);
+      setErrorMessage('Thêm bàn không thành công!');
       setOpenError(true);
     }
   };

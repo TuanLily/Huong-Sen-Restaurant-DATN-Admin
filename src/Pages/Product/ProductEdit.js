@@ -8,12 +8,38 @@ import { SuccessAlert } from '../../Components/Alert/Alert';
 import { useForm } from 'react-hook-form';
 import CustomSpinner from '../../Components/Spinner/CustomSpinner';
 
+import { getPermissions } from "../../Actions/GetQuyenHanAction";
+import { jwtDecode as jwt_decode } from "jwt-decode";
+
 export default function ProductEdit () {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const token = localStorage.getItem("token");
+    const getQuyenHanState = useSelector((state) => state.getQuyenHan);
+    const permissions = getQuyenHanState.getQuyenHan || [];
+
+    useEffect(() => {
+    if (token) {
+        const decodedToken = jwt_decode(token);
+        const userIdFromToken = decodedToken.id;
+        dispatch(getPermissions(userIdFromToken));
+    }
+    const decodedToken = jwt_decode(token);
+    const userIdFromToken = decodedToken.id;
+        dispatch(getPermissions(userIdFromToken));
+    }, [navigate, dispatch, token]);
+
+    const hasPermission = (permissionName) => {
+        return (
+            permissions.data &&
+            permissions.data.some((permission) => permission.name == permissionName)
+        );
+    };
+
     const { register, handleSubmit, setValue, formState: { errors }, reset, watch } = useForm();
 
     const { id } = useParams();
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
 
     const productState = useSelector((state) => state.product);
     const productCategoryState = useSelector(state => state.productCategoryNoPage);
@@ -91,6 +117,8 @@ export default function ProductEdit () {
         );
     }
 
+    const canViewCategories = hasPermission("Xem danh mục sản phẩm");
+
     return (
         <div className="container">
             <div className="page-inner">
@@ -127,15 +155,30 @@ export default function ProductEdit () {
                                         </div>
                                         <div className="form-group">
                                             <label>Danh mục</label>
-                                            <select className="form-select" id="categories_id" {...register('categories_id', { required: 'Vui lòng chọn danh mục!' })}>
-                                                {productCategoryState.product_category && productCategoryState.product_category.map((item) => {
-                                                    const isSelected = item.id === parseInt(productState.product.find((prod) => prod.id === parseInt(id))?.categories_id);
-                                                    return (
-                                                        <option key={item.id} value={item.id}>
-                                                            {item.name}
+                                            <select 
+                                                className={`form-select ${!canViewCategories ? 'is-invalid' : ''}`} 
+                                                id="category_id" 
+                                                {...register('categories_id', { required: canViewCategories ? 'Vui lòng chọn danh mục!' : null })} 
+                                                disabled={!canViewCategories}
+                                            >
+                                                {canViewCategories ? (
+                                                    <>
+                                                        {productCategoryState.product_category && productCategoryState.product_category.map((item) => {
+                                                            const isSelected = item.id === parseInt(productState.product.find((prod) => prod.id === parseInt(id))?.categories_id);
+                                                            return (
+                                                                <option key={item.id} value={item.id} selected={isSelected}>
+                                                                    {item.name}
+                                                                </option>
+                                                            );
+                                                        })}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <option value={productState.product.find((prod) => prod.id === parseInt(id))?.categories_id} disabled>
+                                                            Bạn không có quyền xem danh mục!
                                                         </option>
-                                                    );
-                                                })}
+                                                    </>
+                                                )}
                                             </select>
                                         </div>
                                         <div className="form-group">

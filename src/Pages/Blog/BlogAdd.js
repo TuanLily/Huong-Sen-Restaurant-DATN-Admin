@@ -11,8 +11,35 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { jwtDecode } from "jwt-decode"; // Correct import for jwt-decode
 
+import { getPermissions } from "../../Actions/GetQuyenHanAction";
+import { jwtDecode as jwt_decode } from "jwt-decode";
+
 export default function BlogAdd() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  const getQuyenHanState = useSelector((state) => state.getQuyenHan);
+  const permissions = getQuyenHanState.getQuyenHan || [];
+
+  useEffect(() => {
+  if (token) {
+      const decodedToken = jwt_decode(token);
+      const userIdFromToken = decodedToken.id;
+      dispatch(getPermissions(userIdFromToken));
+  }
+  const decodedToken = jwt_decode(token);
+  const userIdFromToken = decodedToken.id;
+  dispatch(getPermissions(userIdFromToken));
+  }, [navigate, dispatch, token]);
+
+  const hasPermission = (permissionName) => {
+  return (
+      permissions.data &&
+      permissions.data.some((permission) => permission.name == permissionName)
+  );
+  };
+
   const {
     register,
     handleSubmit,
@@ -20,7 +47,6 @@ export default function BlogAdd() {
     setValue,
   } = useForm();
   const blogCategoryState = useSelector((state) => state.categories);
-  const navigate = useNavigate();
 
   const [poster, setPoster] = useState("");
   const [content, setContent] = useState("");
@@ -103,6 +129,18 @@ export default function BlogAdd() {
     );
   }
 
+  const canViewCategories = hasPermission("Xem danh mục bài viết");
+
+  const getUncategorizedId = () => {
+      const uncategorizedCategory = blogCategoryState.categories.find(item => item.name === "Chưa phân loại");
+      return uncategorizedCategory ? uncategorizedCategory.id : "";
+  };
+  
+  // Lọc các danh mục có trạng thái là 1
+  const filteredCategories = blogCategoryState.categories
+  ? blogCategoryState.categories.filter(item => item.status === 1)
+  : [];
+
   return (
     <div className="container">
       <div className="page-inner">
@@ -153,7 +191,7 @@ export default function BlogAdd() {
                     <div className="form-group">
                       <label>Danh mục</label>
                       {/* Add the form-control class to make it consistent */}
-                      <select
+                      {/* <select
                         className="form-control"
                         id="blog_category_id"
                         {...register("blog_category_id", {
@@ -166,6 +204,32 @@ export default function BlogAdd() {
                               {item.name}
                             </option>
                           ))}
+                      </select> */}
+                      <select
+                          className={`form-select ${!canViewCategories ? 'is-invalid' : ''}`} 
+                          id="blog_category_id"
+                          {...register("blog_category_id", {
+                              required: "Vui lòng chọn danh mục!",
+                          })}
+                          disabled={!canViewCategories} // Disable nếu không có quyền
+                      >
+                          {canViewCategories ? (
+                              filteredCategories.length > 0 ? (
+                                filteredCategories.map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                        {item.name}
+                                    </option>
+                                ))
+                              ) : (
+                                  <option disabled>
+                                      Không có danh mục nào khả dụng.
+                                  </option>
+                              )
+                          ) : (
+                              <option value={getUncategorizedId()} disabled selected>
+                                  Bạn không có quyền xem danh mục!
+                              </option>
+                          )}
                       </select>
                       {errors.blog_category_id && (
                         <p className="text-danger">

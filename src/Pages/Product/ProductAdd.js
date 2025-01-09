@@ -8,9 +8,36 @@ import ImageUploadComponent from "../../Components/ImageUpload/ImageUpload";
 import { SuccessAlert } from "../../Components/Alert/Alert";
 import CustomSpinner from "../../Components/Spinner/CustomSpinner";
 
+import { getPermissions } from "../../Actions/GetQuyenHanAction";
+import { jwtDecode as jwt_decode } from "jwt-decode";
+
 export default function ProductAdd () {
     const dispatch = useDispatch();
-    const { register, handleSubmit, formState: { errors }, reset, watch } = useForm();
+    const navigate = useNavigate();
+
+    const token = localStorage.getItem("token");
+    const getQuyenHanState = useSelector((state) => state.getQuyenHan);
+    const permissions = getQuyenHanState.getQuyenHan || [];
+
+    useEffect(() => {
+    if (token) {
+        const decodedToken = jwt_decode(token);
+        const userIdFromToken = decodedToken.id;
+        dispatch(getPermissions(userIdFromToken));
+    }
+    const decodedToken = jwt_decode(token);
+    const userIdFromToken = decodedToken.id;
+    dispatch(getPermissions(userIdFromToken));
+    }, [navigate, dispatch, token]);
+
+    const hasPermission = (permissionName) => {
+    return (
+        permissions.data &&
+        permissions.data.some((permission) => permission.name == permissionName)
+    );
+    };
+
+    const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm();
     const productState = useSelector(state => state.product);
     const productCategoryState = useSelector(state => state.productCategoryNoPage);
 
@@ -18,8 +45,6 @@ export default function ProductAdd () {
         dispatch(fetchCategoryProductNoPage());
         dispatch(fetchProduct());
     }, [dispatch]);
-
-    const navigate = useNavigate();
 
     const [imageError, setImageError] = useState('');
     const [image, setImage] = useState('');
@@ -74,6 +99,26 @@ export default function ProductAdd () {
             setLoading(false); // Dừng spinner
         }
     };
+
+    const getUncategorizedId = () => {
+        const uncategorizedCategory = productCategoryState.product_category.find(item => item.name === "Chưa phân loại");
+        if (uncategorizedCategory) {
+            console.log('id lấy là:', uncategorizedCategory.id);
+            return uncategorizedCategory.id;
+        } else {
+            console.warn("Danh mục 'Chưa phân loại' không tồn tại!");
+            return ""; // Hoặc giá trị mặc định khác nếu cần
+        }
+    };    
+
+    const canViewCategories = hasPermission("Xem danh mục sản phẩm");
+
+    useEffect(() => {
+        if (!canViewCategories) {
+            const uncategorizedId = getUncategorizedId();
+            setValue('category_id', uncategorizedId); // Đặt giá trị mặc định cho category_id
+        }
+    }, [canViewCategories, setValue]);
 
     if (loading) {
         return (
@@ -134,7 +179,7 @@ export default function ProductAdd () {
                                         </div>
                                         <div className="form-group">
                                             <label>Danh mục</label>
-                                            <select className="form-select" id="category_id" {...register('category_id', { required: 'Vui lòng chọn danh mục!' })}>
+                                            {/* <select className="form-select" id="category_id" {...register('category_id', { required: 'Vui lòng chọn danh mục!' })}>
                                                 <option value="">---</option>
                                                 {productCategoryState.product_category
                                                     .filter(item => item.status == 1)
@@ -142,6 +187,28 @@ export default function ProductAdd () {
                                                         <option key={item.id} value={item.id}>{item.name}</option>
                                                     ))
                                                 }
+                                            </select> */}
+                                            <select 
+                                                className={`form-select ${!canViewCategories ? 'is-invalid' : ''}`} 
+                                                id="category_id" 
+                                                {...register('category_id', { required: canViewCategories ? 'Vui lòng chọn danh mục!' : null })} 
+                                                disabled={!canViewCategories}
+                                            >
+                                                {canViewCategories ? (
+                                                    <>
+                                                        <option value="">---</option>
+                                                        {productCategoryState.product_category
+                                                            .filter(item => item.status === 1)
+                                                            .map((item) => (
+                                                                <option key={item.id} value={item.id}>{item.name}</option>
+                                                            ))
+                                                        }
+                                                    </>
+                                                ) : (
+                                                    <option value={getUncategorizedId()} disabled selected>
+                                                        Bạn không có quyền xem danh mục!
+                                                    </option>
+                                                )}
                                             </select>
                                             {errors.category_id && <div className="text-danger">{errors.category_id.message}</div>}
                                         </div>

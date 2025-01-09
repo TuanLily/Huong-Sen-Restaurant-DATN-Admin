@@ -34,7 +34,8 @@ const ProtectedRoute = ({ element, requiredPermissions }) => {
     // Kiểm tra quyền hạn
     const hasRequiredPermissions = (permissions) => {
         const permissionMap = {
-            "Xem danh mục sản phẩm": ["Xem danh mục sản phẩm", "Thêm sản phẩm và Xem danh mục sản phẩm"],
+            // "Xem danh mục sản phẩm": ["Xem danh mục sản phẩm", "Thêm sản phẩm và Xem danh mục sản phẩm"],
+            // "Thêm sản phẩm và Xem danh mục sản phẩm": ["Xem danh mục sản phẩm", "Thêm sản phẩm và Xem danh mục sản phẩm"],
         };
 
         if (!getQuyenHanState || !getQuyenHanState.getQuyenHan || !getQuyenHanState.getQuyenHan.data) {
