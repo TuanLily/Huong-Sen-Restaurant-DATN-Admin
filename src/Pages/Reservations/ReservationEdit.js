@@ -123,24 +123,31 @@ export default function ReservationUpdate() {
   }, [reservationState.reservation, setValue, reservationId]);
 
   const calculateTotalAmount = () => {
-    const selectedProducts = Object.entries(quantities).map(
-      ([id, quantity]) => {
-        const product = productState.product.find((p) => p.id === parseInt(id));
-        // Nếu có sale_price, tính giá bằng price - sale_price
-        const price = product && product.sale_price ? product.price - product.sale_price : product.price;
-        return product && quantity > 0 ? price * quantity : 0;
-      }
-    );
+    const selectedProducts = Object.entries(quantities).map(([id, quantity]) => {
+      const product = productState.product.find((p) => p.id === parseInt(id));
+      const price =
+        product && product.sale_price
+          ? product.price - product.sale_price
+          : product.price;
+      return product && quantity > 0 ? price * quantity : 0;
+    });
+  
     const totalSelected = selectedProducts.reduce(
       (sum, price) => sum + price,
       0
     );
+  
     const totalGrouped = groupedReservationDetails.reduce(
       (sum, item) => sum + item.totalPrice,
       0
     );
-    return totalSelected + totalGrouped;
+  
+    const subtotal = totalSelected + totalGrouped;
+    const vat = subtotal * 0.1; // Tính VAT 10%
+  
+    return subtotal + vat; // Tổng cộng bao gồm VAT
   };
+  
 
   useEffect(() => {
     const selectedProducts = Object.entries(quantities)

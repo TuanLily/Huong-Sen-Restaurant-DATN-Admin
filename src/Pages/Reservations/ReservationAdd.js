@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
+import { fetchTables } from "../../Actions/TablesActions";
 
 export default function ReservationAdd() {
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ export default function ReservationAdd() {
 
   const productState = useSelector((state) => state.product);
   const productCategoryState = useSelector((state) => state.product_category);
+  const tableState = useSelector((state) => state.tables);
 
   const [depositAmount, setDepositAmount] = useState(0);
   const [activeTab, setActiveTab] = useState("category-info");
@@ -84,8 +86,9 @@ export default function ReservationAdd() {
       .map(([id, quantity]) => {
         const product = productState.product.find((p) => p.id === parseInt(id));
         if (product && quantity > 0) {
-          // Tính giá dựa trên sale_price nếu có
-          const price = product.sale_price ? product.price - product.sale_price : product.price;
+          const price = product.sale_price
+            ? product.price - product.sale_price
+            : product.price;
           return {
             product_id: product.id,
             quantity: quantity,
@@ -95,13 +98,15 @@ export default function ReservationAdd() {
         return null;
       })
       .filter((item) => item !== null);
-
+  
     const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
+    const vat = total * 0.1; // Tính VAT
     const deposit = isDeposit ? total * 0.3 : 0;
+    const totalAfterDeposit = total + vat - deposit; // Cộng VAT và trừ đặt cọc
     setValue("deposit", deposit);
-    const totalAfterDeposit = total - deposit;
     setValue("totalAmount", totalAfterDeposit > 0 ? totalAfterDeposit : 0);
   }, [quantities, productState.product, setValue, isDeposit]);
+  
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -156,30 +161,49 @@ export default function ReservationAdd() {
         return null;
       })
       .filter((item) => item !== null);
-
+  
     if (selectedProducts.length === 0) {
       setOpenError(true);
       setErrorMessage("Vui lòng chọn ít nhất một món để đặt bàn.");
       return;
     }
-
+  
+    // Lấy danh sách bàn trống bằng hành động fetchTables
+    try {
+      await dispatch(fetchTables()); // Gọi hành động fetchTables để lấy dữ liệu bàn
+      const availableTables = tableState.tables.filter(table => table.status === 1); // Kiểm tra bàn có status = 1 (bàn trống)
+  
+      if (availableTables.length === 0) {
+        setOpenError(true);
+        setErrorMessage("Hiện tại đã hết bàn trống. Quý khách có thể chọn ngày khác để đặt bàn.");
+        return;
+      }
+    } catch (error) {
+      console.error("Lỗi kiểm tra bàn trống:", error);
+      setOpenError(true);
+      setErrorMessage("Không thể kiểm tra bàn trống. Vui lòng thử lại sau.");
+      return;
+    }
+  
     const total = selectedProducts.reduce(
       (sum, item) => sum + item.total_price,
       0
     );
+    const vat = total * 0.1; // Tính VAT
     const deposit = isDeposit ? total * 0.3 : 0;
-
+    const totalWithVat = total + vat; // Tổng tiền sau khi cộng VAT
+  
     let reservationCode;
     let codeExists = true;
     let attempts = 0;
     const MAX_ATTEMPTS = 10;
-
+  
     while (codeExists && attempts < MAX_ATTEMPTS) {
       reservationCode = generateReservationCode();
       codeExists = await checkReservationCodeExists(reservationCode);
       attempts++;
     }
-
+  
     if (codeExists) {
       setOpenError(true);
       setErrorMessage(
@@ -187,31 +211,31 @@ export default function ReservationAdd() {
       );
       return;
     }
-
+  
     const requestData = {
       ...data,
       party_Size: parseInt(data.partySize),
-      totalAmount: total,
+      totalAmount: totalWithVat,
       deposit: deposit,
       status: parseInt(data.status),
       products: selectedProducts,
       reservation_code: reservationCode,
     };
-
+  
     try {
       await dispatch(addReservation(requestData));
       setOpenSuccess(true);
       setSuccessMessage("Đặt bàn thành công!");
-
+  
       setTimeout(() => {
         navigate("/reservation");
       }, 2000);
     } catch (error) {
-      // Xử lý thông báo lỗi "Không có bàn phù hợp"
       setOpenError(true);
       setErrorMessage("Thêm mới đơn đặt bàn thất bại. Vui lòng thử lại.");
     }
   };
+  
 
   const handleDepositChange = (event) => {
     setIsDeposit(event.target.checked);
