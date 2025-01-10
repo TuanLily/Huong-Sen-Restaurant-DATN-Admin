@@ -302,23 +302,28 @@ export default function TableList() {
             <option value="8">8 người</option>
           </select>
         </div>
-
         <div className="my-3">
-          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
-            <DatePicker
-              label="Chọn ngày"
-              value={selectedDate}
-              onChange={handleDateChange}
-              format="DD/MM/YYYY"
-              slotProps={{
-                textField: {
-                  size: "small",
-                  sx: { width: 160 },
-                },
-              }}
-            />
-          </LocalizationProvider>
-        </div>
+  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
+    <DatePicker
+      label="Chọn ngày"
+      value={selectedDate}
+      onChange={handleDateChange}
+      format="DD/MM/YYYY"
+      shouldDisableDate={(date) => {
+        const today = dayjs();
+        const maxDate = today.add(7, "day");
+        return date.isBefore(today, "day") || date.isAfter(maxDate, "day");
+      }}
+      slotProps={{
+        textField: {
+          size: "small",
+          sx: { width: 160 },
+        },
+      }}
+    />
+  </LocalizationProvider>
+</div>
+
 
         <div className="row">
           {tableState.loading ? (
@@ -352,9 +357,7 @@ export default function TableList() {
                         {item.guest_name || "Không có"}
                       </p>
                     )}
-                    {item.status === 1 && !item.guest_name && (
-                      <p className="current-guest">Không có khách</p>
-                    )}
+                  
                     <p className="table-capacity">
                       Sức chứa: {item.capacity} người
                     </p>
