@@ -93,10 +93,10 @@ export default function TableList() {
   // Debounce hàm tìm kiếm để giảm số lần gọi API
   const debouncedSearch = useMemo(
     () =>
-      debounce((term, capacity) => {
-        dispatch(fetchTables(term, urlPage, capacity));
+      debounce((term, searchCapacity) => {
+        const formattedDate = selectedDate.format("YYYY-MM-DD");
+        dispatch(fetchTables(term, urlPage, searchCapacity, formattedDate));
         dispatch(setCurrentPage(1));
-        console.log(capacity);
       }, 1000),
     [dispatch, urlPage]
   );
@@ -108,23 +108,23 @@ export default function TableList() {
   }, [debouncedSearch]);
 
   useEffect(() => {
-    if (!searchTerm) {
-      dispatch(fetchTables("", urlPage, tableState.pageSize, searchCapacity)); // Fetch lại dữ liệu khi không tìm kiếm
+    if (!searchCapacity) {
+      dispatch(fetchTables(searchTerm, urlPage, tableState.pageSize, searchCapacity)); // Fetch lại dữ liệu khi không tìm kiếm
     }
-  }, [dispatch, searchTerm, urlPage, tableState.pageSize]);
+  }, [dispatch, searchCapacity, urlPage, tableState.pageSize]);
 
   useEffect(() => {
-    if (searchTerm) {
+    if (searchCapacity) {
       debouncedSearch(searchTerm, searchCapacity);
     }
-  }, [searchTerm]);
+  }, [searchCapacity]);
 
   useEffect(() => {
     const formattedDate = selectedDate.format("YYYY-MM-DD");
     dispatch(
-      fetchTables(capacity, urlPage, tableState.pageSize, formattedDate)
+      fetchTables(searchTerm, urlPage, searchCapacity, formattedDate)
     );
-  }, [dispatch, urlPage, tableState.pageSize, capacity, selectedDate]);
+  }, [dispatch, urlPage, tableState.pageSize, searchCapacity, selectedDate]);
 
   // Update URL when currentPage changes
   useEffect(() => {
@@ -159,9 +159,9 @@ export default function TableList() {
         const formattedDate = selectedDate.format("YYYY-MM-DD");
         dispatch(
           fetchTables(
-            capacity,
-            tableState.currentPage,
-            tableState.pageSize,
+            searchTerm,
+            urlPage,
+            searchCapacity,
             formattedDate
           )
         );
@@ -212,9 +212,9 @@ export default function TableList() {
       dispatch(
         fetchTables(
           searchTerm,
-          tableState.currentPage,
-          tableState.pageSize,
-          searchCapacity
+          urlPage,
+          searchCapacity,
+          formattedDate
         )
       );
     } catch (error) {
@@ -223,9 +223,9 @@ export default function TableList() {
       dispatch(
         fetchTables(
           searchTerm,
-          tableState.currentPage,
-          tableState.pageSize,
-          searchCapacity
+          urlPage,
+          searchCapacity,
+          formattedDate
         )
       );
       setOpenError(true);
@@ -241,34 +241,19 @@ export default function TableList() {
     navigate(`?page=${page}`);
     dispatch(setCurrentPage(page)); // Cập nhật trang hiện tại trong state
     const formattedDate = selectedDate.format("YYYY-MM-DD");
-    dispatch(fetchTables(capacity, page, tableState.pageSize, formattedDate));
+    dispatch(fetchTables(searchTerm, urlPage, searchCapacity, formattedDate));
   };
 
   const handleDateChange = (newDate) => {
     setSelectedDate(newDate);
-    dispatch(setCurrentPage(1));
-  };
+    // dispatch(setCurrentPage(1));
+    
+    const formattedDate = newDate.format("YYYY-MM-DD");
+    dispatch(fetchTables(searchTerm, urlPage, searchCapacity, formattedDate)); // Gọi API với ngày đã chọn
+  };  
 
-  const handleViewOrder = async (tableId) => {
-    setLoadingDetails(true);
-    setErrorDetails(null);
-    try {
-      // Gọi API để lấy thông tin chi tiết đơn đặt bàn
-      const details = await dispatch(fetchReservationDetails(tableId));
-
-      // Kiểm tra nếu có dữ liệu và chuyển hướng đến URL chi tiết đơn đặt bàn
-      if (details.data && details.data.length > 0) {
-        // Giả sử bạn muốn lấy ID của đơn đặt bàn đầu tiên
-        const reservationId = details.data[0].id; // Hoặc bất kỳ logic nào bạn muốn
-        navigate(`/reservation/detail/${reservationId}`);
-      } else {
-        setErrorDetails("Không tìm thấy thông tin đặt bàn.");
-      }
-    } catch (error) {
-      setErrorDetails("Không thể lấy thông tin đặt bàn.");
-    } finally {
-      setLoadingDetails(false);
-    }
+  const handleViewOrder = async (reID) => {
+    navigate(`/reservation/detail/table/${reID}`);
   };
 
   return (
@@ -288,7 +273,7 @@ export default function TableList() {
           </div>
         </div>
 
-        <div className="my-3 col-4">
+        {/* <div className="my-3 col-4">
           <select
             className="form-control"
             style={{ height: "38px", minWidth: "150px" }}
@@ -301,28 +286,28 @@ export default function TableList() {
             <option value="6">6 người</option>
             <option value="8">8 người</option>
           </select>
-        </div>
+        </div> */}
         <div className="my-3">
-  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
-    <DatePicker
-      label="Chọn ngày"
-      value={selectedDate}
-      onChange={handleDateChange}
-      format="DD/MM/YYYY"
-      shouldDisableDate={(date) => {
-        const today = dayjs();
-        const maxDate = today.add(7, "day");
-        return date.isBefore(today, "day") || date.isAfter(maxDate, "day");
-      }}
-      slotProps={{
-        textField: {
-          size: "small",
-          sx: { width: 160 },
-        },
-      }}
-    />
-  </LocalizationProvider>
-</div>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
+            <DatePicker
+              label="Chọn ngày"
+              value={selectedDate}
+              onChange={handleDateChange}
+              format="DD/MM/YYYY"
+              shouldDisableDate={(date) => {
+                const today = dayjs();
+                const maxDate = today.add(7, "day");
+                return date.isBefore(today, "day") || date.isAfter(maxDate, "day");
+              }}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: { width: 160 },
+                },
+              }}
+            />
+          </LocalizationProvider>
+        </div>
 
 
         <div className="row">
@@ -351,7 +336,7 @@ export default function TableList() {
                     <p className="table-status">
                       {item.status === 1 ? "Bàn trống" : "Đang phục vụ"}
                     </p>
-                    {item.status === 0 && item.guest_name && (
+                    {item.status == 0 && (
                       <p className="current-guest">
                         Khách đang ăn: <br />
                         {item.guest_name || "Không có"}
@@ -362,11 +347,11 @@ export default function TableList() {
                       Sức chứa: {item.capacity} người
                     </p>
                     <div className="btn-group" role="group">
-                      {item.status === 0 && (
+                      {item.status === 0 && hasPermission("Xem chi tiết đặt bàn") && (
                         <button
                           type="button"
                           className="btn btn-outline-info"
-                          onClick={() => handleViewOrder(item.id)}
+                          onClick={() => handleViewOrder(item.reservation_ids)}
                         >
                           Xem đơn
                         </button>
@@ -485,7 +470,7 @@ export default function TableList() {
             onPageChange={handlePageChange} // Hàm chuyển trang
             currentPageSelector={(state) => state.tables.currentPage} // Selector lấy currentPage
             pageSizeSelector={(state) => state.tables.limit} // Thay pageSizeSelector thành limit
-            fetchDataAction={(page, size) => fetchTables(searchTerm, page)} // Fetch dữ liệu với searchTerm và page
+            fetchDataAction={(page, size) => fetchTables(searchTerm, page, searchCapacity, selectedDate.format("YYYY-MM-DD"))} // Fetch dữ liệu với searchTerm và page
           />
         </div>
       </div>

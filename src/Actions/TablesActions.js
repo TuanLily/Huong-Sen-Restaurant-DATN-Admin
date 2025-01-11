@@ -44,42 +44,38 @@ export const setLimit = (limit) => ({  // Thay đổi SET_PAGE_SIZE thành SET_L
 });
 
 // Thunk action creator for fetching tables
-export const fetchTables = (number = "", page = 1, searchCapacity = '') => {
+export const fetchTables = (number = "", page = 1, searchCapacity = '', date = '') => {
   return async (dispatch) => {
     dispatch(fetchTableRequest());
 
-    // Lấy limit từ localStorage, mặc định là 5 nếu chưa có
     const limit = parseInt(localStorage.getItem('limit'), 10) || 5;
 
     try {
-      const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.table}`);
+      const url = new URL(`${API_ENDPOINT}/${AdminConfig.routes.table}/filter-by-date`);
       if (number) {
         url.searchParams.append("search", number);
       }
       if (searchCapacity) {
         url.searchParams.append("searchCapacity", searchCapacity);
       }
+      if (date) {
+        url.searchParams.append("date", date); // Thêm tham số ngày vào URL
+      }
 
-      // Thêm tham số phân trang
       url.searchParams.append("page", page);
-      url.searchParams.append('limit', limit); // Dùng limit thay cho pageSize
+      url.searchParams.append('limit', limit);
+      url.searchParams.append("searchCapacity", searchCapacity);
 
-      // Gọi API với http.get
       const response = await http.get(url.toString());
       const { results, totalCount, totalPages, currentPage } = response.data;
 
-      // Dispatch action thành công
       dispatch(fetchTableSuccess({ results, totalCount, totalPages, currentPage }));
     } catch (error) {
       const errorMsg = error.response?.data?.message || error.message || "Failed to fetch tables";
-
-      // Dispatch action lỗi
       dispatch(fetchTableFailure(errorMsg));
     };
   };
 };
-
-
 
 export const fetchListTableFilterByDate = (date, page = 1) => {
   return async (dispatch) => {

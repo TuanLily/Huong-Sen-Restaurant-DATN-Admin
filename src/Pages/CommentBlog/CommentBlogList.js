@@ -128,7 +128,7 @@ export default function CommentBlogList() {
             <h6 className="op-7 mb-2">Hương Sen Admin Dashboard</h6>
           </div>
           <div className="ms-md-auto py-2 py-md-0">
-            {hasPermission('Xóa bài viết') && (
+            {hasPermission('Xóa bình luận bài viết') && (
               <button className="btn btn-danger btn-round me-2" onClick={handleDeleteSelected} disabled={selectedItems.length === 0}>
                 Xóa mục đã chọn
               </button>

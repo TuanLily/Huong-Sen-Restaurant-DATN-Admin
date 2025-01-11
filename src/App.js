@@ -13,6 +13,7 @@ import Redirect from './Components/Redirect';
 import './App.css';
 
 import ReservationDetail from './Pages/Reservations/ReservationDetail';
+import ReservationDetailTable from './Pages/Reservations/ReservationDetailTable';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           </Route>
 
           <Route path="reservation/detail/:id" element={<ProtectedRoute element={<ReservationDetail />} requiredPermissions={["Xem chi tiết đặt bàn"]} />} />
+          <Route path="reservation/detail/table/:id" element={<ProtectedRoute element={<ReservationDetailTable />} requiredPermissions={["Xem chi tiết đặt bàn"]} />} />
 
           {/* 404 Route */}
           <Route path="*" element={<NotFound />} />
