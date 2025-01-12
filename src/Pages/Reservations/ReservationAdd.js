@@ -20,7 +20,6 @@ import { useForm } from "react-hook-form";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
-import { fetchTables } from "../../Actions/TablesActions";
 
 export default function ReservationAdd() {
   const dispatch = useDispatch();
@@ -29,7 +28,6 @@ export default function ReservationAdd() {
 
   const productState = useSelector((state) => state.product);
   const productCategoryState = useSelector((state) => state.product_category);
-  const tableState = useSelector((state) => state.tables);
 
   const [depositAmount, setDepositAmount] = useState(0);
   const [activeTab, setActiveTab] = useState("category-info");
@@ -49,7 +47,7 @@ export default function ReservationAdd() {
   const [isDeposit, setIsDeposit] = useState(true);
 
   const handleSuccessClose = () => setOpenSuccess(false);
-  const handleErrorClose = () => setOpenError(false);
+  const handleErrorClose = () => { setOpenError(false) };
 
   const {
     register,
@@ -168,23 +166,6 @@ export default function ReservationAdd() {
       return;
     }
   
-    // Lấy danh sách bàn trống bằng hành động fetchTables
-    try {
-      await dispatch(fetchTables()); // Gọi hành động fetchTables để lấy dữ liệu bàn
-      const availableTables = tableState.tables.filter(table => table.status === 1); // Kiểm tra bàn có status = 1 (bàn trống)
-  
-      if (availableTables.length === 0) {
-        setOpenError(true);
-        setErrorMessage("Hiện tại đã hết bàn trống. Quý khách có thể chọn ngày khác để đặt bàn.");
-        return;
-      }
-    } catch (error) {
-      console.error("Lỗi kiểm tra bàn trống:", error);
-      setOpenError(true);
-      setErrorMessage("Không thể kiểm tra bàn trống. Vui lòng thử lại sau.");
-      return;
-    }
-  
     const total = selectedProducts.reduce(
       (sum, item) => sum + item.total_price,
       0
@@ -209,6 +190,7 @@ export default function ReservationAdd() {
       setErrorMessage(
         "Không thể tạo mã đặt bàn duy nhất, vui lòng thử lại sau."
       );
+      setTimeout(handleErrorClose, 3000); 
       return;
     }
   
@@ -232,7 +214,8 @@ export default function ReservationAdd() {
       }, 2000);
     } catch (error) {
       setOpenError(true);
-      setErrorMessage("Thêm mới đơn đặt bàn thất bại. Vui lòng thử lại.");
+      setErrorMessage("Không có bàn trống, vui lòng đặt ngày khác");
+      setTimeout(handleErrorClose, 1500); 
     }
   };
   

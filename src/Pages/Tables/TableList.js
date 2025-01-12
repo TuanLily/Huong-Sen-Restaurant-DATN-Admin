@@ -132,6 +132,7 @@ export default function TableList() {
   }, [tableState.currentPage, navigate]);
 
   const handleClickOpen = (tableId) => {
+    console.log (tableId);
     setSelectedTable(tableId);
     setOpen(true);
   };
@@ -150,6 +151,7 @@ export default function TableList() {
   };
 
   const handleConfirm = async () => {
+    console.log (selectedTable);
     if (selectedTable) {
       try {
         await dispatch(deleteTable(selectedTable));
@@ -174,6 +176,7 @@ export default function TableList() {
   };
 
   const handleEdit = (table) => {
+    console.log (table);
     setEditingTable(table);
     setEditFormData({
       number: table.number,
@@ -200,7 +203,7 @@ export default function TableList() {
   const handleEditSubmit = async () => {
     try {
       await dispatch(
-        updateTable(editingTable.id, {
+        updateTable(editingTable.table_id, {
           ...editFormData,
           capacity: parseInt(editFormData.capacity),
           status: parseInt(editFormData.status),
@@ -208,6 +211,7 @@ export default function TableList() {
       );
       handleCloseEditModal();
       setSuccessMessage("Cập nhật bàn ăn thành công!");
+      const formattedDate = selectedDate.format("YYYY-MM-DD");
       setOpenSuccess(true);
       dispatch(
         fetchTables(
@@ -220,6 +224,7 @@ export default function TableList() {
     } catch (error) {
       console.error("Error updating table:", error);
       setErrorMessage('Cập nhật bàn không thành công!');
+      const formattedDate = selectedDate.format("YYYY-MM-DD");
       dispatch(
         fetchTables(
           searchTerm,
@@ -369,7 +374,7 @@ export default function TableList() {
                         <button
                           type="button"
                           className="btn btn-outline-danger ms-2"
-                          onClick={() => handleClickOpen(item.id)}
+                          onClick={() => handleClickOpen(item.table_id)}
                         >
                           Xóa
                         </button>
@@ -435,7 +440,7 @@ export default function TableList() {
               <option value="6">6 người</option>
               <option value="8">8 người</option>
             </TextField>
-            <TextField
+            {/* <TextField
               select
               margin="dense"
               name="status"
@@ -450,7 +455,7 @@ export default function TableList() {
             >
               <option value={1}>Bàn trống</option>
               <option value={0}>Có khách</option>
-            </TextField>
+            </TextField> */}
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseEditModal}>Hủy</Button>
