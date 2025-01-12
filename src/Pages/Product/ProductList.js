@@ -309,7 +309,7 @@ export default function ProductList() {
                                 />
                               </td>
                               <td>{item.name}</td>
-                              <td>{getCategoryName(item.categories_id)}</td>
+                              <td>{hasPermission("Xem danh mục sản phẩm") ? getCategoryName(item.categories_id) : 'Không có quyền xem!'}</td>
                               <td>
                                 {item.status === 1 ? (
                                   <span className="badge badge-success">
