@@ -47,7 +47,9 @@ export default function ReservationAdd() {
   const [isDeposit, setIsDeposit] = useState(true);
 
   const handleSuccessClose = () => setOpenSuccess(false);
-  const handleErrorClose = () => { setOpenError(false) };
+  const handleErrorClose = () => {
+    setOpenError(false);
+  };
 
   const {
     register,
@@ -96,7 +98,7 @@ export default function ReservationAdd() {
         return null;
       })
       .filter((item) => item !== null);
-  
+
     const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
     const vat = total * 0.1; // Tính VAT
     const deposit = isDeposit ? total * 0.3 : 0;
@@ -104,7 +106,6 @@ export default function ReservationAdd() {
     setValue("deposit", deposit);
     setValue("totalAmount", totalAfterDeposit > 0 ? totalAfterDeposit : 0);
   }, [quantities, productState.product, setValue, isDeposit]);
-  
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -159,13 +160,13 @@ export default function ReservationAdd() {
         return null;
       })
       .filter((item) => item !== null);
-  
+
     if (selectedProducts.length === 0) {
       setOpenError(true);
       setErrorMessage("Vui lòng chọn ít nhất một món để đặt bàn.");
       return;
     }
-  
+
     const total = selectedProducts.reduce(
       (sum, item) => sum + item.total_price,
       0
@@ -173,27 +174,27 @@ export default function ReservationAdd() {
     const vat = total * 0.1; // Tính VAT
     const deposit = isDeposit ? total * 0.3 : 0;
     const totalWithVat = total + vat; // Tổng tiền sau khi cộng VAT
-  
+
     let reservationCode;
     let codeExists = true;
     let attempts = 0;
     const MAX_ATTEMPTS = 10;
-  
+
     while (codeExists && attempts < MAX_ATTEMPTS) {
       reservationCode = generateReservationCode();
       codeExists = await checkReservationCodeExists(reservationCode);
       attempts++;
     }
-  
+
     if (codeExists) {
       setOpenError(true);
       setErrorMessage(
         "Không thể tạo mã đặt bàn duy nhất, vui lòng thử lại sau."
       );
-      setTimeout(handleErrorClose, 3000); 
+      setTimeout(handleErrorClose, 3000);
       return;
     }
-  
+
     const requestData = {
       ...data,
       party_Size: parseInt(data.partySize),
@@ -203,26 +204,24 @@ export default function ReservationAdd() {
       products: selectedProducts,
       reservation_code: reservationCode,
     };
-  
+
     try {
       await dispatch(addReservation(requestData));
       setOpenSuccess(true);
       setSuccessMessage("Đặt bàn thành công!");
-  
+
       setTimeout(() => {
         navigate("/reservation");
       }, 2000);
     } catch (error) {
       setOpenError(true);
       setErrorMessage("Không có bàn trống, vui lòng đặt ngày khác");
-      setTimeout(handleErrorClose, 1500); 
+      setTimeout(handleErrorClose, 1500);
     }
   };
-  
 
   const handleDepositChange = (event) => {
     setIsDeposit(event.target.checked);
-    setValue("status", event.target.checked ? 3 : 2);
   };
 
   const toggleDropdown = () => setIsOpen(!isOpen);
@@ -333,48 +332,48 @@ export default function ReservationAdd() {
                       )}
                     </div>
                     <div className="form-group">
-  <label>Ngày và giờ đặt</label>
-  <input
-    type="datetime-local"
-    className={`form-control ${
-      errors.reservation_date ? "is-invalid" : ""
-    }`}
-    {...register("reservation_date", {
-      required: "Ngày và giờ đặt là bắt buộc",
-      validate: (value) => {
-        const selectedDate = new Date(value);
-        const now = new Date();
-        const minTime = new Date(
-          now.getTime() + 2 * 60 * 60 * 1000
-        ); // Thời gian tối thiểu là 2 giờ sau thời gian hiện tại
-        const maxTime = new Date(
-          now.getTime() + 7 * 24 * 60 * 60 * 1000
-        ); // Thời gian tối đa là 7 ngày sau thời gian hiện tại
+                      <label>Ngày và giờ đặt</label>
+                      <input
+                        type="datetime-local"
+                        className={`form-control ${
+                          errors.reservation_date ? "is-invalid" : ""
+                        }`}
+                        {...register("reservation_date", {
+                          required: "Ngày và giờ đặt là bắt buộc",
+                          validate: (value) => {
+                            const selectedDate = new Date(value);
+                            const now = new Date();
+                            const maxTime = new Date(
+                              now.getTime() + 7 * 24 * 60 * 60 * 1000
+                            ); // Thời gian tối đa là 7 ngày sau hiện tại
 
-        if (selectedDate < now) {
-          return "Không thể chọn thời gian trong quá khứ";
-        }
+                            // Không cho phép chọn thời gian trong quá khứ
+                            if (selectedDate <= now) {
+                              return "Không thể chọn thời gian trong quá khứ";
+                            }
 
-        if (selectedDate < minTime) {
-          return "Vui lòng đặt bàn trước ít nhất 2 giờ";
-        }
+                            // Kiểm tra thời gian tối đa
+                            if (selectedDate > maxTime) {
+                              return "Không thể đặt bàn quá 7 ngày tính từ hôm nay";
+                            }
 
-        if (selectedDate > maxTime) {
-          return "Không thể đặt bàn quá 7 ngày tính từ hôm nay";
-        }
+                            // Kiểm tra giờ đặt bàn (từ 9h đến 20h)
+                            const selectedHour = selectedDate.getHours();
+                            if (selectedHour < 9 || selectedHour > 20) {
+                              return "Thời gian đặt bàn phải nằm trong khoảng từ 9h đến 20h";
+                            }
 
-        return true; // Nếu tất cả các điều kiện đều hợp lệ
-      },
-    })}
-    min={new Date().toISOString().slice(0, 16)} // Giá trị tối thiểu là thời gian hiện tại
-  />
-  {errors.reservation_date && (
-    <div className="invalid-feedback">
-      {errors.reservation_date.message}
-    </div>
-  )}
-</div>
-
+                            return true; // Hợp lệ
+                          },
+                        })}
+                        min={new Date().toISOString().slice(0, 16)} // Giá trị tối thiểu là thời gian hiện tại
+                      />
+                      {errors.reservation_date && (
+                        <div className="invalid-feedback">
+                          {errors.reservation_date.message}
+                        </div>
+                      )}
+                    </div>
 
                     <div className="form-group">
                       <label>Trạng thái</label>
@@ -384,7 +383,6 @@ export default function ReservationAdd() {
                       >
                         <option value={3}>Đã thanh toán cọc</option>
                         <option value={4}>Chờ thanh toán toàn bộ đơn</option>
-                        <option value={5}>Hoàn thành đơn</option>
                       </select>
                     </div>
                     <div className="form-group">
@@ -395,10 +393,23 @@ export default function ReservationAdd() {
                             <Switch
                               checked={isDeposit}
                               onChange={handleDepositChange}
-                              disabled
                             />
                           }
-                          label="Đặt cọc 30%"
+                          label={
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              <span>Đặt cọc 30%</span>
+                              <span> | </span>
+                              <span>
+                                {formatCurrency(customerInfo.deposit)}
+                              </span>
+                            </div>
+                          }
                         />
                       </FormGroup>
                     </div>
@@ -501,7 +512,13 @@ export default function ReservationAdd() {
                                   .map((product) => (
                                     <tr key={product.id}>
                                       <td>{product.name}</td>
-                                      <td>{formatCurrency(product.sale_price ? product.price - product.sale_price : product.price)}</td>
+                                      <td>
+                                        {formatCurrency(
+                                          product.sale_price
+                                            ? product.price - product.sale_price
+                                            : product.price
+                                        )}
+                                      </td>
                                       <td className="d-flex justify-content-center align-items-center">
                                         {/* Nhóm số lượng với các nút dính liền */}
                                         <div
