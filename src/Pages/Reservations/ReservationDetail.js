@@ -170,13 +170,19 @@ export default function ReservationDetail() {
                                         <div>
                                             <h3>Thông tin thanh toán</h3>
                                             <p><strong>Tiền cọc:</strong> {formatCurrency(deposit)}</p>
-                                            <p><strong>Còn lại:</strong> {reservation.status == 5 ? 0 : formatCurrency(remaining)}</p>
+                                            {/* <p><strong>Còn lại:</strong> {reservation.status == 5 ? 0 : formatCurrency(remaining)}</p> */}
+                                            {remaining >= 0 && (
+                                                <p><strong>Còn lại:</strong> {reservation.status == 5 ? 0 : formatCurrency(remaining)}</p>
+                                            )}
+                                            {remaining < 0 && (
+                                                <p style={{ color: 'red' }}><strong>Thối lại cho khách:</strong> {formatCurrency(reservationState.reservation[0].deposit - reservationState.reservation[0].total_amount)}</p>
+                                            )}
                                             <p><strong>Trạng thái:</strong> {statusMapping[reservation.status].text}</p>
-                                            {reservationState.reservation[0].deposit > reservationState.reservation[0].total_amount && (
+                                            {/* {reservationState.reservation[0].deposit > reservationState.reservation[0].total_amount && (
                                                 <span style={{ fontSize: '15px', color: 'red' }}>
                                                     Trả lại tiền cho khách.
                                                 </span>
-                                            )}
+                                            )} */}
                                         </div>
                                     </div>
                                 );

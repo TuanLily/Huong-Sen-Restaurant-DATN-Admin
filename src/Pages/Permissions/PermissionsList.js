@@ -91,15 +91,6 @@ export default function RolesEdit() {
     }
   }, [rolePermissionsState, selectedRole]);
 
-  // // Chuyển trạng thái chọn của một quyền cụ thể
-  // const handleCheckboxChange = (id) => {
-  //   setSelectedPermissions((prev) =>
-  //     prev.includes(id)
-  //       ? prev.filter((permission) => permission !== id)
-  //       : [...prev, id]
-  //   );
-  // };
-
   // Chuyển trạng thái chọn của một quyền cụ thể
   const handleCheckboxChange = (id, label, group) => {
     setSelectedPermissions((prev) => {
