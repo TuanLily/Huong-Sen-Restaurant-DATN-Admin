@@ -12,6 +12,7 @@ import {
   updateReservationOrder,
   fetchReservations,
   deleteReservationDetail,
+  fetchReservationsID,
 } from "../../Actions/Reservations_t_AdminActions";
 import { SuccessAlert, DangerAlert } from "../../Components/Alert/Alert";
 import { useForm } from "react-hook-form";
@@ -72,7 +73,7 @@ export default function ReservationUpdate() {
   const customerInfo = watch();
 
   useEffect(() => {
-    dispatch(fetchReservations());
+    dispatch(fetchReservationsID(id));
     dispatch(
       fetchProductHoatDongReser(searchTerm, urlPage, productState.pageSize)
     );
@@ -123,30 +124,35 @@ export default function ReservationUpdate() {
   }, [reservationState.reservation, setValue, reservationId]);
 
   const calculateTotalAmount = () => {
+    if (!reservationState) {
+      console.warn('Reservation state is not ready');
+      return 0;
+    }
+  
     const selectedProducts = Object.entries(quantities).map(([id, quantity]) => {
       const product = productState.product.find((p) => p.id === parseInt(id));
       const price =
         product && product.sale_price
-          ? product.price - product.sale_price
-          : product.price;
+          ? product.sale_price
+          : product?.price;
       return product && quantity > 0 ? price * quantity : 0;
     });
   
-    const totalSelected = selectedProducts.reduce(
-      (sum, price) => sum + price,
-      0
-    );
-  
-    const totalGrouped = groupedReservationDetails.reduce(
-      (sum, item) => sum + item.totalPrice,
-      0
-    );
+    const totalSelected = selectedProducts.reduce((sum, price) => sum + price, 0);
+    const totalGrouped = groupedReservationDetails.reduce((sum, item) => sum + item.totalPrice, 0);
   
     const subtotal = totalSelected + totalGrouped;
-    const vat = subtotal * 0.1; // Tính VAT 10%
+    const reservation = reservationState.reservation[0];
+    const discount = reservation.discount; // Giảm giá mặc định là 0 nếu không có
+  const discountAmount = subtotal * (discount / 100);
+  console.log(reservation.discount);
   
-    return subtotal + vat; // Tổng cộng bao gồm VAT
+    const vat = subtotal  * 0.1;
+  
+    return subtotal - discountAmount + vat;
   };
+  
+  
   
 
   useEffect(() => {
