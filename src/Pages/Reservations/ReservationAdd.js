@@ -102,9 +102,15 @@ export default function ReservationAdd() {
     const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
     const vat = total * 0.1; // Tính VAT
     const deposit = isDeposit ? total * 0.3 : 0;
-    const totalAfterDeposit = total + vat - deposit; // Cộng VAT và trừ đặt cọc
+    const totalAfterDeposit = total + vat - deposit;
+    const totalAmount = total + vat;
+    setValue("vat", vat); // Cộng VAT và trừ đặt cọc
     setValue("deposit", deposit);
-    setValue("totalAmount", totalAfterDeposit > 0 ? totalAfterDeposit : 0);
+    setValue(
+      "totalAfterDeposit",
+      totalAfterDeposit > 0 ? totalAfterDeposit : 0
+    );
+    setValue("totalAmount", totalAmount > 0 ? totalAmount : 0);
   }, [quantities, productState.product, setValue, isDeposit]);
 
   const handleSearch = (event) => {
@@ -222,6 +228,7 @@ export default function ReservationAdd() {
 
   const handleDepositChange = (event) => {
     setIsDeposit(event.target.checked);
+    setValue("status", event.target.checked ? 3 : 4);
   };
 
   const toggleDropdown = () => setIsOpen(!isOpen);
@@ -259,56 +266,6 @@ export default function ReservationAdd() {
                       )}
                     </div>
                     <div className="form-group">
-                      <label>Email (không bắt buộc)</label>
-                      <input
-                        type="email"
-                        className={`form-control ${
-                          errors.email ? "is-invalid" : ""
-                        }`}
-                        {...register("email", {
-                          pattern: {
-                            value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
-                            message: "Email không hợp lệ",
-                          },
-                        })}
-                        placeholder="Nhập email"
-                      />
-                      {errors.email && (
-                        <div className="invalid-feedback">
-                          {errors.email.message}
-                        </div>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label>Số lượng người</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        placeholder="Nhập số lượng người"
-                        defaultValue={1}
-                        {...register("partySize")}
-                      />
-                      {errors.partySize && (
-                        <small className="text-danger">
-                          {errors.partySize.message}
-                        </small>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label>Tổng tiền</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        {...register("totalAmount")}
-                        readOnly
-                        placeholder="0VND"
-                        value={formatCurrency(customerInfo.totalAmount)}
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="form-group">
                       <label>Số điện thoại</label>
                       <input
                         type="number"
@@ -328,6 +285,27 @@ export default function ReservationAdd() {
                       {errors.tel && (
                         <div className="invalid-feedback">
                           {errors.tel.message}
+                        </div>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Email (không bắt buộc)</label>
+                      <input
+                        type="email"
+                        className={`form-control ${
+                          errors.email ? "is-invalid" : ""
+                        }`}
+                        {...register("email", {
+                          pattern: {
+                            value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                            message: "Email không hợp lệ",
+                          },
+                        })}
+                        placeholder="Nhập email"
+                      />
+                      {errors.email && (
+                        <div className="invalid-feedback">
+                          {errors.email.message}
                         </div>
                       )}
                     </div>
@@ -374,8 +352,37 @@ export default function ReservationAdd() {
                         </div>
                       )}
                     </div>
-
                     <div className="form-group">
+                      <label>Số lượng người</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        placeholder="Nhập số lượng người"
+                        defaultValue={1}
+                        // Chặn nhập số lớn hơn 8
+                        step={1} // Chỉ cho phép nhập số nguyên
+                        {...register("partySize", {
+                          required: "Số lượng người là bắt buộc",
+                          validate: (value) => {
+                            if (value < 1) {
+                              return "Số lượng người phải lớn hơn 0";
+                            }
+                            if (value > 8) {
+                              return "Số lượng người không được vượt quá 8";
+                            }
+                            return true; // Giá trị hợp lệ
+                          },
+                        })}
+                      />
+                      {errors.partySize && (
+                        <small className="text-danger">
+                          {errors.partySize.message}
+                        </small>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group" hidden>
                       <label>Trạng thái</label>
                       <select
                         className="form-select form-control"
@@ -384,6 +391,55 @@ export default function ReservationAdd() {
                         <option value={3}>Đã thanh toán cọc</option>
                         <option value={4}>Chờ thanh toán toàn bộ đơn</option>
                       </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Tổng tiền</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        {...register("totalAmount")}
+                        readOnly
+                        placeholder="0VND"
+                        value={formatCurrency(customerInfo.totalAmount)}
+                      />
+                    </div>
+                    {isDeposit ? (
+                      <div className="form-group">
+                        <label>Số tiền còn lại</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          {...register("totalAfterDeposit")}
+                          readOnly
+                          placeholder="0VND"
+                          value={formatCurrency(
+                            watch("totalAfterDeposit") || 0
+                          )}
+                        />
+                      </div>
+                    ) : null}
+
+                    <div className="form-group">
+                      <label>Tiền thuế</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        {...register("vat")}
+                        readOnly
+                        placeholder="0VND"
+                        value={formatCurrency(watch("vat") || 0)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Tiền cọc</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        {...register("deposit")}
+                        readOnly
+                        placeholder="0VND"
+                        value={formatCurrency(customerInfo.deposit)}
+                      />
                     </div>
                     <div className="form-group">
                       <label>Đặt cọc</label>
@@ -405,9 +461,6 @@ export default function ReservationAdd() {
                             >
                               <span>Đặt cọc 30%</span>
                               <span> | </span>
-                              <span>
-                                {formatCurrency(customerInfo.deposit)}
-                              </span>
                             </div>
                           }
                         />
@@ -590,7 +643,7 @@ export default function ReservationAdd() {
                               )}
                             </tbody>
                           </table>
-                          <div className="row justify-content-center mb-3 mx-1">
+                          <div className="row justify-content-center mb-3 mx-1 flex items-center space-x-4">
                             <CustomPagination
                               count={productState.totalPages} // Tổng số trang từ state
                               onPageChange={handlePageChange} // Hàm chuyển trang
@@ -605,16 +658,24 @@ export default function ReservationAdd() {
                           </div>
                         </div>
                       </div>
-                      <div className="card-footer">
-                        <button type="submit" className="btn btn-primary px-5">
-                          Thêm
-                        </button>
-                        <Link
-                          to="/reservation"
-                          className="btn btn-secondary mx-3 px-5"
-                        >
-                          Hủy
-                        </Link>
+                      <div className="card-footer d-flex justify-content-between align-items-center">
+                        <div>
+                          <button
+                            type="submit"
+                            className="btn btn-primary px-5"
+                          >
+                            Thêm
+                          </button>
+                          <Link
+                            to="/reservation"
+                            className="btn btn-secondary mx-3 px-5"
+                          >
+                            Hủy
+                          </Link>
+                        </div>
+                        <h3 className="mx-5">
+                          Tổng tiền: {formatCurrency(customerInfo.totalAmount)}
+                        </h3>
                       </div>
                     </div>
                   </div>

@@ -67,6 +67,7 @@ export default function ReservationUpdate() {
       notes: "",
       totalAmount: 0,
       status: 2,
+      deposit: 0,
     },
   });
 
@@ -90,6 +91,8 @@ export default function ReservationUpdate() {
         setValue("fullname", reservation.fullname || "");
         setValue("email", reservation.email || "");
         setValue("tel", reservation.tel || "");
+        setValue("deposit", reservation.deposit || 0); // Đặt cọc
+        setValue("discount", reservation.discount || 0);
 
         // Chuyển đổi reservation_date sang giờ Việt Nam
         const reservationDate = reservation.reservation_date
@@ -114,7 +117,7 @@ export default function ReservationUpdate() {
         } else {
           setValue("reservation_date", "");
         }
-
+        setValue("deposit", reservation.deposit || 0);
         setValue("party_size", reservation.party_size);
         setValue("note", reservation.note || "");
         setValue("totalAmount", reservation.totalAmount || 0);
@@ -125,35 +128,38 @@ export default function ReservationUpdate() {
 
   const calculateTotalAmount = () => {
     if (!reservationState) {
-      console.warn('Reservation state is not ready');
+      console.warn("Reservation state is not ready");
       return 0;
     }
-  
-    const selectedProducts = Object.entries(quantities).map(([id, quantity]) => {
-      const product = productState.product.find((p) => p.id === parseInt(id));
-      const price =
-        product && product.sale_price
-          ? product.sale_price
-          : product?.price;
-      return product && quantity > 0 ? price * quantity : 0;
-    });
-  
-    const totalSelected = selectedProducts.reduce((sum, price) => sum + price, 0);
-    const totalGrouped = groupedReservationDetails.reduce((sum, item) => sum + item.totalPrice, 0);
-  
+
+    const selectedProducts = Object.entries(quantities).map(
+      ([id, quantity]) => {
+        const product = productState.product.find((p) => p.id === parseInt(id));
+        const price =
+          product && product.sale_price ? product.sale_price : product?.price;
+        return product && quantity > 0 ? price * quantity : 0;
+      }
+    );
+
+    const totalSelected = selectedProducts.reduce(
+      (sum, price) => sum + price,
+      0
+    );
+    const totalGrouped = groupedReservationDetails.reduce(
+      (sum, item) => sum + item.totalPrice,
+      0
+    );
+
     const subtotal = totalSelected + totalGrouped;
     const reservation = reservationState.reservation[0];
     const discount = reservation.discount; // Giảm giá mặc định là 0 nếu không có
-  const discountAmount = subtotal * (discount / 100);
-  console.log(reservation.discount);
-  
-    const vat = subtotal  * 0.1;
-  
+    const discountAmount = subtotal * (discount / 100);
+    console.log(reservation.discount);
+
+    const vat = subtotal * 0.1;
+
     return subtotal - discountAmount + vat;
   };
-  
-  
-  
 
   useEffect(() => {
     const selectedProducts = Object.entries(quantities)
@@ -169,8 +175,24 @@ export default function ReservationUpdate() {
         return null;
       })
       .filter((item) => item !== null);
-
-    const total = selectedProducts.reduce((sum, item) => sum + item.price, 0);
+    const totalGrouped = groupedReservationDetails.reduce(
+      (sum, item) => sum + item.totalPrice,
+      0
+    );
+    const total =
+      selectedProducts.reduce((sum, item) => sum + item.price, 0) +
+      totalGrouped;
+    const subtotal = selectedProducts.reduce(
+      (sum, item) => sum + item.price,
+      0
+    );
+    const reservation = reservationState.reservation[0];
+    const discount = reservation.discount; // Giảm giá mặc định là 0 nếu không có
+    const discountAmount = total * (discount / 100);
+    const vat = subtotal * 0.1;
+    setValue("total", total);
+    setValue("vat", vat);
+    setValue("discountAmount", discountAmount);
   }, [quantities, productState.product, setValue]);
 
   const handleDeleteProduct = async (productId) => {
@@ -361,19 +383,6 @@ export default function ReservationUpdate() {
                       )}
                     </div>
                     <div className="form-group">
-                      <label>Tổng tiền</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        {...register("totalAmount")}
-                        readOnly
-                        placeholder="0 VND"
-                        value={formatCurrency(calculateTotalAmount())} // Hiển thị giá trị từ state
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="form-group">
                       <label>Số điện thoại</label>
                       <input
                         type="number"
@@ -408,16 +417,84 @@ export default function ReservationUpdate() {
                         <option value={5}>Hoàn thành đơn</option>
                       </select>
                     </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="form-group">
+                      <label>Tổng tiền</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        {...register("totalAmount")}
+                        readOnly
+                        placeholder="0 VND"
+                        value={formatCurrency(watch("total") || 0)}
+                        // Hiển thị giá trị từ state
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="deposit">Tiền đã đặt cọc:</label>
+                      <input
+                        type="text"
+                        id="deposit"
+                        {...register("deposit")}
+                        className="form-control"
+                        readOnly
+                        value={formatCurrency(watch("deposit") || 0)}
+                      />
+                    </div>
+
+                    {/* Hiển thị phần giảm giá chỉ nếu có giảm giá */}
+                    {watch("discount") > 0 && (
+                      <div className="form-group">
+                        <label htmlFor="discount">Giảm giá:</label>
+                        <input
+                          type="text"
+                          id="discount"
+                          {...register("discount")}
+                          className="form-control"
+                          readOnly
+                          value={formatCurrency(watch("discountAmount") || 0)}
+                        />
+                      </div>
+                    )}
+
+                    {/* Hiển thị phần tiền còn lại chỉ nếu tiền đặt cọc khác 0 */}
+                    {watch("deposit") > 0 && (
+                      <div className="form-group">
+                        <label htmlFor="total">Số tiền còn lại:</label>
+                        <input
+                          type="text"
+                          id="total"
+                          {...register("total")}
+                          className="form-control"
+                          readOnly
+                          value={formatCurrency(calculateTotalAmount())}
+                        />
+                      </div>
+                    )}
+
+                    <div className="form-group">
+                      <label>Tiền thuế</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        {...register("vat")}
+                        readOnly
+                        placeholder="0 VND"
+                        value={formatCurrency(watch("vat") || 0)} // Hiển thị giá trị từ state
+                      />
+                    </div>
+                  </div>
+                  <div className="col-12">
                     <div className="form-group">
                       <label>Ghi chú</label>
-                      <input
+                      <textarea
                         className="form-control full-width "
                         {...register("notes")}
                         placeholder="Nhập ghi chú"
-                      ></input>
+                      ></textarea>
                     </div>
                   </div>
-                  <div className="col-12"></div>
                 </div>
               </div>
             </div>
@@ -581,7 +658,13 @@ export default function ReservationUpdate() {
                                   .map((product) => (
                                     <tr key={product.id}>
                                       <td>{product.name}</td>
-                                      <td>{formatCurrency(product.sale_price ? product.price - product.sale_price : product.price)}</td>
+                                      <td>
+                                        {formatCurrency(
+                                          product.sale_price
+                                            ? product.price - product.sale_price
+                                            : product.price
+                                        )}
+                                      </td>
                                       <td className="d-flex justify-content-center align-items-center">
                                         {/* Nhóm số lượng với các nút dính liền */}
                                         <div
@@ -669,16 +752,24 @@ export default function ReservationUpdate() {
                           </div>
                         </div>
                       </div>
-                      <div className="card-footer">
-                        <button type="submit" className="btn btn-primary px-5">
-                          Cập nhật
-                        </button>
-                        <Link
-                          to="/reservation"
-                          className="btn btn-secondary mx-3 px-5"
-                        >
-                          Hủy
-                        </Link>
+                      <div className="card-footer d-flex justify-content-between align-items-center">
+                        <div>
+                          <button
+                            type="submit"
+                            className="btn btn-primary px-5"
+                          >
+                            Cập nhật
+                          </button>
+                          <Link
+                            to="/reservation"
+                            className="btn btn-secondary mx-3 px-5"
+                          >
+                            Hủy
+                          </Link>
+                        </div>
+                        <h3 className="mx-5">
+                          Tổng tiền: {formatCurrency(calculateTotalAmount())}
+                        </h3>
                       </div>
                     </div>
                   </div>
