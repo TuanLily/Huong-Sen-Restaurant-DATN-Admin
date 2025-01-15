@@ -15,6 +15,9 @@ import SearchIcon from '@mui/icons-material/Search';
 import { getPermissions } from '../../Actions/GetQuyenHanAction';
 import { jwtDecode as jwt_decode } from 'jwt-decode';
 
+import DialogChangedishes from './DialogChangedishes'; // Popup hiển thị changedishes (tạo mới)
+import http from "../../Utils/Http";
+
 export default function ReservationList() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -147,6 +150,58 @@ export default function ReservationList() {
           window.location.href = momoResponse.payUrl;
         }
     }
+
+    const [openChangedishesDialog, setOpenChangedishesDialog] = useState(false);
+    const [selectedChangedishes, setSelectedChangedishes] = useState([]);
+    const [selecteDeposit, setSelectedDeposit] = useState(0);
+    const [selecteReservation_id, setSelectedReservation_id] = useState([]);
+
+    const pheDuyet = (changedishes, deposit, reservation_id ) => {
+        setSelectedChangedishes(changedishes);
+        setSelectedReservation_id(reservation_id)
+        setSelectedDeposit(deposit);
+        setOpenChangedishesDialog(true);
+    };
+
+    const handleConfirmChangedishes = async () => { 
+        try {
+            // Gọi API trực tiếp
+            const response = await http.post('http://localhost:6969/api/reservations_t_admin/changedishes', {
+                selectedChangedishes,
+                selecteReservation_id
+            });
+    
+            // Xử lý phản hồi từ server (nếu cần)
+            console.log("Response from server:", response.data);
+    
+            // Nếu bạn cần dispatch action sau khi gọi API
+            dispatch(fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , recodeSearch , urlPage));
+    
+            // Đóng dialog
+            setOpenChangedishesDialog(false);
+            setOpenSuccess(true);
+        } catch (error) {
+            alert('Thao tác không thành công');
+        }
+    };
+
+    const handleReject = async () => {
+        try {
+            // Gọi API trực tiếp
+            const response = await http.patch('http://localhost:6969/api/reservations_t_admin/notChange', {
+                selecteReservation_id
+            });
+    
+            // Nếu bạn cần dispatch action sau khi gọi API
+            dispatch(fetchReservations(nameSearch , phoneSearch , emailSearch , statusSearch , recodeSearch , urlPage));
+    
+            // Đóng dialog
+            setOpenChangedishesDialog(false)
+            setOpenSuccess(true);
+        } catch (error) {
+            alert('Thao tác không thành công');
+        }
+    };
 
     const handleEdit = (id) => {
         navigate(`edit/${id}`);
@@ -292,6 +347,11 @@ export default function ReservationList() {
                                                                         <i className="fas fa-credit-card"></i>
                                                                     </button>
                                                                 )}
+                                                                {(item.status == 3) && (item.number_change == 0) && (
+                                                                    <button className="btn" style={{ backgroundColor: '#8cd790', color: '#fff', border: 'none' }} onClick={() => pheDuyet(item.changedishes, item.deposit, item.id)}>
+                                                                        Duyệt
+                                                                    </button>
+                                                                )}
                                                                 </div>
                                                                 {activeDropdown === index && (
                                                                     <div className="dropdown-menu show" style={{ position: 'absolute', zIndex: 2, right: '5.9%' }}>
@@ -367,6 +427,14 @@ export default function ReservationList() {
                 </div>
             </div>
             <DialogConfirm open={open} onClose={handleClose} onConfirm={handleDelete} />
+            <DialogChangedishes 
+                open={openChangedishesDialog} 
+                onReject={handleReject}
+                onClose={() => setOpenChangedishesDialog(false)} 
+                changedishes={selectedChangedishes} 
+                deposit={selecteDeposit}
+                onConfirm={handleConfirmChangedishes}  
+            />
         </div>
     );
 }
