@@ -171,6 +171,15 @@ export default function TableList() {
         console.error("Error deleting table:", error);
         setErrorMessage('Xóa bàn không thành công!');
         setOpenError(true);
+        const formattedDate = selectedDate.format("YYYY-MM-DD");
+        dispatch(
+          fetchTables(
+            searchTerm,
+            urlPage,
+            searchCapacity,
+            formattedDate
+          )
+        );
       }
     }
   };
