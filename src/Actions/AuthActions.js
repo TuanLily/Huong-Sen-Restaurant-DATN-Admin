@@ -58,6 +58,7 @@ export const fetchLogin = (email, password) => {
     return async dispatch => {
         dispatch(fetchAuthRequest());
         try {
+            console.log(">>> check url:, ", `${API_ENDPOINT}/auth_admin/login`)
             const response = await axios.post(`${API_ENDPOINT}/auth_admin/login`, { email, password });
             if (response.status === 200) {
                 const data = response.data;
